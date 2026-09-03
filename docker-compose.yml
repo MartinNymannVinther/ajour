@@ -1,0 +1,65 @@
+# Production compose for Ajour, designed to be run by Coolify on an EU VPS.
+# See docs/deploy.md. All secrets come from the environment (Coolify UI);
+# nothing here has a real default.
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ajour
+      AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:?set AJOUR_APP_PASSWORD}
+      AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:?set AJOUR_AUTH_PASSWORD}
+    volumes:
+      - ajour-pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ajour"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: migrator
+    restart: "no"
+    environment:
+      MIGRATION_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:?}@db:5432/ajour
+      # The migration step is what gives the runtime roles their login
+      # rights: the Postgres init directory is bind-mounted from the
+      # repository and is empty on a build system that cleans up after
+      # itself. Learned the hard way on the first deploy.
+      AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:?}
+      AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:?}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        # Coolify and any CI runner should pass these so the running app can
+        # name the code it was built from. Unset means "unknown", not a lie.
+        AJOUR_COMMIT: ${AJOUR_COMMIT:-}
+        AJOUR_BUILT_AT: ${AJOUR_BUILT_AT:-}
+    restart: unless-stopped
+    environment:
+      APP_DATABASE_URL: postgres://ajour_app:${AJOUR_APP_PASSWORD:?}@db:5432/ajour
+      AUTH_DATABASE_URL: postgres://ajour_auth:${AJOUR_AUTH_PASSWORD:?}@db:5432/ajour
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:?set BETTER_AUTH_URL, e.g. https://ajour.haij.dk}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  ajour-pgdata:

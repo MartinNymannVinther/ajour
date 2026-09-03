@@ -1,0 +1,31 @@
+# Development infrastructure for Ajour.
+# Runs Postgres 16 only; the app runs on the host via `pnpm dev`.
+#
+#   docker compose -f docker-compose.dev.yml up -d
+#   pnpm db:migrate
+#   pnpm dev
+
+services:
+  db:
+    image: postgres:16
+    container_name: ajour-dev-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ajour
+      # Runtime role passwords, consumed by docker/postgres-init/01-roles.sh.
+      AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:-ajour_app}
+      AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:-ajour_auth}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ajour-dev-pgdata:/var/lib/postgresql/data
+      - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ajour"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  ajour-dev-pgdata:
