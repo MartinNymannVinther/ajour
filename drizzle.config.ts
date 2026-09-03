@@ -7,7 +7,7 @@ if (!process.env.MIGRATION_DATABASE_URL) {
 
 export default defineConfig({
   dialect: "postgresql",
-  schema: "./src/core/db/schema.ts",
+  schema: "./src/core/db/schema/index.ts",
   out: "./drizzle",
   dbCredentials: {
     url: process.env.MIGRATION_DATABASE_URL,
