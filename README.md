@@ -64,7 +64,7 @@ Requirements: Node 22+, pnpm 10+ (`brew install pnpm`; newer Node builds no long
 git clone https://github.com/MartinNymannVinther/ajour.git && cd ajour
 pnpm install
 cp .env.example .env                            # defaults work for local dev
-docker compose -f docker-compose.dev.yml up -d  # Postgres 16 + runtime roles
+docker compose -f docker-compose.dev.yml up -d --wait  # Postgres 16 + runtime roles, ready
 pnpm db:migrate                                 # tables, RLS, audit triggers
 pnpm dev                                        # http://localhost:3000
 ```
@@ -83,6 +83,12 @@ pnpm lint && pnpm typecheck
 
 The tests run against the database from the compose file and never call
 an AI model, so they pass offline and without keys.
+
+`--wait` matters the first time: the Postgres image has to be pulled and
+the cluster initialised, and a `pnpm db:migrate` fired before that is done
+fails with a connection error and leaves an empty database behind. If the
+app then answers every page with "Failed query: select count(*) from
+users", run `pnpm db:migrate` again once the container is healthy.
 
 ## Running it for real
 

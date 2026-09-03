@@ -14,7 +14,7 @@ needs a new ADR that names the trade-off.
 ## Practicalities
 
 - Node 22+, pnpm. `pnpm install`, dev database via
-  `docker compose -f docker-compose.dev.yml up -d`, then `pnpm db:migrate`.
+  `docker compose -f docker-compose.dev.yml up -d --wait`, then `pnpm db:migrate`.
 - Conventional commits (`feat(scope): ...`, `fix: ...`, `test: ...`).
 - Code, comments and docs in English. UI copy in Danish first
   (`messages/da.json`) with an English translation (`messages/en.json`);
