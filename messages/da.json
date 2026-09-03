@@ -8,7 +8,9 @@
     "back": "Tilbage",
     "error": "Noget gik galt. Prøv igen.",
     "edit": "Redigér",
-    "delete": "Slet"
+    "delete": "Slet",
+    "week": "Uge {number}",
+    "weekOf": "Uge {date}"
   },
   "landing": {
     "nav": {
@@ -158,10 +160,14 @@
       "title": "Projekter",
       "subtitle": "Alle projekter i {workspace}.",
       "emptyTitle": "Ingen projekter endnu",
-      "emptyBody": "Her kommer dine projekter til at bo: planen som tidslinje, ugens status og beslutningerne undervejs. Oprettelse af projekter er næste skridt i opbygningen.",
+      "emptyBody": "Her kommer dine projekter til at bo. Start med at beskrive et projekt med dine egne ord, eller vælg en skabelon, så står planen klar med det samme.",
       "passkeyPromptTitle": "Gør din konto mere sikker",
       "passkeyPromptBody": "Tilføj en passkey, så du kan logge ind uden adgangskode.",
-      "passkeyPromptCta": "Tilføj passkey"
+      "passkeyPromptCta": "Tilføj passkey",
+      "new": "Nyt projekt",
+      "progress": "{done} af {total} opgaver færdige",
+      "nextMilestone": "Næste milepæl: {title} ({date})",
+      "noOpenMilestones": "Ingen åbne milepæle"
     },
     "security": {
       "title": "Sikkerhed",
@@ -226,6 +232,21 @@
       "appliedAtLabel": "Senest kørt",
       "unknown": "Ukendt",
       "license": "Ajour er open source under AGPL-3.0 og en del af Haij-familien."
+    },
+    "dataExport": {
+      "title": "Data og eksport",
+      "subtitle": "Tag en komplet kopi af alt hvad dette arbejdsrum indeholder.",
+      "xlsxTitle": "Regneark",
+      "xlsxBody": "Én fil med en fane per type data. Til dig selv, til styregruppen eller til enhver der skal kigge med uden at kende Ajour.",
+      "xlsxAction": "Hent regneark",
+      "jsonTitle": "Maskinlæsbar kopi",
+      "jsonBody": "De samme data som JSON, med alle id'er bevaret. Det er den fil der gør, at du kan flytte til noget andet end Ajour uden at miste sammenhængen mellem projekter, opgaver og statusser.",
+      "jsonAction": "Hent JSON",
+      "sheetsLabel": "Faner i filen:",
+      "membersSheet": "Brugere",
+      "notBackupTitle": "Det her er ikke en backup.",
+      "notBackupBody": "En eksport kan læses, men den kan ikke lægges tilbage, og den er kun så ny som den dag du hentede den. Den dag databasen er væk, er det det natlige krypterede dump der redder dig.",
+      "privacy": "Eksporten indeholder navne på de personer, projekterne nævner, og hele arbejdsrummets historik. Adgangskoder og passkeys kommer aldrig med, og delelinks eksporteres uden deres nøgle. At du henter filen bliver skrevet i revisionssporet."
     }
   },
   "settings": {
@@ -234,7 +255,10 @@
     "nav": {
       "security": "Sikkerhed",
       "about": "Om",
-      "access": "Adgang"
+      "access": "Adgang",
+      "workspace": "Arbejdsrum",
+      "ai": "AI",
+      "data": "Data"
     },
     "access": {
       "title": "Adgang til installationen",
@@ -267,6 +291,514 @@
       "stateExpired": "Udløbet",
       "stateRevoked": "Erstattet",
       "errorInvalid": "Tjek e-mail og navnet på arbejdsrummet."
+    },
+    "workspace": {
+      "title": "Arbejdsrum",
+      "subtitle": "Hvem der er med, og vejen ud igen.",
+      "createdOn": "Oprettet {date}",
+      "name": "Navn",
+      "email": "E-mail",
+      "role": "Rolle",
+      "roles": {
+        "owner": "Ejer",
+        "admin": "Administrator",
+        "member": "Medlem"
+      },
+      "delete": {
+        "title": "Slet arbejdsrummet",
+        "body": "Alt i arbejdsrummet forsvinder: projekter, planer, statusser, beslutninger, delelinks og revisionssporet om dem. Det kan ikke fortrydes.",
+        "exportFirst": "Hent en eksport først, hvis du vil beholde noget. Den findes under Data.",
+        "typeName": "Skriv {name} for at bekræfte",
+        "action": "Slet arbejdsrummet permanent",
+        "deleting": "Sletter …",
+        "failed": "Arbejdsrummet blev ikke slettet. Prøv igen.",
+        "notOwner": "Kun ejeren af arbejdsrummet kan slette det.",
+        "nameMismatch": "Navnet passer ikke. Skriv arbejdsrummets navn præcis som det står."
+      }
+    },
+    "ai": {
+      "title": "AI",
+      "subtitle": "Hvilken motor der svarer, og hvad den må.",
+      "providerTitle": "Sprogmodel",
+      "providerHint": "Modellen sættes i miljøet, ikke i brugerfladen: den hører til installationen, ikke til det enkelte arbejdsrum.",
+      "provider": "Udbyder",
+      "model": "Model",
+      "noModel": "Ingen model konfigureret",
+      "setupIntro": "Ajour virker uden en model. Vil du have rigtige forslag og fritekstsvar, så sæt en op:",
+      "setupOutro": "Kør derefter Ajour igen. Uden en model svarer reservemotoren, og de tre flows virker stadig.",
+      "fallbackTitle": "Reservemotoren",
+      "fallbackBody": "Når ingen model er sat op, eller modellen ikke svarer, træder motoren {engine} til.",
+      "fallbackDetail": "Den er deterministisk: den lægger en plan ud fra skabeloner, regner replanlægninger ud, skriver statusudkast ud fra det der faktisk er sket, og forstår faste vendinger i chatten som „budget: 80.000“, „forhindring: …“ og „beslutning: …“. Den rådgiver ikke frit. Klip internettet, og projektet kan stadig køres.",
+      "limitsTitle": "Loft over AI-kald",
+      "limitsHint": "Et modelkald koster penge på en hostet installation og minutter på en lokal. Tallene er rundhåndede for et menneske og nærige for et script.",
+      "perUser": "Kald pr. bruger i timen",
+      "perWorkspace": "Kald pr. arbejdsrum i døgnet",
+      "messageLength": "Tegn pr. besked",
+      "principlesTitle": "Sådan bruger Ajour AI",
+      "principleDecides": "AI'en foreslår og udfører, men mennesket beslutter. Den sender aldrig noget ud af huset og sletter aldrig noget.",
+      "principleUndo": "Der gemmes en kopi af hele projektet før hver AI-ændring, og hver ændring kan fortrydes fra beskeden der lavede den.",
+      "principleData": "Det du og dine kolleger skriver, sendes til modellen som data, aldrig som instruktioner, og modellens svar valideres mod projektets egne id'er, før noget skrives.",
+      "principleSovereign": "Modellen kan skiftes ud, også til en lokal. Hvem der kan se hvad står i docs/subprocessors.md."
+    }
+  },
+  "projects": {
+    "footerHint": "Alt på siden kan rettes. Spørg AI'en, hvis du er i tvivl om næste skridt.",
+    "states": {
+      "label": "Status",
+      "todo": "Ikke startet",
+      "doing": "I gang",
+      "done": "Færdig"
+    },
+    "errors": {
+      "conflict": "Nogen har ændret det samme, mens du skrev. Siden er hentet igen, så du kan se hvad der står nu.",
+      "notFound": "Det findes ikke længere.",
+      "invalid": "Noget i det du skrev kunne ikke bruges. Se felterne igennem.",
+      "unauthorized": "Du er ikke logget ind længere.",
+      "generic": "Det gik galt. Prøv igen."
+    },
+    "header": {
+      "nameLabel": "Projektets navn",
+      "goalPlaceholder": "Hvad skal være sandt, når projektet er slut?",
+      "roles": "Projektejer: {owner} · Projektleder: {manager}",
+      "unset": "ikke sat",
+      "owner": "Projektejer",
+      "manager": "Projektleder",
+      "edit": "Ret",
+      "save": "Gem",
+      "cancel": "Annuller",
+      "newStatus": "Ny ugestatus"
+    },
+    "overview": {
+      "tasks": "Opgaver",
+      "doneOf": "{done} af {total}",
+      "finished": "færdige",
+      "nextMilestone": "Næste milepæl",
+      "noOpenMilestones": "Ingen åbne milepæle",
+      "obstacles": "Forhindringer",
+      "openCount": "{count, plural, =0 {ingen åbne} one {åben} other {åbne}}",
+      "economy": "Økonomi",
+      "ofBudget": "af {amount}",
+      "noBudget": "Intet budget sat",
+      "latestStatus": "Seneste status",
+      "noneYet": "Ingen endnu"
+    },
+    "plan": {
+      "title": "Plan",
+      "viewLabel": "Vælg visning",
+      "timeline": "Tidslinje",
+      "board": "Board",
+      "timelineHelp": "Klik på en opgave eller en milepæl for at åbne den. Træk i en opgave for at flytte den i tid, træk den op eller ned til en anden milepæl, træk i højre kant for at ændre længden, og i en milepæl for at få et forslag til replanlægning. Med tastaturet: piletaster flytter, skift ændrer længden, alt flytter til en anden milepæl.",
+      "boardHelp": "Træk et kort til en anden kolonne, eller brug statusvælgeren på kortet. Det er den samme plan som på tidslinjen, bare et andet blik."
+    },
+    "timeline": {
+      "week": "Uge {number}",
+      "today": "i dag",
+      "otherTasks": "Øvrige opgaver",
+      "dropHere": "Slip her",
+      "zoomIn": "Zoom ind i tid",
+      "zoomOut": "Zoom ud i tid",
+      "noOwner": "ingen ansvarlig",
+      "taskHandle": "{title}, {owner}, {from} til {to}. Piletaster flytter opgaven, skift og piletaster ændrer længden, alt og piletaster flytter til en anden milepæl.",
+      "milestoneHandle": "Milepælen {title}, {date}. Piletaster flytter milepælen og foreslår en replanlægning."
+    },
+    "board": {
+      "empty": "Ingen opgaver her. Træk et kort hertil, eller brug statusvælgeren på kortet.",
+      "hint": {
+        "todo": "Backlog",
+        "doing": "Arbejdes på nu",
+        "done": "Lukket"
+      }
+    },
+    "milestones": {
+      "title": "Milepæle",
+      "empty": "Ingen milepæle endnu.",
+      "reached": "Nået",
+      "open": "Åben",
+      "criterion": "Nået når: {text}",
+      "namePlaceholder": "Milepælens navn",
+      "dateLabel": "Dato",
+      "ownerPlaceholder": "Ejer",
+      "criterionPlaceholder": "Nået når … (ét acceptkriterium, fx: kontrakten er underskrevet)",
+      "save": "Gem",
+      "close": "Luk",
+      "delete": "Slet milepæl",
+      "deleteQuestion": "Slet milepælen „{title}“?",
+      "dateNote": "Ændrer du datoen her, flyttes opgaverne ikke med. Træk i diamanten på tidslinjen, hvis opgaverne skal følge med.",
+      "newPlaceholder": "Ny milepæl …",
+      "add": "Tilføj"
+    },
+    "tasks": {
+      "title": "Opgaver",
+      "selectedTitle": "Valgt opgave",
+      "empty": "Ingen opgaver endnu.",
+      "noOwner": "Ingen ansvarlig",
+      "pickOnBoard": "Klik på et kort på boardet for at åbne opgaven her."
+    },
+    "newTask": {
+      "open": "+ Ny opgave",
+      "titlePlaceholder": "Hvad skal gøres?",
+      "milestoneLabel": "Hvilken milepæl leder opgaven frem mod?",
+      "noMilestone": "Ingen milepæl (Øvrige opgaver)",
+      "ownerPlaceholder": "Ansvarlig",
+      "startLabel": "Startdato",
+      "endLabel": "Slutdato",
+      "to": "til",
+      "create": "Opret",
+      "close": "Luk"
+    },
+    "taskEditor": {
+      "owner": "Ansvarlig (én person)",
+      "participants": "Deltagere, adskilt med komma",
+      "milestone": "Hvilken milepæl hører opgaven til?",
+      "noMilestone": "Ingen milepæl",
+      "before": "Frem mod milepælen",
+      "after": "Efter milepælen",
+      "save": "Gem",
+      "close": "Luk",
+      "checklist": "Tjekliste",
+      "newItem": "Nyt punkt på tjeklisten …",
+      "removeItem": "Fjern punktet {title}",
+      "add": "Tilføj",
+      "expenses": "Økonomiposter på opgaven: {list}",
+      "delete": "Slet opgaven"
+    },
+    "economy": {
+      "title": "Økonomi",
+      "shareOfBudget": "{percent} % af budget",
+      "budget": "Budget: {amount}",
+      "setBudget": "Sæt et budget",
+      "budgetPlaceholder": "Budget i kr.",
+      "edit": "Ret",
+      "save": "Gem",
+      "summary": "{planned} registreret · {incurred} afholdt",
+      "overBudget": "(over budget)",
+      "incurred": "Afholdt",
+      "planned": "Forventet",
+      "newLine": "Ny post …",
+      "amount": "Kr.",
+      "linkedTask": "Tilknyttet opgave",
+      "noTask": "Ingen opgave tilknyttet",
+      "alreadyIncurred": "Allerede afholdt",
+      "add": "Tilføj",
+      "remove": "Fjern",
+      "removeQuestion": "Fjern posten „{title}“ ({amount})?",
+      "notShared": "Økonomi vises aldrig på det åbne delelink."
+    },
+    "obstacles": {
+      "title": "Forhindringer",
+      "empty": "Ingen åbne forhindringer. Skriv den første ned, den dag du ser den.",
+      "resolve": "Markér som løst",
+      "newPlaceholder": "Ny forhindring …",
+      "add": "Tilføj"
+    },
+    "decisions": {
+      "title": "Beslutninger",
+      "empty": "Ingen endnu. Skriv den første ned herunder.",
+      "byAi": "foreslået af AI'en",
+      "newPlaceholder": "Ny beslutning …",
+      "notePlaceholder": "Hvorfor? (valgfrit)",
+      "add": "Tilføj",
+      "hint": "Du kan også sige det til AI'en: „Log beslutningen: vi holder konferencen på en lørdag.“"
+    },
+    "statuses": {
+      "title": "Statusser",
+      "empty": "Ingen endnu. Lav den første ugestatus.",
+      "openPdf": "Åbn PDF"
+    },
+    "people": {
+      "title": "Personer",
+      "empty": "Ingen endnu. Navne dukker op, når du sætter en ansvarlig på en opgave.",
+      "onTasks": "{count, plural, =0 {ingen opgaver} one {1 opgave} other {# opgaver}}",
+      "rename": "Nyt navn",
+      "save": "Gem",
+      "remove": "Fjern",
+      "removeQuestion": "Fjern {name} fra arbejdsrummets personer?",
+      "hint": "Navne foreslås i alle personfelter, så de genbruges ens i stedet for at blive stavet på tre måder."
+    },
+    "history": {
+      "title": "Plan-historik",
+      "empty": "Ingen kopier endnu. Der gemmes automatisk en kopi af planen før hver replanlægning, hver sletning og hver AI-ændring.",
+      "labelPlaceholder": "Fx Planen efter opstartsmødet",
+      "defaultLabel": "Kopi af planen",
+      "save": "Gem kopi",
+      "back": "Tilbage til {name}",
+      "takenOn": "Kopi af planen fra {date}. Den nuværende plan er urørt, indtil du eventuelt gendanner.",
+      "restore": "Gendan denne plan",
+      "restoreQuestion": "Gendan planen fra denne kopi?",
+      "restoreNote": "Der gemmes en kopi af den nuværende plan først, så gendannelsen også kan fortrydes. Rækker, der er lavet siden kopien, står urørt.",
+      "restoreFailed": "Planen blev ikke gendannet. Prøv igen.",
+      "beforeRestore": "Før gendannelse af „{label}“"
+    },
+    "replan": {
+      "reason": "Milepælen „{title}“ er flyttet fra {from} til {to}.",
+      "snapshot": "Før replanlægning af „{title}“",
+      "decision": "Replanlægning: {title} flyttet til {date}",
+      "heading": "Milepælen „{title}“ flyttes fra {from} til {to}",
+      "thinking": "Regner på en replanlægning …",
+      "nothingElse": "Ingen opgaver eller senere milepæle behøver at flytte sig.",
+      "taskMove": "„{title}“: {oldFrom}–{oldTo} → {newFrom}–{newTo}",
+      "milestoneMove": "Milepælen „{title}“: {from} → {to}",
+      "approve": "Godkend replanlægning",
+      "cancel": "Fortryd"
+    },
+    "share": {
+      "open": "Del",
+      "title": "Delelinks",
+      "description": "Et link åbner projektets statusside for enhver, der har det. Ingen login. Økonomi, forhindringer, udkast og chat kommer aldrig med.",
+      "freshTitle": "Linket er lavet",
+      "copy": "Kopiér linket",
+      "copied": "Linket er kopieret.",
+      "copyFailed": "Kunne ikke kopiere. Markér linket og kopiér det selv.",
+      "shownOnce": "Linket vises kun her, én gang. Databasen gemmer kun en hash af det, så et mistet link trækkes tilbage og laves på ny.",
+      "labelPlaceholder": "Hvad er linket til? Fx styregruppen",
+      "expiryLabel": "Udløb",
+      "noExpiry": "Uden udløb",
+      "days": "Udløber om {days} dage",
+      "create": "Lav link",
+      "createFailed": "Linket blev ikke lavet. Prøv igen.",
+      "none": "Ingen aktive links.",
+      "unnamed": "Uden navn",
+      "expires": "Udløber {date}",
+      "revoke": "Træk tilbage",
+      "revoked": "Linket er trukket tilbage.",
+      "revokeFailed": "Linket blev ikke trukket tilbage. Prøv igen."
+    },
+    "start": {
+      "title": "Nyt projekt",
+      "subtitle": "Beskriv projektet med dine egne ord: hvad skal der ske, hvornår skal det være færdigt, og hvem er med. AI'en foreslår en plan, som du retter til og godkender.",
+      "templatesTitle": "Start fra en skabelon",
+      "templatesHint": "En skabelon giver en færdig plan med datoer regnet fra i dag, uden at spørge en model. Ret den til nedenfor, eller beskriv projektet og lad AI'en skræddersy den.",
+      "templateFailed": "Skabelonen kunne ikke hentes.",
+      "describeLabel": "Beskriv projektet",
+      "describePlaceholder": "Fx: Vi holder forårskonference for ca. 120 deltagere sidst i november. Vi mangler lokale, program og oplægsholdere, og vi er fem frivillige om det …",
+      "propose": "Foreslå en plan",
+      "proposeAgain": "Foreslå en ny plan",
+      "proposing": "Foreslår en plan …",
+      "modelWorking": "AI'en læser din beskrivelse. Det kan tage op mod et minut med en stor lokal model.",
+      "proposalFailed": "Der kom ikke noget forslag. Prøv igen.",
+      "rateLimited": "Der er brugt for mange AI-kald. Prøv igen om lidt.",
+      "fallbackNote": "Modellen svarede ikke, så du ser et forslag fra reservemotoren. Prøv igen for et skræddersyet forslag.",
+      "nameLabel": "Projektnavn",
+      "goalLabel": "Mål",
+      "budgetLabel": "Budget (kr., valgfrit)",
+      "budgetPlaceholder": "Fx 80000",
+      "milestonesLabel": "Milepæle",
+      "milestoneTitle": "Milepæl {number}",
+      "milestoneDate": "Dato for milepæl {number}",
+      "tasksLabel": "Opgaver",
+      "taskTitle": "Opgave {number}",
+      "taskOwner": "Ansvarlig for opgave {number}",
+      "taskStart": "Start på opgave {number}",
+      "taskEnd": "Slut på opgave {number}",
+      "owner": "Ansvarlig",
+      "removeTask": "Fjern opgaven {title}",
+      "previewLabel": "Sådan ser planen ud",
+      "previewHint": "Træk midt i en opgave for at flytte den, i højre kant for at ændre længden, og i en milepæl for at flytte den. Datofelterne ovenfor følger med.",
+      "approve": "Godkend planen og opret projektet",
+      "creating": "Opretter …",
+      "createFailed": "Projektet blev ikke oprettet. Prøv igen.",
+      "changeableLater": "Alt kan rettes bagefter, også på tidslinjen."
+    }
+  },
+  "chat": {
+    "title": "Spørg AI'en om projektet",
+    "subtitle": "Råd og ændringer i plan, økonomi, forhindringer og beslutninger. Alt kan fortrydes.",
+    "examples": "Fx: „Er planen realistisk?“, „Skub alle Sofies opgaver en uge“, „Sæt budgettet til 80.000 kr. og tilføj 12.000 kr. til forplejning“, „Notér en forhindring: oplægsholderen har meldt afbud“ eller „Log beslutningen: vi holder det på en lørdag“.",
+    "placeholder": "Skriv til AI'en om projektet …",
+    "send": "Send",
+    "thinking": "AI'en tænker …",
+    "applied": "Udført i projektet",
+    "rolledBack": "Rullet tilbage",
+    "undo": "Fortryd",
+    "failed": "Der gik noget galt. Prøv igen.",
+    "rateLimited": "Der er brugt for mange AI-kald i dag. Prøv igen om lidt.",
+    "fallback": "Modellen svarede ikke, så svaret kom fra reservemotoren. Den rådgiver ikke frit, men forstår „budget: 50000“, „forhindring: …“ og „beslutning: …“.",
+    "note": "Beder du om ændringer, laver AI'en dem med det samme. Der gemmes altid en kopi af hele projektet først, og du kan fortryde her eller gendanne fra Plan-historik.",
+    "snapshotLabel": "Før AI-ændring",
+    "beforeUndo": "Før fortrydelse af AI-ændring"
+  },
+  "tip": {
+    "label": "Dagens tip",
+    "loading": "AI'en kigger på projektet …",
+    "run": "Udfør",
+    "running": "Udfører …",
+    "again": "Kig igen",
+    "dismiss": "Skjul",
+    "applied": "Udført i projektet",
+    "answer": "AI'ens svar",
+    "undoHint": "Kan fortrydes i chatten under planen.",
+    "fallback": "Modellen svarede ikke; tippet bygger på systemets egne regler."
+  },
+  "status": {
+    "metaTitle": "Ugestatus",
+    "title": "{week}-status",
+    "subtitle": "AI'en har skrevet udkastet ud fra det, der faktisk er sket. Ret til, svar på det der mangler, og godkend.",
+    "drafting": "AI'en samler op og skriver udkastet. Det kan tage op mod et minut med en stor lokal model.",
+    "draftFailed": "Udkastet blev ikke skrevet. Prøv igen.",
+    "rateLimited": "Der er brugt for mange AI-kald. Prøv igen om lidt.",
+    "fallbackNote": "Modellen svarede ikke, så udkastet er lavet af reservemotoren. Tryk „Nyt udkast“ for at prøve igen.",
+    "draftLabel": "Udkast til status",
+    "questionsLabel": "AI'en mangler svar på",
+    "answerPlaceholder": "Skriv et kort svar (eller lad stå tomt)",
+    "answersNote": "Svar føjes til statussen, så alle kan se dem.",
+    "approve": "Godkend og del",
+    "approving": "Godkender …",
+    "approveFailed": "Statussen blev ikke godkendt. Prøv igen.",
+    "redraft": "Nyt udkast",
+    "cancel": "Annullér"
+  },
+  "share": {
+    "kicker": "Projektstatus · læsevisning",
+    "progress": "{done} af {total} opgaver færdige",
+    "nextMilestone": "næste milepæl: {title} ({date})",
+    "noStatus": "Der er ikke delt en status endnu.",
+    "planNow": "Planen lige nu",
+    "earlier": "Tidligere statusser",
+    "madeWith": "Lavet med {product}"
+  },
+  "pdf": {
+    "statusFor": "{week}-status",
+    "goal": "Mål",
+    "owner": "Projektejer",
+    "manager": "Projektleder",
+    "plan": "Planen",
+    "milestones": "Milepæle og opgaver",
+    "tasks": "Opgaver",
+    "obstacles": "Åbne forhindringer",
+    "decisions": "Beslutninger",
+    "decisionsSince": "Beslutninger siden {week}",
+    "economy": "Økonomi",
+    "economyLine": "{planned} registreret · {incurred} afholdt · budget {budget}",
+    "overBudget": "Registreret overstiger budgettet.",
+    "reached": "nået",
+    "open": "åben",
+    "criterion": "nået når",
+    "otherTasks": "Øvrige opgaver",
+    "none": "Ingen.",
+    "since": "siden {date}",
+    "madeWith": "Lavet med Ajour · ajour.haij.dk"
+  },
+  "help": {
+    "title": "Hjælp",
+    "intro": "To ting på denne side: hvordan værktøjet virker, og hvordan man driver et lille projekt. Den sidste del er den vigtigste.",
+    "howToTitle": "Sådan bruger du værktøjet",
+    "howTo": {
+      "start": {
+        "title": "Start et projekt",
+        "body": "Klik på Nyt projekt. Beskriv projektet med dine egne ord, eller vælg en af skabelonerne, så står en plan klar med det samme. AI'en foreslår mål, milepæle og opgaver, og du retter til og godkender. Intet gemmes, før du siger god for planen."
+      },
+      "tip": {
+        "title": "Dagens tip",
+        "body": "Øverst på projektsiden står dagens tip: AI'en har set på hele projektet og peger på den ene ting, du bør gøre i dag. Kan tippet udføres i planen, er der en Udfør-knap, som går gennem AI-chatten og kan fortrydes. Kig igen beder om en ny vurdering, og Skjul gemmer det væk til i morgen."
+      },
+      "maintain": {
+        "title": "Hold planen ved lige",
+        "body": "Alt vedligehold sker på projektsiden. Klik på en opgave for at åbne den: her sætter du ansvarlig, deltagere, tjekliste og hvilken milepæl opgaven hører til. Klik på en milepæl for at give den ejer, dato og et acceptkriterium. Træk i en opgave på tidslinjen for at flytte den, op eller ned for at skifte milepæl, i højre kant for at ændre længden. Med tastaturet gør piletasterne det samme. Trækker du i en milepæl, regner Ajour en replanlægning ud, som du godkender eller fortryder. Du kan også bare skrive til AI'en under planen: den svarer på spørgsmål og udfører det, du beder om, i hele projektet. Den sletter aldrig noget, og der gemmes altid en kopi af planen først."
+      },
+      "share": {
+        "title": "Del status",
+        "body": "Klik Ny ugestatus. AI'en skriver udkastet ud fra det, der faktisk er sket, og spørger om det, der mangler svar. Ret til og godkend. Statussen kan læses uden login via et delelink, og hver godkendt status kan hentes som PDF med planen, milepælene, forhindringerne og beslutningerne fra den dag. Økonomi kommer aldrig med på det åbne link."
+      }
+    },
+    "abcTitle": "Projektlederens ABC",
+    "abcIntro": "Ti ting der driver de fleste små projekter sikkert i mål. Ingen af dem kræver en projektuddannelse.",
+    "abc": {
+      "0": {
+        "title": "Start med at beskrive, hvad færdigt betyder",
+        "body": "Ikke hvad I skal lave, men hvad der skal være sandt, når projektet er slut. „Konferencen er afholdt med 100 tilmeldte“ er et mål. „Vi arbejder med konferencen“ er det ikke. Alt andet i planen hænger på den sætning."
+      },
+      "1": {
+        "title": "Én ansvarlig pr. opgave",
+        "body": "Flere må gerne hjælpe, men én person har opgaven. Alles ansvar er ingens ansvar, og det er den hyppigste grund til at små projekter siver. Er du i tvivl om hvem det er, så er det dig."
+      },
+      "2": {
+        "title": "Del arbejdet op i bidder på højst en uge",
+        "body": "En opgave på seks uger kan man ikke se skride. En opgave på fem dage kan. Små bidder gør fremdriften synlig og gør det muligt at fejre noget hver uge."
+      },
+      "3": {
+        "title": "Milepæle er løfter, så hav få af dem",
+        "body": "En milepæl er noget, omverdenen kan regne med. Tre til fem er nok i et lille projekt. Kan du ikke forklare hvorfor en milepæl findes, så slet den."
+      },
+      "4": {
+        "title": "Planen skal fortælle sandheden",
+        "body": "En plan er et billede af virkeligheden, ikke en kontrakt. Når virkeligheden flytter sig, så flyt planen, hellere i dag end på fredag. En ærlig plan der skrider er mere værd end en flot plan der lyver."
+      },
+      "5": {
+        "title": "Tre spørgsmål driver det hele",
+        "body": "Hvad er sket? Hvad er det næste? Hvad står i vejen? Kan du svare på de tre hver uge, er du reelt projektleder. Ugestatussen her i værktøjet er bygget over præcis de tre spørgsmål."
+      },
+      "6": {
+        "title": "Træk forhindringer frem i lyset med det samme",
+        "body": "En forhindring bliver sjældent mindre af at vente. Skriv den på listen den dag du ser den, sæt navn på hvem der jager den, og sig den højt i næste status. Ingen bebrejder en projektleder for en forhindring, kun for at gemme den."
+      },
+      "7": {
+        "title": "Skriv beslutninger ned",
+        "body": "Om tre måneder er der ingen der kan huske, hvorfor I valgte lørdag frem for torsdag. To linjer i beslutningsloggen sparer jer for at tage den samme diskussion to gange."
+      },
+      "8": {
+        "title": "Registrér økonomien, når du ved noget, ikke når det er sikkert",
+        "body": "Et skøn på 30.000 kr. i dag er mere værd end et præcist tal om en måned. Skriv posten ind som forventet, og ret den til afholdt, når pengene er brugt. Så lyver budgettet aldrig for dig."
+      },
+      "9": {
+        "title": "Status er en gave til dig selv",
+        "body": "Den ugentlige status føles som pligt, men den er din tænkepause: fem minutter hvor du ser projektet udefra. Lad AI'en skrive udkastet, og brug din energi på at rette det, der ikke passer. Det er dér, du opdager skreddet i tide."
+      }
+    },
+    "closing": "Sidder du fast, så spørg AI'en på projektsiden. Den kender din plan og svarer ud fra den, og beder du den om ændringer, udfører den dem med det samme. Der gemmes altid en kopi af planen først, så du kan fortryde alt."
+  },
+  "events": {
+    "project": {
+      "created": "Projektet „{name}“ blev oprettet"
+    },
+    "task": {
+      "created": "Opgaven „{title}“ blev oprettet",
+      "state": "„{title}“ fik status {state}",
+      "moved": "„{title}“ blev flyttet til {from}–{to}",
+      "relinked": "„{title}“ hører nu til {milestone}",
+      "people": "„{title}“: ansvarlig {owner}, deltagere {participants}",
+      "subtasks": "Tjeklisten på „{title}“ har nu {count} punkter",
+      "deleted": "Opgaven „{title}“ blev slettet"
+    },
+    "milestone": {
+      "created": "Milepælen „{title}“ blev oprettet til {date}",
+      "updated": "Milepælen „{title}“ blev rettet",
+      "done": "Milepælen „{title}“ blev nået",
+      "reopened": "Milepælen „{title}“ blev genåbnet",
+      "deleted": "Milepælen „{title}“ blev slettet"
+    },
+    "decision": {
+      "added": "Beslutning: {title}"
+    },
+    "obstacle": {
+      "added": "Forhindring: {title}",
+      "resolved": "Forhindringen „{title}“ blev løst"
+    },
+    "budget": {
+      "set": "Budgettet blev sat til {amount}"
+    },
+    "expense": {
+      "added": "Økonomipost: {title}, {amount}",
+      "toggled": "Økonomiposten „{title}“ blev rettet",
+      "removed": "Økonomiposten „{title}“ blev fjernet"
+    },
+    "roles": {
+      "set": "Projektejer {owner}, projektleder {manager}"
+    },
+    "people": {
+      "added": "Personer tilføjet: {names}"
+    },
+    "status": {
+      "approved": "Ugestatus for {week} blev godkendt"
+    },
+    "replan": {
+      "applied": "Replanlægning: „{milestone}“ til {date}, {moved} ting flyttet"
+    },
+    "snapshot": {
+      "created": "Kopi af planen: {label}",
+      "restored": "Planen blev gendannet fra „{label}“"
+    },
+    "ai": {
+      "applied": "AI'en udførte {count} ændringer"
     }
   }
 }

@@ -8,7 +8,9 @@
     "back": "Back",
     "error": "Something went wrong. Please try again.",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "week": "Week {number}",
+    "weekOf": "Week of {date}"
   },
   "landing": {
     "nav": {
@@ -158,10 +160,14 @@
       "title": "Projects",
       "subtitle": "All projects in {workspace}.",
       "emptyTitle": "No projects yet",
-      "emptyBody": "This is where your projects will live: the plan as a timeline, the week's status and the decisions along the way. Creating projects is the next step of the build.",
+      "emptyBody": "This is where your projects will live. Start by describing one in your own words, or pick a template and have a plan straight away.",
       "passkeyPromptTitle": "Make your account more secure",
       "passkeyPromptBody": "Add a passkey so you can log in without a password.",
-      "passkeyPromptCta": "Add passkey"
+      "passkeyPromptCta": "Add passkey",
+      "new": "New project",
+      "progress": "{done} of {total} tasks finished",
+      "nextMilestone": "Next milestone: {title} ({date})",
+      "noOpenMilestones": "No open milestones"
     },
     "security": {
       "title": "Security",
@@ -226,6 +232,21 @@
       "appliedAtLabel": "Last applied",
       "unknown": "Unknown",
       "license": "Ajour is open source under AGPL-3.0 and part of the Haij family."
+    },
+    "dataExport": {
+      "title": "Data and export",
+      "subtitle": "Take a complete copy of everything this workspace holds.",
+      "xlsxTitle": "Spreadsheet",
+      "xlsxBody": "One file with a tab per kind of data. For you, for the steering group, or for anyone who needs to look without knowing Ajour.",
+      "xlsxAction": "Download spreadsheet",
+      "jsonTitle": "Machine-readable copy",
+      "jsonBody": "The same data as JSON with every id kept, so you can move to something other than Ajour without losing the links between projects, tasks and statuses.",
+      "jsonAction": "Download JSON",
+      "sheetsLabel": "Tabs in the file:",
+      "membersSheet": "Users",
+      "notBackupTitle": "This is not a backup.",
+      "notBackupBody": "An export can be read but not restored, and it is only as fresh as the day you downloaded it. The night's encrypted dump is what saves you when the database is gone.",
+      "privacy": "The export contains the names of the people the projects mention and the workspace's whole history. Passwords and passkeys are never included, and share links are exported without their key. Downloading it is recorded in the audit log."
     }
   },
   "settings": {
@@ -234,7 +255,10 @@
     "nav": {
       "security": "Security",
       "about": "About",
-      "access": "Access"
+      "access": "Access",
+      "workspace": "Workspace",
+      "ai": "AI",
+      "data": "Data"
     },
     "access": {
       "title": "Access to this installation",
@@ -267,6 +291,514 @@
       "stateExpired": "Expired",
       "stateRevoked": "Replaced",
       "errorInvalid": "Check the email and the workspace name."
+    },
+    "workspace": {
+      "title": "Workspace",
+      "subtitle": "Who is in it, and the way out again.",
+      "createdOn": "Created {date}",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Administrator",
+        "member": "Member"
+      },
+      "delete": {
+        "title": "Delete the workspace",
+        "body": "Everything in the workspace goes: projects, plans, statuses, decisions, share links and the audit trail about them. It cannot be undone.",
+        "exportFirst": "Take an export first if you want to keep anything. It is under Data.",
+        "typeName": "Type {name} to confirm",
+        "action": "Delete the workspace permanently",
+        "deleting": "Deleting …",
+        "failed": "The workspace was not deleted. Try again.",
+        "notOwner": "Only the workspace owner can delete it.",
+        "nameMismatch": "That name does not match. Type the workspace's name exactly."
+      }
+    },
+    "ai": {
+      "title": "AI",
+      "subtitle": "Which engine answers, and what it is allowed to do.",
+      "providerTitle": "Language model",
+      "providerHint": "The model is set in the environment, not in the interface: it belongs to the installation, not to a single workspace.",
+      "provider": "Provider",
+      "model": "Model",
+      "noModel": "No model configured",
+      "setupIntro": "Ajour works without a model. For real proposals and free-text answers, set one up:",
+      "setupOutro": "Then start Ajour again. Without a model the rules engine answers and the three flows still work.",
+      "fallbackTitle": "The rules engine",
+      "fallbackBody": "When no model is configured, or the model does not answer, the {engine} engine steps in.",
+      "fallbackDetail": "It is deterministic: it lays out a plan from templates, computes replans, drafts a status from what actually happened, and understands set phrases in the chat such as “budget: 80,000”, “obstacle: …” and “decision: …”. It does not advise freely. Cut the internet and the project can still be run.",
+      "limitsTitle": "Ceiling on AI calls",
+      "limitsHint": "A model call costs money on a hosted installation and minutes on a local one. The numbers are generous for a person and mean for a script.",
+      "perUser": "Calls per user per hour",
+      "perWorkspace": "Calls per workspace per day",
+      "messageLength": "Characters per message",
+      "principlesTitle": "How Ajour uses AI",
+      "principleDecides": "The AI proposes and carries out, but the human decides. It never sends anything out of the house and never deletes.",
+      "principleUndo": "A copy of the whole project is taken before every AI change, and each change can be undone from the message that made it.",
+      "principleData": "What you and your colleagues write goes to the model as data, never as instructions, and the model's output is validated against the project's own ids before anything is written.",
+      "principleSovereign": "The model can be swapped, including for a local one. Who can see what is listed in docs/subprocessors.md."
+    }
+  },
+  "projects": {
+    "footerHint": "Everything on this page can be changed. Ask the AI if you are unsure what to do next.",
+    "states": {
+      "label": "State",
+      "todo": "Not started",
+      "doing": "In progress",
+      "done": "Done"
+    },
+    "errors": {
+      "conflict": "Somebody changed the same thing while you were typing. The page has been reloaded so you can see what it says now.",
+      "notFound": "That is no longer there.",
+      "invalid": "Something you typed could not be used. Check the fields.",
+      "unauthorized": "You are no longer signed in.",
+      "generic": "That went wrong. Try again."
+    },
+    "header": {
+      "nameLabel": "The project's name",
+      "goalPlaceholder": "What has to be true when the project is over?",
+      "roles": "Project owner: {owner} · Project manager: {manager}",
+      "unset": "not set",
+      "owner": "Project owner",
+      "manager": "Project manager",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "newStatus": "New weekly status"
+    },
+    "overview": {
+      "tasks": "Tasks",
+      "doneOf": "{done} of {total}",
+      "finished": "finished",
+      "nextMilestone": "Next milestone",
+      "noOpenMilestones": "No open milestones",
+      "obstacles": "Obstacles",
+      "openCount": "{count, plural, =0 {none open} one {open} other {open}}",
+      "economy": "Money",
+      "ofBudget": "of {amount}",
+      "noBudget": "No budget set",
+      "latestStatus": "Latest status",
+      "noneYet": "None yet"
+    },
+    "plan": {
+      "title": "Plan",
+      "viewLabel": "Choose a view",
+      "timeline": "Timeline",
+      "board": "Board",
+      "timelineHelp": "Click a task or a milestone to open it. Drag a task to move it in time, up or down to another milestone, its right edge to change its length, and a milestone to get a replan proposal. On the keyboard: arrow keys move, shift resizes, alt moves it to another milestone.",
+      "boardHelp": "Drag a card to another column, or use the state select on the card. It is the same plan as on the timeline, seen differently."
+    },
+    "timeline": {
+      "week": "Week {number}",
+      "today": "today",
+      "otherTasks": "Other tasks",
+      "dropHere": "Drop here",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "noOwner": "no owner",
+      "taskHandle": "{title}, {owner}, {from} to {to}. Arrow keys move the task, shift and arrows change its length, alt and arrows move it to another milestone.",
+      "milestoneHandle": "Milestone {title}, {date}. Arrow keys move the milestone and propose a replan."
+    },
+    "board": {
+      "empty": "No tasks here. Drag a card in, or use the state select on the card.",
+      "hint": {
+        "todo": "Backlog",
+        "doing": "Being worked on",
+        "done": "Closed"
+      }
+    },
+    "milestones": {
+      "title": "Milestones",
+      "empty": "No milestones yet.",
+      "reached": "Reached",
+      "open": "Open",
+      "criterion": "Reached when: {text}",
+      "namePlaceholder": "The milestone's name",
+      "dateLabel": "Date",
+      "ownerPlaceholder": "Owner",
+      "criterionPlaceholder": "Reached when … (one acceptance criterion, e.g. the contract is signed)",
+      "save": "Save",
+      "close": "Close",
+      "delete": "Delete milestone",
+      "deleteQuestion": "Delete the milestone “{title}”?",
+      "dateNote": "Changing the date here does not move the tasks. Drag the diamond on the timeline if the tasks should follow.",
+      "newPlaceholder": "New milestone …",
+      "add": "Add"
+    },
+    "tasks": {
+      "title": "Tasks",
+      "selectedTitle": "Selected task",
+      "empty": "No tasks yet.",
+      "noOwner": "No owner",
+      "pickOnBoard": "Click a card on the board to open the task here."
+    },
+    "newTask": {
+      "open": "+ New task",
+      "titlePlaceholder": "What needs doing?",
+      "milestoneLabel": "Which milestone does the task lead to?",
+      "noMilestone": "No milestone (other tasks)",
+      "ownerPlaceholder": "Owner",
+      "startLabel": "Start date",
+      "endLabel": "End date",
+      "to": "to",
+      "create": "Create",
+      "close": "Close"
+    },
+    "taskEditor": {
+      "owner": "Owner (one person)",
+      "participants": "Participants, separated by commas",
+      "milestone": "Which milestone does the task belong to?",
+      "noMilestone": "No milestone",
+      "before": "Towards the milestone",
+      "after": "After the milestone",
+      "save": "Save",
+      "close": "Close",
+      "checklist": "Checklist",
+      "newItem": "New checklist item …",
+      "removeItem": "Remove {title}",
+      "add": "Add",
+      "expenses": "Money on this task: {list}",
+      "delete": "Delete the task"
+    },
+    "economy": {
+      "title": "Money",
+      "shareOfBudget": "{percent} % of budget",
+      "budget": "Budget: {amount}",
+      "setBudget": "Set a budget",
+      "budgetPlaceholder": "Budget in DKK",
+      "edit": "Edit",
+      "save": "Save",
+      "summary": "{planned} recorded · {incurred} incurred",
+      "overBudget": "(over budget)",
+      "incurred": "Incurred",
+      "planned": "Planned",
+      "newLine": "New line …",
+      "amount": "DKK",
+      "linkedTask": "Linked task",
+      "noTask": "No task linked",
+      "alreadyIncurred": "Already incurred",
+      "add": "Add",
+      "remove": "Remove",
+      "removeQuestion": "Remove the line “{title}” ({amount})?",
+      "notShared": "Money is never shown on the public share link."
+    },
+    "obstacles": {
+      "title": "Obstacles",
+      "empty": "No open obstacles. Write the first one down the day you see it.",
+      "resolve": "Mark as resolved",
+      "newPlaceholder": "New obstacle …",
+      "add": "Add"
+    },
+    "decisions": {
+      "title": "Decisions",
+      "empty": "None yet. Write the first one down below.",
+      "byAi": "proposed by the AI",
+      "newPlaceholder": "New decision …",
+      "notePlaceholder": "Why? (optional)",
+      "add": "Add",
+      "hint": "You can also tell the AI: “Log the decision: we hold the conference on a Saturday.”"
+    },
+    "statuses": {
+      "title": "Statuses",
+      "empty": "None yet. Write the first weekly status.",
+      "openPdf": "Open PDF"
+    },
+    "people": {
+      "title": "People",
+      "empty": "None yet. Names appear when you put an owner on a task.",
+      "onTasks": "{count, plural, =0 {no tasks} one {1 task} other {# tasks}}",
+      "rename": "New name",
+      "save": "Save",
+      "remove": "Remove",
+      "removeQuestion": "Remove {name} from the workspace's people?",
+      "hint": "Names are suggested in every person field, so they are reused rather than spelled three ways."
+    },
+    "history": {
+      "title": "Plan history",
+      "empty": "No copies yet. One is taken automatically before every replan, every deletion and every AI change.",
+      "labelPlaceholder": "E.g. the plan after the kick-off",
+      "defaultLabel": "Copy of the plan",
+      "save": "Save copy",
+      "back": "Back to {name}",
+      "takenOn": "A copy of the plan from {date}. The current plan is untouched unless you restore.",
+      "restore": "Restore this plan",
+      "restoreQuestion": "Restore the plan from this copy?",
+      "restoreNote": "A copy of the current plan is taken first, so the restore can be undone too. Rows made since the copy are left alone.",
+      "restoreFailed": "The plan was not restored. Try again.",
+      "beforeRestore": "Before restoring “{label}”"
+    },
+    "replan": {
+      "reason": "The milestone “{title}” moved from {from} to {to}.",
+      "snapshot": "Before replanning “{title}”",
+      "decision": "Replan: {title} moved to {date}",
+      "heading": "The milestone “{title}” moves from {from} to {to}",
+      "thinking": "Working out a replan …",
+      "nothingElse": "No tasks or later milestones need to move.",
+      "taskMove": "“{title}”: {oldFrom}–{oldTo} → {newFrom}–{newTo}",
+      "milestoneMove": "The milestone “{title}”: {from} → {to}",
+      "approve": "Approve the replan",
+      "cancel": "Cancel"
+    },
+    "share": {
+      "open": "Share",
+      "title": "Share links",
+      "description": "A link opens the project's status page for anyone who has it. No login. Money, obstacles, drafts and the chat are never included.",
+      "freshTitle": "The link is ready",
+      "copy": "Copy the link",
+      "copied": "Link copied.",
+      "copyFailed": "Could not copy. Select the link and copy it yourself.",
+      "shownOnce": "The link is shown here once. The database keeps only a hash of it, so a lost link is revoked and made anew.",
+      "labelPlaceholder": "What is the link for? E.g. the steering group",
+      "expiryLabel": "Expiry",
+      "noExpiry": "No expiry",
+      "days": "Expires in {days} days",
+      "create": "Create link",
+      "createFailed": "The link was not created. Try again.",
+      "none": "No live links.",
+      "unnamed": "Unnamed",
+      "expires": "Expires {date}",
+      "revoke": "Revoke",
+      "revoked": "The link has been revoked.",
+      "revokeFailed": "The link was not revoked. Try again."
+    },
+    "start": {
+      "title": "New project",
+      "subtitle": "Describe the project in your own words: what has to happen, when it has to be done, and who is in it. The AI proposes a plan, which you edit and approve.",
+      "templatesTitle": "Start from a template",
+      "templatesHint": "A template gives a finished plan with dates counted from today, without asking a model. Edit it below, or describe the project and let the AI tailor it.",
+      "templateFailed": "The template could not be loaded.",
+      "describeLabel": "Describe the project",
+      "describePlaceholder": "E.g. we are holding a spring conference for about 120 people in late November. We still need a venue, a programme and speakers, and there are five of us …",
+      "propose": "Propose a plan",
+      "proposeAgain": "Propose a new plan",
+      "proposing": "Proposing a plan …",
+      "modelWorking": "The AI is reading your description. This can take up to a minute with a large local model.",
+      "proposalFailed": "No proposal came back. Try again.",
+      "rateLimited": "Too many AI calls have been used. Try again shortly.",
+      "fallbackNote": "The model did not answer, so this is a proposal from the rules engine. Try again for a tailored one.",
+      "nameLabel": "Project name",
+      "goalLabel": "Goal",
+      "budgetLabel": "Budget (DKK, optional)",
+      "budgetPlaceholder": "E.g. 80000",
+      "milestonesLabel": "Milestones",
+      "milestoneTitle": "Milestone {number}",
+      "milestoneDate": "Date for milestone {number}",
+      "tasksLabel": "Tasks",
+      "taskTitle": "Task {number}",
+      "taskOwner": "Owner of task {number}",
+      "taskStart": "Start of task {number}",
+      "taskEnd": "End of task {number}",
+      "owner": "Owner",
+      "removeTask": "Remove the task {title}",
+      "previewLabel": "How the plan looks",
+      "previewHint": "Drag the middle of a task to move it, its right edge to change its length, and a milestone to move it. The date fields above follow.",
+      "approve": "Approve the plan and create the project",
+      "creating": "Creating …",
+      "createFailed": "The project was not created. Try again.",
+      "changeableLater": "Everything can be changed afterwards, on the timeline too."
+    }
+  },
+  "chat": {
+    "title": "Ask the AI about the project",
+    "subtitle": "Advice and changes to the plan, the money, the obstacles and the decisions. All of it can be undone.",
+    "examples": "E.g. “Is the plan realistic?”, “Push all of Sofie's tasks a week”, “Set the budget to 80,000 and add 12,000 for catering”, “Note an obstacle: the speaker has cancelled” or “Log the decision: we hold it on a Saturday”.",
+    "placeholder": "Write to the AI about the project …",
+    "send": "Send",
+    "thinking": "The AI is thinking …",
+    "applied": "Done in the project",
+    "rolledBack": "Rolled back",
+    "undo": "Undo",
+    "failed": "Something went wrong. Try again.",
+    "rateLimited": "Too many AI calls today. Try again shortly.",
+    "fallback": "The model did not answer, so the reply came from the rules engine. It does not advise freely, but it understands “budget: 50000”, “obstacle: …” and “decision: …”.",
+    "note": "Ask for changes and the AI makes them straight away. A copy of the whole project is always taken first, and you can undo here or restore from plan history.",
+    "snapshotLabel": "Before an AI change",
+    "beforeUndo": "Before undoing an AI change"
+  },
+  "tip": {
+    "label": "Today's tip",
+    "loading": "The AI is looking at the project …",
+    "run": "Do it",
+    "running": "Doing it …",
+    "again": "Look again",
+    "dismiss": "Hide",
+    "applied": "Done in the project",
+    "answer": "The AI's answer",
+    "undoHint": "Can be undone in the chat below the plan.",
+    "fallback": "The model did not answer; this tip comes from the system's own rules."
+  },
+  "status": {
+    "metaTitle": "Weekly status",
+    "title": "Status for {week}",
+    "subtitle": "The AI wrote the draft from what actually happened. Edit it, answer what is missing, and approve.",
+    "drafting": "The AI is gathering up and writing the draft. This can take up to a minute with a large local model.",
+    "draftFailed": "The draft was not written. Try again.",
+    "rateLimited": "Too many AI calls have been used. Try again shortly.",
+    "fallbackNote": "The model did not answer, so the draft is from the rules engine. Press “New draft” to try again.",
+    "draftLabel": "Draft status",
+    "questionsLabel": "The AI still needs answers on",
+    "answerPlaceholder": "Write a short answer (or leave it empty)",
+    "answersNote": "Answers are added to the status so everyone can see them.",
+    "approve": "Approve and share",
+    "approving": "Approving …",
+    "approveFailed": "The status was not approved. Try again.",
+    "redraft": "New draft",
+    "cancel": "Cancel"
+  },
+  "share": {
+    "kicker": "Project status · read-only",
+    "progress": "{done} of {total} tasks finished",
+    "nextMilestone": "next milestone: {title} ({date})",
+    "noStatus": "No status has been shared yet.",
+    "planNow": "The plan right now",
+    "earlier": "Earlier statuses",
+    "madeWith": "Made with {product}"
+  },
+  "pdf": {
+    "statusFor": "Status for {week}",
+    "goal": "Goal",
+    "owner": "Project owner",
+    "manager": "Project manager",
+    "plan": "The plan",
+    "milestones": "Milestones and tasks",
+    "tasks": "Tasks",
+    "obstacles": "Open obstacles",
+    "decisions": "Decisions",
+    "decisionsSince": "Decisions since {week}",
+    "economy": "Money",
+    "economyLine": "{planned} recorded · {incurred} incurred · budget {budget}",
+    "overBudget": "Recorded exceeds the budget.",
+    "reached": "reached",
+    "open": "open",
+    "criterion": "reached when",
+    "otherTasks": "Other tasks",
+    "none": "None.",
+    "since": "since {date}",
+    "madeWith": "Made with Ajour · ajour.haij.dk"
+  },
+  "help": {
+    "title": "Help",
+    "intro": "Two things on this page: how the tool works, and how to run a small project. The second is the more important one.",
+    "howToTitle": "Using the tool",
+    "howTo": {
+      "start": {
+        "title": "Start a project",
+        "body": "Click New project. Describe the project in your own words, or pick one of the templates and have a plan straight away. The AI proposes a goal, milestones and tasks; you edit and approve. Nothing is saved until you say yes to the plan."
+      },
+      "tip": {
+        "title": "Today's tip",
+        "body": "At the top of the project page is today's tip: the AI has read the whole project and points at the one thing worth doing today. If the tip can be carried out in the plan, there is a button that goes through the AI chat and can be undone. Look again asks for a fresh reading, and Hide puts it away until tomorrow."
+      },
+      "maintain": {
+        "title": "Keep the plan honest",
+        "body": "All maintenance happens on the project page. Click a task to open it: owner, participants, checklist and which milestone it belongs to. Click a milestone to give it an owner, a date and an acceptance criterion. Drag a task on the timeline to move it, up or down to change milestone, its right edge to change its length. The arrow keys do the same. Drag a milestone and Ajour works out a replan for you to approve or cancel. Or just write to the AI below the plan: it answers questions and carries out what you ask, across the whole project. It never deletes, and a copy of the plan is always taken first."
+      },
+      "share": {
+        "title": "Share a status",
+        "body": "Click New weekly status. The AI writes the draft from what actually happened and asks about what it cannot know. Edit and approve. The status can be read without a login through a share link, and every approved status can be downloaded as a PDF with the plan, the milestones, the obstacles and the decisions from that day. Money never appears on the public link."
+      }
+    },
+    "abcTitle": "The project manager's ABC",
+    "abcIntro": "Ten things that carry most small projects safely home. None of them needs a project management course.",
+    "abc": {
+      "0": {
+        "title": "Start by describing what finished means",
+        "body": "Not what you are going to do, but what has to be true when the project is over. “The conference was held with 100 people signed up” is a goal. “We are working on the conference” is not. Everything else in the plan hangs off that sentence."
+      },
+      "1": {
+        "title": "One owner per task",
+        "body": "Others may help, but one person has the task. Everyone's responsibility is nobody's, and that is the most common reason small projects leak. If you are unsure who it is, it is you."
+      },
+      "2": {
+        "title": "Cut the work into pieces of at most a week",
+        "body": "A six-week task cannot be seen slipping. A five-day one can. Small pieces make progress visible and give you something to celebrate every week."
+      },
+      "3": {
+        "title": "Milestones are promises, so have few of them",
+        "body": "A milestone is something the outside world can count on. Three to five is enough in a small project. If you cannot explain why a milestone exists, delete it."
+      },
+      "4": {
+        "title": "The plan has to tell the truth",
+        "body": "A plan is a picture of reality, not a contract. When reality moves, move the plan, today rather than Friday. An honest plan that slips is worth more than a handsome plan that lies."
+      },
+      "5": {
+        "title": "Three questions drive the whole thing",
+        "body": "What has happened? What is next? What is in the way? Answer those three every week and you are, in practice, a project manager. The weekly status here is built on exactly those three questions."
+      },
+      "6": {
+        "title": "Bring obstacles into the light at once",
+        "body": "An obstacle rarely gets smaller by waiting. Write it on the list the day you see it, put a name on who is chasing it, and say it out loud in the next status. Nobody blames a project manager for an obstacle, only for hiding one."
+      },
+      "7": {
+        "title": "Write decisions down",
+        "body": "In three months nobody will remember why you chose Saturday over Thursday. Two lines in the decision log save you from having the same argument twice."
+      },
+      "8": {
+        "title": "Record the money when you know something, not when it is certain",
+        "body": "An estimate of 30,000 today is worth more than an exact figure in a month. Write the line in as planned and change it to incurred when the money is spent. Then the budget never lies to you."
+      },
+      "9": {
+        "title": "The status is a gift to yourself",
+        "body": "The weekly status feels like a chore, but it is your pause for thought: five minutes seeing the project from outside. Let the AI write the draft and spend your energy fixing what is wrong. That is where you catch the slip in time."
+      }
+    },
+    "closing": "If you are stuck, ask the AI on the project page. It knows your plan and answers from it, and if you ask for changes it makes them straight away. A copy of the plan is always taken first, so everything can be undone."
+  },
+  "events": {
+    "project": {
+      "created": "The project “{name}” was created"
+    },
+    "task": {
+      "created": "The task “{title}” was created",
+      "state": "“{title}” became {state}",
+      "moved": "“{title}” moved to {from}–{to}",
+      "relinked": "“{title}” now belongs to {milestone}",
+      "people": "“{title}”: owner {owner}, participants {participants}",
+      "subtasks": "The checklist on “{title}” now has {count} items",
+      "deleted": "The task “{title}” was deleted"
+    },
+    "milestone": {
+      "created": "The milestone “{title}” was created for {date}",
+      "updated": "The milestone “{title}” was edited",
+      "done": "The milestone “{title}” was reached",
+      "reopened": "The milestone “{title}” was reopened",
+      "deleted": "The milestone “{title}” was deleted"
+    },
+    "decision": {
+      "added": "Decision: {title}"
+    },
+    "obstacle": {
+      "added": "Obstacle: {title}",
+      "resolved": "The obstacle “{title}” was resolved"
+    },
+    "budget": {
+      "set": "The budget was set to {amount}"
+    },
+    "expense": {
+      "added": "Money line: {title}, {amount}",
+      "toggled": "The money line “{title}” was edited",
+      "removed": "The money line “{title}” was removed"
+    },
+    "roles": {
+      "set": "Project owner {owner}, project manager {manager}"
+    },
+    "people": {
+      "added": "People added: {names}"
+    },
+    "status": {
+      "approved": "The weekly status for {week} was approved"
+    },
+    "replan": {
+      "applied": "Replan: “{milestone}” to {date}, {moved} things moved"
+    },
+    "snapshot": {
+      "created": "Copy of the plan: {label}",
+      "restored": "The plan was restored from “{label}”"
+    },
+    "ai": {
+      "applied": "The AI made {count} changes"
     }
   }
 }

@@ -11,7 +11,10 @@ import { cn } from "@/lib/utils";
  * sidebar and inside the mobile sheet, where `onNavigate` lets the sheet
  * close itself.
  */
-const ITEMS: Array<{ href: string; key: "projects" }> = [{ href: "/projects", key: "projects" }];
+const ITEMS: Array<{ href: string; key: "projects" | "help" }> = [
+  { href: "/projects", key: "projects" },
+  { href: "/help", key: "help" },
+];
 
 export function navItemClass(active: boolean): string {
   return cn(

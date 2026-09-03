@@ -1,11 +1,15 @@
 import { eq } from "drizzle-orm";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireOrgContext } from "@/core/auth/guard";
+import { formatDateDa } from "@/core/dates";
 import { organizations } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
+import { listProjects } from "@/modules/projects/read";
 import { PasskeyPrompt } from "./passkey-prompt";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,9 +18,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The home of the app: every project in the active workspace. The domain
- * arrives with the next slice; until then the page shows where it will
- * live, through the same tenant-scoped path every real query takes.
+ * The home of the app: every project in the active workspace, with the
+ * two numbers that say whether it needs attention — how far the tasks
+ * have come, and when the next milestone falls.
  */
 export default async function ProjectsPage() {
   const t = await getTranslations("app.projects");
@@ -30,15 +34,65 @@ export default async function ProjectsPage() {
           .limit(1),
       )
     : [];
+  const projects = context ? await listProjects(context) : [];
 
   return (
     <div className="flex flex-col gap-[26px]">
       <PageHeader
         title={t("title")}
         subtitle={t("subtitle", { workspace: workspace?.name ?? "" })}
+        actions={
+          <Link href="/projects/new" className={buttonVariants({ size: "sm" })}>
+            {t("new")}
+          </Link>
+        }
       />
       <PasskeyPrompt />
-      <EmptyState title={t("emptyTitle")} hint={t("emptyBody")} />
+
+      {projects.length === 0 ? (
+        <EmptyState title={t("emptyTitle")} hint={t("emptyBody")} />
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => {
+            const share = project.taskCount
+              ? Math.round((project.doneCount / project.taskCount) * 100)
+              : 0;
+            return (
+              <li key={project.id}>
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="border-border bg-card hover:border-primary/40 focus-visible:ring-ring block h-full rounded-xl border p-4 shadow-[var(--surface-shadow)] transition focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  <h2 className="font-heading truncate text-base font-semibold">{project.name}</h2>
+                  {project.goal && (
+                    <p className="text-meta mt-1 line-clamp-2 text-sm">{project.goal}</p>
+                  )}
+                  <p className="text-meta mt-3 text-xs">
+                    {t("progress", {
+                      done: project.doneCount,
+                      total: project.taskCount,
+                    })}
+                  </p>
+                  <div className="bg-muted mt-1.5 h-1 overflow-hidden rounded-full">
+                    <div
+                      className="bg-primary h-full rounded-full"
+                      style={{ width: `${share}%` }}
+                    />
+                  </div>
+                  <p className="text-meta mt-2 text-xs">
+                    {project.nextMilestone
+                      ? t("nextMilestone", {
+                          title: project.nextMilestone.title,
+                          date: formatDateDa(project.nextMilestone.date),
+                        })
+                      : t("noOpenMilestones")}
+                  </p>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

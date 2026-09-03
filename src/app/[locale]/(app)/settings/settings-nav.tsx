@@ -6,7 +6,10 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
+  { href: "/settings/workspace", key: "workspace" },
   { href: "/settings/security", key: "security" },
+  { href: "/settings/ai", key: "ai" },
+  { href: "/settings/data", key: "data" },
   { href: "/settings/about", key: "about" },
 ] as const;
 
@@ -20,7 +23,11 @@ export function SettingsNav({ access }: { access: { pending: number } | null }) 
   const t = useTranslations("settings.nav");
   const pathname = usePathname();
   const items = access
-    ? [ITEMS[0], { href: "/settings/access", key: "access" } as const, ITEMS[1]]
+    ? [
+        ...ITEMS.slice(0, 2),
+        { href: "/settings/access", key: "access" } as const,
+        ...ITEMS.slice(2),
+      ]
     : ITEMS;
 
   return (
