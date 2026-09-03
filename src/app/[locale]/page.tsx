@@ -5,6 +5,7 @@ import { Wordmark } from "@/components/wordmark";
 import { getSession } from "@/core/auth/session";
 import { signupAllowed } from "@/core/auth/signup";
 import { Link, redirect } from "@/i18n/navigation";
+import { demoEnabled, DEMO_TTL_HOURS } from "@/modules/demo/service";
 import { cn } from "@/lib/utils";
 
 const VALUES = [
@@ -24,6 +25,7 @@ export default async function HomePage() {
   // The same button leads to /register either way; what it promises should
   // match what is behind it: an account, or an application for one.
   const open = await signupAllowed();
+  const demo = demoEnabled();
   if (session) {
     redirect({ href: "/projects", locale });
     return null;
@@ -69,9 +71,20 @@ export default async function HomePage() {
               <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "px-4")}>
                 {open ? t("hero.ctaPrimary") : t("hero.ctaApply")}
               </Link>
+              {demo && (
+                <a
+                  href={`${locale === "da" ? "" : `/${locale}`}/demo`}
+                  className={cn(buttonVariants({ variant: "outline", size: "lg" }), "px-4")}
+                >
+                  {t("hero.ctaDemo")}
+                </a>
+              )}
               <Link
                 href="/login"
-                className={cn(buttonVariants({ variant: "outline", size: "lg" }), "px-4")}
+                className={cn(
+                  buttonVariants({ variant: demo ? "ghost" : "outline", size: "lg" }),
+                  "px-4",
+                )}
               >
                 {t("hero.ctaSecondary")}
               </Link>
@@ -95,6 +108,22 @@ export default async function HomePage() {
             </ul>
           </div>
         </section>
+
+        {demo && (
+          <section className="mx-auto w-full max-w-3xl px-6 pb-16">
+            <div className="border-chart-4/40 bg-warning-tint rounded-xl border p-5">
+              <h2 className="font-heading text-base font-semibold">{t("demo.title")}</h2>
+              <p className="mt-1.5 text-sm">{t("demo.body", { hours: DEMO_TTL_HOURS })}</p>
+              <p className="text-meta mt-1.5 text-sm">{t("demo.privacy")}</p>
+              <a
+                href={`${locale === "da" ? "" : `/${locale}`}/demo`}
+                className={cn(buttonVariants({ size: "sm" }), "mt-3")}
+              >
+                {t("demo.cta")}
+              </a>
+            </div>
+          </section>
+        )}
 
         <section className="mx-auto grid w-full max-w-6xl gap-4 px-6 pb-16 sm:grid-cols-3">
           {VALUES.map((value) => (
@@ -130,13 +159,18 @@ export default async function HomePage() {
             <Wordmark />
             <span>· {t("footer.license")}</span>
           </p>
-          <Link
-            href="/"
-            locale={locale === "da" ? "en" : "da"}
-            className="underline-offset-4 hover:underline"
-          >
-            {t("footer.language")}
-          </Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/terms" className="underline-offset-4 hover:underline">
+              {t("footer.terms")}
+            </Link>
+            <Link
+              href="/"
+              locale={locale === "da" ? "en" : "da"}
+              className="underline-offset-4 hover:underline"
+            >
+              {t("footer.language")}
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

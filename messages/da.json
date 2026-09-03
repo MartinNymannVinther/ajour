@@ -24,7 +24,8 @@
       "ctaPrimary": "Opret konto",
       "ctaSecondary": "Log ind",
       "trust": "Open source · AGPL-3.0 · Data i EU · En del af Haij",
-      "ctaApply": "Ansøg om adgang"
+      "ctaApply": "Ansøg om adgang",
+      "ctaDemo": "Prøv demoen"
     },
     "flowsLabel": "Tre flows bærer det hele",
     "flows": {
@@ -51,7 +52,14 @@
     },
     "footer": {
       "license": "Open source under AGPL-3.0",
-      "language": "English"
+      "language": "English",
+      "terms": "Vilkår og privatliv"
+    },
+    "demo": {
+      "title": "Prøv Ajour uden at oprette noget",
+      "body": "Du får dit eget arbejdsrum med et halvfærdigt projekt i: en plan der er skredet lidt, en åben forhindring, et budget der er halvt brugt. Ret i det, spørg AI'en, skriv en ugestatus. Arbejdsrummet slettes automatisk efter {hours} timer.",
+      "privacy": "Der er ingen tilmelding og ingen e-mail. Vi opretter en midlertidig konto til dig, og den forsvinder sammen med arbejdsrummet.",
+      "cta": "Åbn en demo"
     }
   },
   "notFound": {
@@ -802,5 +810,58 @@
     "ai": {
       "applied": "AI'en udførte {count} ændringer"
     }
+  },
+  "demo": {
+    "bannerTitle": "Det her er en demo.",
+    "bannerBody": "Arbejdsrummet og alt i det slettes efter {hours} timer. Skriv gerne i det.",
+    "bannerCta": "Ansøg om en rigtig konto"
+  },
+  "terms": {
+    "title": "Vilkår og privatliv",
+    "updated": "Senest opdateret 3. september 2026.",
+    "back": "Tilbage",
+    "language": "In English",
+    "intro": "Ajour er open source og drives af Vinther Consulting på ajour.haij.dk. Siden her siger, hvad du kan regne med, og hvad vi gør med det du skriver. Den er kort, fordi svaret på de fleste spørgsmål står i de syv dogmer: dine data er dine, alt kan hentes ud, og alt kan slettes.",
+    "what": {
+      "title": "Hvad Ajour er",
+      "body": "Et værktøj til at holde små projekter opdaterede: en plan, en ugentlig status, beslutninger og forhindringer. Koden er AGPL-3.0 og ligger offentligt, så du kan køre præcis den samme udgave på din egen server, hvis du hellere vil det."
+    },
+    "account": {
+      "title": "Konto og adgang",
+      "body": "Du får adgang ved at ansøge eller blive inviteret. Vi gemmer dit navn, din e-mail og navnet på dit arbejdsrum, og vi bruger dem til at logge dig ind og til at skrive til dig om tjenesten. Adgangskoder gemmes hashet, og du kan tilføje passkey og totrinsbekræftelse. Vi sælger ikke noget, og vi sender ikke markedsmails du ikke har bedt om."
+    },
+    "yourData": {
+      "title": "Dine data",
+      "body": "Alt hvad du skriver i et arbejdsrum tilhører dig. Det ligger i én database på EU-jord hos EU-ejede leverandører, adskilt fra andre arbejdsrum på databaseniveau. Du kan når som helst hente en komplet kopi som regneark eller JSON under Indstillinger, og du kan slette hele arbejdsrummet samme sted. Sletter du det, forsvinder også revisionssporet om det; kun det tørre faktum at et arbejdsrum blev slettet, af hvem og hvornår, står tilbage."
+    },
+    "ai": {
+      "title": "AI'en",
+      "body": "AI'en foreslår og udfører ændringer i din plan, men den beslutter ikke: der gemmes en kopi af projektet før hver ændring, og du kan fortryde alt. Den sender aldrig noget ud af huset, og den sletter aldrig noget. Den tekst der sendes til modellen er projektets egne felter, og den sendes som data, ikke som instruktioner. Bruger installationen en hostet model, står leverandøren i docs/subprocessors.md; kører den lokalt gennem Ollama, forlader teksten aldrig serveren."
+    },
+    "shareLinks": {
+      "title": "Delelinks",
+      "body": "Et delelink åbner ét projekts statusside for enhver der har linket, uden login. Det viser plan, milepæle, opgaver og godkendte statusser. Det viser aldrig økonomi, forhindringer, udkast eller AI-chatten. Du kan trække et link tilbage og give det en udløbsdato, og du bør gøre begge dele, hvis linket har været et sted du ikke havde tænkt dig."
+    },
+    "leaving": {
+      "title": "At holde op",
+      "body": "Du kan slette dit arbejdsrum med det samme, uden at skrive til nogen og uden at vente. Eksporten ligger et klik væk, og den er læsbar uden Ajour. Vi opbevarer ikke en kopi bagefter ud over de natlige krypterede backups, som ruller ud efter 30 dage."
+    },
+    "availability": {
+      "title": "Drift og garantier",
+      "body": "Ajour er ny, og der er ingen oppetidsgaranti. Vi passer på dine data med krypterede backups hver nat, men du bør hente en eksport ind imellem, hvis projektet er vigtigt. Tjenesten leveres som den er, uden garantier ud over hvad ufravigelig lovgivning kræver."
+    },
+    "license": {
+      "title": "Licens",
+      "body": "Koden er AGPL-3.0. Du må bruge, ændre og køre den selv; ændrer du den og stiller den til rådighed for andre over et netværk, skal dine ændringer også være tilgængelige. Det du skriver i værktøjet er ikke omfattet af licensen — det er dit."
+    },
+    "demo": {
+      "title": "Demoen",
+      "body": "Åbner du en demo, opretter vi et midlertidigt arbejdsrum og en midlertidig konto til dig. Vi beder ikke om en e-mail. Både arbejdsrummet og kontoen slettes automatisk efter {hours} timer, sammen med alt du har skrevet i det. Skriv ikke rigtige personoplysninger i en demo."
+    },
+    "contact": {
+      "title": "Kontakt",
+      "body": "Skriv til martin@vintherconsulting.dk. Har du fundet et sikkerhedsproblem, står fremgangsmåden i SECURITY.md i kodearkivet; meld det der frem for i en almindelig mail."
+    },
+    "subprocessorsNote": "Hvem der kan se hvad, står i"
   }
 }

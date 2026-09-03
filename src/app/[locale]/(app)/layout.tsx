@@ -5,6 +5,8 @@ import { getOrgContext, getSession } from "@/core/auth/session";
 import { organizations } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
 import { redirect } from "@/i18n/navigation";
+import { DemoBanner } from "@/components/demo-banner";
+import { isDemoWorkspace } from "@/modules/demo/service";
 import { AppSidebar } from "./app-sidebar";
 import { MobileHeader } from "./mobile-header";
 
@@ -36,6 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // is told there is a door.
   const attention = (await ownerAccessSummary())?.pending ?? 0;
   const t = await getTranslations("app.nav");
+  const demo = context ? await isDemoWorkspace(context.orgId) : false;
 
   return (
     <div className="flex min-h-svh">
@@ -54,6 +57,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         attention={attention}
       />
       <div className="border-border flex min-w-0 flex-1 flex-col lg:border-l">
+        {demo && <DemoBanner />}
         <MobileHeader
           userName={session.user.name}
           userEmail={session.user.email}

@@ -19,24 +19,53 @@ constitution — dogmas, principles, architecture and rules — lives in
 
 ## Status
 
-The foundation. This is wave 1 of four: authentication with passkeys and
-TOTP, workspaces separated in the database, admission by application and
-invitation, the audit log, CI, Docker and the Haij design shell. A person
-can log in, create a workspace and stand in an empty Ajour. The product
-itself — projects, milestones, tasks, the three flows and the AI — arrives
-in wave 2, ported from a working prototype. See the roadmap in
-[CLAUDE.md](CLAUDE.md).
+Complete as a product, not yet run in anger. Four waves are done: the
+foundation (auth with passkeys and TOTP, workspaces separated in the
+database, admission by application, the audit log, CI, Docker), the
+product itself (the seven concepts, the three flows, the timeline, the
+board, the AI chat that acts on the whole project, share links, export and
+deletion), accessibility and hardening (WCAG 2.1 AA, every action on the
+keyboard, the AI's writes scoped twice), and the demo. Dogma seven is the
+one still open: Ajour runs a real project before it goes in the window.
 
-What that means for you: the code is public and you are welcome to run
-it, read it, report what you find and send changes. There is no hosted
-signup — the instance at ajour.haij.dk admits people by application — so
-running Ajour today means running it yourself. Before 1.0 a migration may
-still change its mind.
+What that means for you: the code is public and you are welcome to run it,
+read it, report what you find and send changes. The instance at
+ajour.haij.dk admits people by application; there is a demo at `/demo` if
+the installation has turned it on. Before 1.0 a migration may still change
+its mind.
 
 Much of the code is written together with Claude Code, under the rules in
 [CLAUDE.md](CLAUDE.md). Every change is reviewed, tested and deployed by a
 person; the tests for tenancy isolation are the part of the codebase that
 is trusted least to good intentions.
+
+## What it looks like
+
+The project page: the plan as a timeline, the week's numbers, the AI's tip
+for today, and one card per thing a project is made of.
+
+![The project page](docs/screenshots/project.png)
+
+The same plan as a board, for people who think in columns. Every card
+carries its state select, so nothing here needs a drag.
+
+![The board](docs/screenshots/board.png)
+
+Ugen: the AI reads what actually happened, writes the draft and asks about
+what it could not know. You edit and approve; what is stored is the text
+plus the plan as it stood that day.
+
+![The weekly status](docs/screenshots/status.png)
+
+Start: a template or a description becomes a proposal you edit on a live
+timeline. Nothing is written until you say yes to it.
+
+![Starting a project](docs/screenshots/start.png)
+
+And on a phone, because an update has to be doable in under a minute on
+the bus.
+
+<img src="docs/screenshots/mobile.png" alt="The project page on a phone" width="320">
 
 ## Haij-dogmerne
 

@@ -24,7 +24,8 @@
       "ctaPrimary": "Create account",
       "ctaSecondary": "Log in",
       "trust": "Open source · AGPL-3.0 · Data in the EU · Part of Haij",
-      "ctaApply": "Apply for access"
+      "ctaApply": "Apply for access",
+      "ctaDemo": "Try the demo"
     },
     "flowsLabel": "Three flows carry everything",
     "flows": {
@@ -51,7 +52,14 @@
     },
     "footer": {
       "license": "Open source under AGPL-3.0",
-      "language": "Dansk"
+      "language": "Dansk",
+      "terms": "Terms and privacy"
+    },
+    "demo": {
+      "title": "Try Ajour without signing up for anything",
+      "body": "You get your own workspace with a half-finished project in it: a plan that has slipped a little, an open obstacle, a budget half spent. Change it, ask the AI, write a weekly status. The workspace is deleted automatically after {hours} hours.",
+      "privacy": "No sign-up and no email. We make you a temporary account, and it goes when the workspace does.",
+      "cta": "Open a demo"
     }
   },
   "notFound": {
@@ -802,5 +810,58 @@
     "ai": {
       "applied": "The AI made {count} changes"
     }
+  },
+  "demo": {
+    "bannerTitle": "This is a demo.",
+    "bannerBody": "The workspace and everything in it is deleted after {hours} hours. Write in it freely.",
+    "bannerCta": "Apply for a real account"
+  },
+  "terms": {
+    "title": "Terms and privacy",
+    "updated": "Last updated 3 September 2026.",
+    "back": "Back",
+    "language": "På dansk",
+    "intro": "Ajour is open source and run by Vinther Consulting at ajour.haij.dk. This page says what you can count on and what we do with what you write. It is short, because the seven dogmas answer most of it: your data is yours, all of it can be exported, and all of it can be deleted.",
+    "what": {
+      "title": "What Ajour is",
+      "body": "A tool for keeping small projects up to date: a plan, a weekly status, decisions and obstacles. The code is AGPL-3.0 and public, so you can run exactly this version on your own server if you would rather."
+    },
+    "account": {
+      "title": "Accounts and access",
+      "body": "You get in by applying or being invited. We store your name, your email and your workspace's name, and use them to sign you in and to write to you about the service. Passwords are stored hashed, and you can add a passkey and two-factor. We sell nothing, and we do not send marketing you did not ask for."
+    },
+    "yourData": {
+      "title": "Your data",
+      "body": "Everything you write in a workspace is yours. It lives in one database on EU soil with EU-owned providers, separated from other workspaces at the database level. You can take a complete copy as a spreadsheet or JSON at any time under Settings, and delete the whole workspace in the same place. Deleting it also removes the audit trail about it; only the bare fact that a workspace was deleted, by whom and when, remains."
+    },
+    "ai": {
+      "title": "The AI",
+      "body": "The AI proposes and carries out changes to your plan, but it does not decide: a copy of the project is taken before every change, and you can undo all of it. It never sends anything out of the house and never deletes. What is sent to the model is the project's own fields, and it is sent as data, not as instructions. If the installation uses a hosted model, the provider is listed in docs/subprocessors.md; if it runs locally through Ollama, the text never leaves the server."
+    },
+    "shareLinks": {
+      "title": "Share links",
+      "body": "A share link opens one project's status page for anyone holding it, with no login. It shows the plan, the milestones, the tasks and the approved statuses. It never shows money, obstacles, drafts or the AI chat. You can revoke a link and give it an expiry, and you should do both if the link has been somewhere you did not intend."
+    },
+    "leaving": {
+      "title": "Leaving",
+      "body": "You can delete your workspace immediately, without writing to anyone and without waiting. The export is one click away and readable without Ajour. We keep no copy afterwards beyond the nightly encrypted backups, which roll off after 30 days."
+    },
+    "availability": {
+      "title": "Running and guarantees",
+      "body": "Ajour is new, and there is no uptime guarantee. We look after your data with encrypted backups every night, but take an export now and then if the project matters. The service is provided as it is, without warranties beyond what the law requires."
+    },
+    "license": {
+      "title": "Licence",
+      "body": "The code is AGPL-3.0. You may use it, change it and run it yourself; if you change it and offer it to others over a network, your changes must be available too. What you write in the tool is not covered by the licence — that is yours."
+    },
+    "demo": {
+      "title": "The demo",
+      "body": "Opening a demo makes you a temporary workspace and a temporary account. We do not ask for an email. Both are deleted automatically after {hours} hours, along with everything you wrote in it. Do not put real personal data in a demo."
+    },
+    "contact": {
+      "title": "Contact",
+      "body": "Write to martin@vintherconsulting.dk. If you have found a security problem, SECURITY.md in the repository says how to report it; use that rather than an ordinary email."
+    },
+    "subprocessorsNote": "Who can see what is listed in"
   }
 }

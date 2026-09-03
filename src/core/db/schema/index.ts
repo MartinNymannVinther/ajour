@@ -10,3 +10,4 @@ export * from "./foundation";
 export * from "./projects";
 export * from "./ai";
 export * from "./sharing";
+export * from "./demo";

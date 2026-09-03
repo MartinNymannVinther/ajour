@@ -24,6 +24,13 @@ export type SignupMode = typeof env.SIGNUP;
 /** Request-level header the registration flow uses to present its key. */
 export const INVITATION_HEADER = "x-ajour-invitation";
 
+/**
+ * Set by the demo route on the server, never by a browser: the header is
+ * attached to a call the route makes itself, so it cannot be forged from
+ * outside. It only opens the door while DEMO=on.
+ */
+export const DEMO_HEADER = "x-ajour-demo";
+
 export function signupAllowedFor(mode: SignupMode, existingUsers: number): boolean {
   return mode === "open" || existingUsers === 0;
 }
@@ -38,6 +45,8 @@ export type SignupAttempt = {
   email?: string | null;
   /** Invitation key presented with the attempt, if any. */
   invitationToken?: string | null;
+  /** The demo route creating a throwaway account for a visitor. */
+  demo?: boolean;
 };
 
 /**
@@ -47,6 +56,10 @@ export type SignupAttempt = {
  * the one it was issued for.
  */
 export async function signupAllowed(attempt: SignupAttempt = {}): Promise<boolean> {
+  // A demo account is not a person asking to be let in; it is a session
+  // that expires. It is admitted only while the installation has asked
+  // for demos at all.
+  if (attempt.demo && env.DEMO === "on") return true;
   // Skip the count when the answer cannot depend on it.
   if (env.SIGNUP === "open") return true;
   if (signupAllowedFor(env.SIGNUP, await countUsers())) return true;

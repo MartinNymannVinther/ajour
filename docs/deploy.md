@@ -139,7 +139,41 @@ It is never set from a request, and it is not the same thing as owning a
 workspace: it says who may admit new workspaces to this installation,
 nothing more.
 
-## 6. Nightly encrypted backups (EU object storage)
+## 6. The demo, if you want one
+
+`DEMO` defaults to `off`, and while it is off `/demo` answers 404 and no
+demo code runs at all. Set `DEMO=on` and every visitor to `/demo` gets
+their own workspace with a half-finished project in it, signed in as a
+throwaway account, deleted automatically after 24 hours.
+
+That is a real workspace built by the real services, so what a visitor
+sees is the product rather than a mock of it. Three things keep it
+bounded: five demos an hour per address, two hundred live demos at once,
+and an expiry on every one of them.
+
+Cleanup runs on each visit, so an installation that gets visitors needs no
+scheduler. If yours is quiet, or you would rather not rely on that, use
+either:
+
+```bash
+pnpm tsx scripts/cleanup-demos.ts      # on a checkout, or in the container
+curl -X POST https://ajour.haij.dk/api/demo/cleanup
+```
+
+The endpoint needs no secret because it can only delete demos that have
+already expired.
+
+Turn it on only where you mean it. A demo instance is not the same
+installation as an organisation's own Ajour: `DEMO=on` hands out accounts,
+which is exactly what `SIGNUP=closed` exists to prevent. Run the demo on
+its own installation with its own database, or accept that anyone can
+create a workspace on this one.
+
+The terms page at `/terms` tells visitors what a demo is and asks them not
+to put real personal data in one; if you host a demo, read that page and
+make sure it says what you actually do.
+
+## 7. Nightly encrypted backups (EU object storage)
 
 Per the family's dogmas: nightly encrypted dumps to EU-owned object storage
 (e.g. Hetzner Object Storage or a Storage Box). The script lives in this
@@ -177,7 +211,7 @@ age -d -i ajour-backup.key ajour-2026-01-01.dump.age | pg_restore -d ajour_resto
 Any new storage, mail or model provider goes into `docs/subprocessors.md`
 first.
 
-## 7. Updating
+## 8. Updating
 
 Push to `main` → Coolify redeploys. The `migrate` service runs before the
 new app container starts, so migrations are always applied first. Keep
@@ -187,7 +221,7 @@ migrate → contract) once real users are on the installation.
 After each deploy, the About page is the check: if the commit shown is not
 the one you pushed, the deploy did not do what you think it did.
 
-## 8. Moving provider (exit plan)
+## 9. Moving provider (exit plan)
 
 1. Provision a VPS at the new EU provider, install Coolify, connect the repo.
 2. Set the same environment variables.

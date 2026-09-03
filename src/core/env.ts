@@ -24,6 +24,10 @@ export const EnvSchema = z
     // the first user exists, "open" lets anyone register. See
     // src/core/auth/signup.ts.
     SIGNUP: z.enum(["closed", "open"]).default("closed"),
+    // A demo workspace per visitor, seeded and thrown away after a day.
+    // Off by default: an installation running real work should not hand
+    // out accounts, and the route answers 404 while this is "off".
+    DEMO: z.enum(["off", "on"]).default("off"),
   })
   .superRefine((value, ctx) => {
     if (value.LLM_PROVIDER === "mistral" && !value.MISTRAL_API_KEY) {
