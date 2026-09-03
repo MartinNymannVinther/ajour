@@ -84,11 +84,14 @@ pnpm lint && pnpm typecheck
 The tests run against the database from the compose file and never call
 an AI model, so they pass offline and without keys.
 
-`--wait` matters the first time: the Postgres image has to be pulled and
-the cluster initialised, and a `pnpm db:migrate` fired before that is done
-fails with a connection error and leaves an empty database behind. If the
-app then answers every page with "Failed query: select count(*) from
-users", run `pnpm db:migrate` again once the container is healthy.
+Two things the first run can trip over, both of which `pnpm db:migrate`
+now names when they happen. The Postgres image has to be pulled and the
+cluster initialised the first time, so `--wait` matters; a migrate fired
+before that is done fails and leaves an empty database behind. And if
+another Postgres already holds port 5432 on your machine (Haij's dev
+database, a local install), Ajour's container comes up without its port
+and the migration talks to the wrong server: set `POSTGRES_PORT=5433` in
+`.env` and change the three URLs to match.
 
 ## Running it for real
 

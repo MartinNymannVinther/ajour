@@ -14,7 +14,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate && tsx scripts/ensure-roles.ts",
+    "db:migrate": "tsx scripts/migrate.ts && tsx scripts/ensure-roles.ts",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
     "test:watch": "vitest",
