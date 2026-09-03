@@ -30,29 +30,49 @@ export class OllamaProvider implements LlmProvider {
     private readonly fetchFn: FetchLike = fetch,
   ) {}
 
+  private body(messages: LlmMessage[], options: LlmCompletionOptions, think: boolean) {
+    return JSON.stringify({
+      model: this.model,
+      messages,
+      stream: false,
+      // Keep the model loaded between calls: a local model that has to be
+      // read from disk for every request is a model nobody waits for.
+      keep_alive: "30m",
+      ...(options.responseFormat === "json" ? { format: "json" } : {}),
+      // Thinking models (gemma4 and friends) spend their time on hidden
+      // reasoning before a structured answer; for JSON we turn that off.
+      // A model without the feature rejects the flag, and we retry without.
+      ...(think ? {} : { think: false }),
+      options: {
+        temperature: options.temperature ?? 0.2,
+        num_predict: options.maxTokens ?? 1024,
+      },
+    });
+  }
+
   async complete(
     messages: LlmMessage[],
     options: LlmCompletionOptions = {},
   ): Promise<LlmCompletion> {
-    let response: Response;
-    try {
-      response = await this.fetchFn(`${this.baseUrl}/api/chat`, {
+    // Local models can be slow to first load; be patient.
+    const signal = AbortSignal.timeout(options.timeoutMs ?? 120_000);
+    const post = (think: boolean) =>
+      this.fetchFn(`${this.baseUrl}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: this.model,
-          messages,
-          stream: false,
-          ...(options.responseFormat === "json" ? { format: "json" } : {}),
-          options: {
-            temperature: options.temperature ?? 0.2,
-            num_predict: options.maxTokens ?? 1024,
-          },
-        }),
-        // Local models can be slow to first load; be patient.
-        signal: AbortSignal.timeout(options.timeoutMs ?? 120_000),
+        body: this.body(messages, options, think),
+        signal,
       });
-    } catch {
+    let response: Response;
+    try {
+      response = await post(options.responseFormat !== "json");
+      if (response.status === 400 && options.responseFormat === "json") {
+        const text = await response.text();
+        if (/think/i.test(text)) response = await post(true);
+        else throw new LlmError("bad_response", "ollama: HTTP 400");
+      }
+    } catch (error) {
+      if (error instanceof LlmError) throw error;
       throw new LlmError("unreachable", "ollama: endpoint did not answer");
     }
 

@@ -78,8 +78,10 @@ codebase to:
   initially; the provider must stay replaceable). Nightly encrypted
   backups to EU object storage.
 - Layout: shared kernel (auth, tenancy, audit, llm, env) in `src/core`;
-  the product in `src/modules/ajour` behind services that take an
-  `OrgContext`; pages in `src/app/[locale]`.
+  the product in `src/modules/{projects,ai,reports,share,export}` behind
+  services that take an `OrgContext`; server actions next to their
+  services as `actions*.ts`; pages in `src/app/[locale]` and project
+  components in `src/components/project`.
 - Trade-off accepted: the foundation is a copy of Haij's, not a shared
   package. Two products, two lifecycles, one set of rules (ADR 0001).
 
@@ -129,11 +131,11 @@ codebase to:
 
 ## Roadmap
 
-- Wave 1: foundation — repo, auth, workspaces, admission, RLS, audit, CI,
+- Wave 1 (done): foundation — repo, auth, workspaces, admission, RLS, audit, CI,
   Docker, design shell, i18n skeleton. Done when a person can log in,
   create a workspace and stand in an empty Ajour.
-- Wave 2: the product — the seven concepts in Postgres with people as
-  identities, structured events and PDFs rendered on demand; the three
+- Wave 2 (done): the product — the seven concepts in Postgres with
+  people as identities, structured events and PDFs rendered on demand; the three
   flows (Start, Ugen, Skred), timeline, kanban, chat that acts on the whole
   project with a snapshot first, daily tip, decision log, obstacles,
   budget, history, templates, the project manager's ABC; share links;
