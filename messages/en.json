@@ -1,0 +1,272 @@
+{
+  "common": {
+    "appName": "Ajour",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "error": "Something went wrong. Please try again.",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "landing": {
+    "nav": {
+      "login": "Log in",
+      "register": "Create account",
+      "apply": "Apply for access"
+    },
+    "hero": {
+      "title": "The tool that keeps the plan up to date for you.",
+      "subtitle": "Ajour is an open source project tool for small projects with 2 to 10 people. You describe the project in plain words, the AI proposes the plan, writes the week's status and suggests changes when reality moves. You decide.",
+      "ctaPrimary": "Create account",
+      "ctaSecondary": "Log in",
+      "trust": "Open source · AGPL-3.0 · Data in the EU · Part of Haij",
+      "ctaApply": "Apply for access"
+    },
+    "flowsLabel": "Three flows carry everything",
+    "flows": {
+      "start": "Start: from description to plan",
+      "week": "The week: status in one minute",
+      "drift": "Drift: a replan you say yes to",
+      "timeline": "Timeline",
+      "kanban": "Kanban",
+      "decisions": "Decision log",
+      "report": "Status report"
+    },
+    "values": {
+      "aiTitle": "The AI maintains, the human decides",
+      "aiBody": "The AI gathers what happened, drafts and proposes changes to the plan. It never sends anything out, never deletes anything and commits nobody to anything without your yes. Everything can be undone.",
+      "dataTitle": "Your data, always",
+      "dataBody": "Everything a workspace owns can be taken out with one click in open formats and deleted again completely. Hosted with EU-owned providers, or in your own environment with a local language model.",
+      "securityTitle": "Secure from day one",
+      "securityBody": "Passkeys and two-step login from the start, workspaces separated all the way down in the database, and every change in a log that cannot be edited."
+    },
+    "status": "Version 1 is being built on the Haij foundation. Access by application.",
+    "family": {
+      "body": "Ajour is part of Haij, a family of open source tools with shared principles on real open source, self-hosting and your data.",
+      "link": "Read more at haij.dk"
+    },
+    "footer": {
+      "license": "Open source under AGPL-3.0",
+      "language": "Dansk"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The address is wrong, or the page has moved.",
+    "cta": "To the front page"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Welcome back.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "or": "or",
+      "withPasskey": "Sign in with a passkey",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Create account",
+      "error": "Wrong email or password.",
+      "passkeyError": "Passkey sign-in failed. Please try again."
+    },
+    "register": {
+      "title": "Create account",
+      "subtitle": "Your account and your workspace are created together.",
+      "name": "Your name",
+      "email": "Email",
+      "organizationName": "Workspace name",
+      "organizationHint": "Your company, association or team. Can be changed later.",
+      "password": "Password",
+      "passwordHint": "At least 12 characters.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "errorInvalid": "Check the fields and try again.",
+      "errorEmailExists": "An account with this email already exists.",
+      "errorGeneric": "The account could not be created. Please try again.",
+      "closedTitle": "Registration is closed",
+      "closedBody": "This Ajour installation is not accepting new users. Contact the owner if you need access.",
+      "invitedSubtitle": "You are invited. The account is created for the email and the workspace the invitation is for.",
+      "lockedHint": "Set by the invitation.",
+      "errorInvitationInvalid": "The invitation has expired or has already been used. Ask for a new link.",
+      "invitationInvalidTitle": "This link no longer works",
+      "invitationInvalidBody": "The invitation has expired, been used, or been replaced by a newer one. Ask the person who invited you for a new link, or apply for access again.",
+      "applyLink": "Apply for access"
+    },
+    "twoFactor": {
+      "title": "Two-factor authentication",
+      "subtitle": "Enter the code from your authenticator app.",
+      "submit": "Verify",
+      "error": "Wrong code. Please try again."
+    },
+    "onboarding": {
+      "title": "Create your workspace",
+      "subtitle": "You need a workspace before you can get started.",
+      "organizationName": "Workspace name",
+      "submit": "Create workspace",
+      "error": "The workspace could not be created. Please try again."
+    },
+    "apply": {
+      "title": "Apply for access",
+      "subtitle": "This Ajour installation accepts new users after a short application. The owner reads it personally and replies by email.",
+      "name": "Your name",
+      "email": "Email",
+      "organizationName": "Organisation or association",
+      "message": "What will you use Ajour for?",
+      "messageHint": "Optional. A line or two about the project makes it easier to say yes.",
+      "submit": "Send application",
+      "sentTitle": "Thanks, your application has been received",
+      "sentBody": "You will hear from the owner of this installation at {email}. The reply comes from a person, so allow a day or two.",
+      "errorInvalid": "Check the fields and try again.",
+      "errorTooMany": "Many applications have been sent from here in a short time. Try again in an hour.",
+      "privacy": "We store your name, email and organisation to handle the application, and nothing else. If it is declined, the details remain only as a note of the decision.",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in"
+    }
+  },
+  "app": {
+    "nav": {
+      "projects": "Projects",
+      "help": "Help",
+      "security": "Security",
+      "logout": "Log out",
+      "appearance": "Appearance",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "Follow system",
+      "language": "Language",
+      "danish": "Dansk",
+      "english": "English",
+      "openMenu": "Open menu",
+      "menuTitle": "Navigation",
+      "settings": "Settings"
+    },
+    "orgSwitcher": {
+      "label": "Workspace",
+      "create": "Create workspace",
+      "createTitle": "Create new workspace",
+      "name": "Name",
+      "createSubmit": "Create",
+      "switched": "Switched to {name}",
+      "created": "{name} has been created",
+      "error": "The workspace could not be created. Please try again.",
+      "switch": "Switch workspace"
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "All projects in {workspace}.",
+      "emptyTitle": "No projects yet",
+      "emptyBody": "This is where your projects will live: the plan as a timeline, the week's status and the decisions along the way. Creating projects is the next step of the build.",
+      "passkeyPromptTitle": "Make your account more secure",
+      "passkeyPromptBody": "Add a passkey so you can log in without a password.",
+      "passkeyPromptCta": "Add passkey"
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Passkeys and two-factor authentication for your account.",
+      "passkeys": {
+        "title": "Passkeys",
+        "description": "Sign in without a password using Touch ID, Face ID or a security key.",
+        "empty": "No passkeys yet.",
+        "nameLabel": "Name",
+        "namePlaceholder": "E.g. MacBook",
+        "add": "Add passkey",
+        "remove": "Remove",
+        "addedAt": "Added {date}",
+        "addedToast": "Passkey added",
+        "removedToast": "Passkey removed",
+        "error": "The passkey could not be added. Please try again."
+      },
+      "totp": {
+        "title": "Two-factor authentication (TOTP)",
+        "description": "Require a code from your authenticator app at sign-in.",
+        "statusEnabled": "Enabled",
+        "statusDisabled": "Disabled",
+        "enable": "Enable",
+        "disable": "Disable",
+        "password": "Confirm with your password",
+        "scan": "Scan the QR code with your authenticator app and enter the code below.",
+        "backupCodes": "Backup codes",
+        "backupHint": "Store the codes somewhere safe. They can be used if you lose your phone.",
+        "verifyLabel": "Code from the app",
+        "verify": "Verify",
+        "verifyError": "Wrong code. Please try again.",
+        "enabledToast": "Two-factor authentication enabled",
+        "disabledToast": "Two-factor authentication disabled",
+        "error": "The action failed. Check the password and try again."
+      }
+    },
+    "about": {
+      "title": "About Ajour",
+      "subtitle": "Which release of Ajour is running here, and whether the database has kept up.",
+      "short": "v{release}",
+      "dirtyShort": "modified",
+      "dirty": "Local changes",
+      "dirtyHint": "Built from a working tree with uncommitted changes, so the commit does not tell the whole truth about the code that is running.",
+      "releaseHint": "The version number is raised by hand when a step is worth naming. The commit is stamped in at build time and points at exactly the code answering here.",
+      "versionLabel": "Version",
+      "commitLabel": "Commit",
+      "builtAtLabel": "Built",
+      "environmentLabel": "Environment",
+      "runtimeLabel": "Runtime",
+      "environments": {
+        "development": "Development",
+        "test": "Test",
+        "production": "Production"
+      },
+      "schemaTitle": "Database schema",
+      "schemaHint": "The number of migrations the build was made from, against the number the database has applied.",
+      "schemaBehind": "Migrations pending",
+      "schemaBehindHint": "The database has fewer migrations than the code expects. Run the migrations before using the system further.",
+      "migrationLabel": "Latest migration",
+      "appliedLabel": "Applied",
+      "appliedValue": "{applied} of {expected}",
+      "appliedAtLabel": "Last applied",
+      "unknown": "Unknown",
+      "license": "Ajour is open source under AGPL-3.0 and part of the Haij family."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Your security and your installation.",
+    "nav": {
+      "security": "Security",
+      "about": "About",
+      "access": "Access"
+    },
+    "access": {
+      "title": "Access to this installation",
+      "subtitle": "Who may create a workspace here. You approve and send the link; the rest happens by itself.",
+      "pendingTitle": "Applications",
+      "pendingEmpty": "No pending applications.",
+      "approve": "Approve",
+      "decline": "Decline",
+      "declinedToast": "The application was declined.",
+      "linkTitle": "Link for {email}",
+      "linkBody": "Shown only now. Copy it and send it yourself. It works for 7 days and only once.",
+      "copy": "Copy link",
+      "copiedToast": "Link copied.",
+      "inviteTitle": "Invite directly",
+      "inviteBody": "Without an application first. Same link, same rules.",
+      "inviteEmail": "E-mail",
+      "inviteOrganization": "Workspace name",
+      "inviteSubmit": "Create invitation",
+      "invitationsTitle": "Invitations",
+      "invitationsEmpty": "No invitations yet.",
+      "renew": "New link",
+      "expires": "Expires {date}",
+      "used": "Used {date}",
+      "applied": "Applied {date}",
+      "decidedApproved": "Approved {date}",
+      "decidedDeclined": "Declined {date}",
+      "historyTitle": "Earlier decisions",
+      "stateOpen": "Unused",
+      "stateUsed": "Used",
+      "stateExpired": "Expired",
+      "stateRevoked": "Replaced",
+      "errorInvalid": "Check the email and the workspace name."
+    }
+  }
+}

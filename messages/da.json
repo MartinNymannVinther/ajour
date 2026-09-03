@@ -1,0 +1,272 @@
+{
+  "common": {
+    "appName": "Ajour",
+    "loading": "Indlæser…",
+    "save": "Gem",
+    "cancel": "Annuller",
+    "close": "Luk",
+    "back": "Tilbage",
+    "error": "Noget gik galt. Prøv igen.",
+    "edit": "Redigér",
+    "delete": "Slet"
+  },
+  "landing": {
+    "nav": {
+      "login": "Log ind",
+      "register": "Opret konto",
+      "apply": "Ansøg om adgang"
+    },
+    "hero": {
+      "title": "Værktøjet der holder planen opdateret for dig.",
+      "subtitle": "Ajour er et open source-projektværktøj til små projekter med 2 til 10 deltagere. Du beskriver projektet i almindeligt sprog, AI'en foreslår planen, skriver ugens status og foreslår ændringer når virkeligheden flytter sig. Du beslutter.",
+      "ctaPrimary": "Opret konto",
+      "ctaSecondary": "Log ind",
+      "trust": "Open source · AGPL-3.0 · Data i EU · En del af Haij",
+      "ctaApply": "Ansøg om adgang"
+    },
+    "flowsLabel": "Tre flows bærer det hele",
+    "flows": {
+      "start": "Start: fra beskrivelse til plan",
+      "week": "Ugen: status på ét minut",
+      "drift": "Skred: replanlægning du siger ja til",
+      "timeline": "Tidslinje",
+      "kanban": "Kanban",
+      "decisions": "Beslutningslog",
+      "report": "Statusrapport"
+    },
+    "values": {
+      "aiTitle": "AI'en vedligeholder, mennesket beslutter",
+      "aiBody": "AI'en samler op, skriver udkast og foreslår ændringer i planen. Den sender aldrig noget ud, sletter aldrig noget og forpligter ingen uden at du har sagt ja. Alt kan fortrydes.",
+      "dataTitle": "Dine data, altid",
+      "dataBody": "Alt et arbejdsrum ejer kan hentes ud med ét klik i åbne formater og slettes helt igen. Drevet hos EU-ejede leverandører, eller i dit eget driftsmiljø med en lokal sprogmodel.",
+      "securityTitle": "Sikkerhed fra første dag",
+      "securityBody": "Passkeys og totrinslogin fra start, arbejdsrum adskilt helt nede i databasen, og hver ændring i en log der ikke kan redigeres."
+    },
+    "status": "Version 1 er under opbygning på Haij-fundamentet. Adgang efter ansøgning.",
+    "family": {
+      "body": "Ajour er en del af Haij, en familie af open source-værktøjer med fælles dogmer om ægte open source, egen drift og dine data.",
+      "link": "Læs mere på haij.dk"
+    },
+    "footer": {
+      "license": "Open source under AGPL-3.0",
+      "language": "English"
+    }
+  },
+  "notFound": {
+    "title": "Siden findes ikke",
+    "body": "Adressen er enten forkert, eller også er siden flyttet.",
+    "cta": "Til forsiden"
+  },
+  "auth": {
+    "login": {
+      "title": "Log ind",
+      "subtitle": "Velkommen tilbage.",
+      "email": "E-mail",
+      "password": "Adgangskode",
+      "submit": "Log ind",
+      "or": "eller",
+      "withPasskey": "Log ind med passkey",
+      "noAccount": "Har du ikke en konto?",
+      "registerLink": "Opret konto",
+      "error": "Forkert e-mail eller adgangskode.",
+      "passkeyError": "Login med passkey mislykkedes. Prøv igen."
+    },
+    "register": {
+      "title": "Opret konto",
+      "subtitle": "Din konto og dit arbejdsrum oprettes samtidig.",
+      "name": "Dit navn",
+      "email": "E-mail",
+      "organizationName": "Arbejdsrummets navn",
+      "organizationHint": "Din virksomhed, forening eller afdeling. Kan ændres senere.",
+      "password": "Adgangskode",
+      "passwordHint": "Mindst 12 tegn.",
+      "submit": "Opret konto",
+      "haveAccount": "Har du allerede en konto?",
+      "loginLink": "Log ind",
+      "errorInvalid": "Tjek felterne og prøv igen.",
+      "errorEmailExists": "Der findes allerede en konto med denne e-mail.",
+      "errorGeneric": "Kontoen kunne ikke oprettes. Prøv igen.",
+      "closedTitle": "Oprettelse er lukket",
+      "closedBody": "Denne installation af Ajour tager ikke imod nye brugere. Kontakt ejeren hvis du skal have adgang.",
+      "invitedSubtitle": "Du er inviteret. Kontoen oprettes til den e-mail og det arbejdsrum, invitationen gælder for.",
+      "lockedHint": "Fastlagt af invitationen.",
+      "errorInvitationInvalid": "Invitationen er udløbet eller allerede brugt. Bed om et nyt link.",
+      "invitationInvalidTitle": "Linket virker ikke længere",
+      "invitationInvalidBody": "Invitationen er udløbet, brugt eller erstattet af en nyere. Bed den der inviterede dig om et nyt link, eller ansøg om adgang igen.",
+      "applyLink": "Ansøg om adgang"
+    },
+    "twoFactor": {
+      "title": "Totrinsbekræftelse",
+      "subtitle": "Indtast koden fra din authenticator-app.",
+      "submit": "Bekræft",
+      "error": "Forkert kode. Prøv igen."
+    },
+    "onboarding": {
+      "title": "Opret dit arbejdsrum",
+      "subtitle": "Du mangler et arbejdsrum, før du kan komme i gang.",
+      "organizationName": "Arbejdsrummets navn",
+      "submit": "Opret arbejdsrum",
+      "error": "Arbejdsrummet kunne ikke oprettes. Prøv igen."
+    },
+    "apply": {
+      "title": "Ansøg om adgang",
+      "subtitle": "Denne installation af Ajour tager imod nye brugere efter en kort ansøgning. Ejeren ser den personligt og svarer per mail.",
+      "name": "Dit navn",
+      "email": "E-mail",
+      "organizationName": "Organisation eller forening",
+      "message": "Hvad skal du bruge Ajour til?",
+      "messageHint": "Valgfrit. En linje eller to om projektet gør det nemmere at sige ja.",
+      "submit": "Send ansøgning",
+      "sentTitle": "Tak, ansøgningen er modtaget",
+      "sentBody": "Du hører fra ejeren af denne installation på {email}. Svaret kommer fra et menneske, så regn med en dag eller to.",
+      "errorInvalid": "Tjek felterne og prøv igen.",
+      "errorTooMany": "Der er sendt mange ansøgninger herfra på kort tid. Prøv igen om en time.",
+      "privacy": "Vi gemmer navn, e-mail og organisation for at behandle ansøgningen, og ikke andet. Bliver den afvist, står oplysningerne kun tilbage som en note om afgørelsen.",
+      "haveAccount": "Har du allerede en konto?",
+      "loginLink": "Log ind"
+    }
+  },
+  "app": {
+    "nav": {
+      "projects": "Projekter",
+      "help": "Hjælp",
+      "security": "Sikkerhed",
+      "logout": "Log ud",
+      "appearance": "Udseende",
+      "light": "Lys",
+      "dark": "Mørk",
+      "system": "Følg systemet",
+      "language": "Sprog",
+      "danish": "Dansk",
+      "english": "English",
+      "openMenu": "Åbn menu",
+      "menuTitle": "Navigation",
+      "settings": "Indstillinger"
+    },
+    "orgSwitcher": {
+      "label": "Arbejdsrum",
+      "create": "Opret arbejdsrum",
+      "createTitle": "Opret nyt arbejdsrum",
+      "name": "Navn",
+      "createSubmit": "Opret",
+      "switched": "Skiftet til {name}",
+      "created": "{name} er oprettet",
+      "error": "Arbejdsrummet kunne ikke oprettes. Prøv igen.",
+      "switch": "Skift arbejdsrum"
+    },
+    "projects": {
+      "title": "Projekter",
+      "subtitle": "Alle projekter i {workspace}.",
+      "emptyTitle": "Ingen projekter endnu",
+      "emptyBody": "Her kommer dine projekter til at bo: planen som tidslinje, ugens status og beslutningerne undervejs. Oprettelse af projekter er næste skridt i opbygningen.",
+      "passkeyPromptTitle": "Gør din konto mere sikker",
+      "passkeyPromptBody": "Tilføj en passkey, så du kan logge ind uden adgangskode.",
+      "passkeyPromptCta": "Tilføj passkey"
+    },
+    "security": {
+      "title": "Sikkerhed",
+      "subtitle": "Passkeys og totrinsbekræftelse for din konto.",
+      "passkeys": {
+        "title": "Passkeys",
+        "description": "Log ind uden adgangskode med Touch ID, Face ID eller en sikkerhedsnøgle.",
+        "empty": "Ingen passkeys endnu.",
+        "nameLabel": "Navn",
+        "namePlaceholder": "F.eks. MacBook",
+        "add": "Tilføj passkey",
+        "remove": "Fjern",
+        "addedAt": "Tilføjet {date}",
+        "addedToast": "Passkey tilføjet",
+        "removedToast": "Passkey fjernet",
+        "error": "Passkey kunne ikke tilføjes. Prøv igen."
+      },
+      "totp": {
+        "title": "Totrinsbekræftelse (TOTP)",
+        "description": "Kræv en kode fra din authenticator-app ved login.",
+        "statusEnabled": "Slået til",
+        "statusDisabled": "Slået fra",
+        "enable": "Slå til",
+        "disable": "Slå fra",
+        "password": "Bekræft med din adgangskode",
+        "scan": "Scan QR-koden med din authenticator-app, og indtast koden nedenfor.",
+        "backupCodes": "Backupkoder",
+        "backupHint": "Gem koderne et sikkert sted. De kan bruges, hvis du mister din telefon.",
+        "verifyLabel": "Kode fra appen",
+        "verify": "Bekræft",
+        "verifyError": "Forkert kode. Prøv igen.",
+        "enabledToast": "Totrinsbekræftelse er slået til",
+        "disabledToast": "Totrinsbekræftelse er slået fra",
+        "error": "Handlingen mislykkedes. Tjek adgangskoden, og prøv igen."
+      }
+    },
+    "about": {
+      "title": "Om Ajour",
+      "subtitle": "Hvilken udgave af Ajour der kører her, og om databasen følger med.",
+      "short": "v{release}",
+      "dirtyShort": "ændret",
+      "dirty": "Lokale ændringer",
+      "dirtyHint": "Bygget fra en arbejdsmappe med ændringer der ikke er committet. Commit-nummeret fortæller altså ikke hele sandheden om koden der kører.",
+      "releaseHint": "Versionsnummeret hæves i hånden når et spring er værd at navngive. Commit-nummeret bages ind ved build og peger på præcis den kode der svarer.",
+      "versionLabel": "Version",
+      "commitLabel": "Commit",
+      "builtAtLabel": "Bygget",
+      "environmentLabel": "Miljø",
+      "runtimeLabel": "Runtime",
+      "environments": {
+        "development": "Udvikling",
+        "test": "Test",
+        "production": "Drift"
+      },
+      "schemaTitle": "Databaseskema",
+      "schemaHint": "Antallet af migreringer koden er bygget med, holdt op mod dem databasen har kørt.",
+      "schemaBehind": "Migreringer mangler",
+      "schemaBehindHint": "Databasen har færre migreringer end koden forventer. Kør migreringerne før du bruger systemet videre.",
+      "migrationLabel": "Seneste migrering",
+      "appliedLabel": "Kørt",
+      "appliedValue": "{applied} af {expected}",
+      "appliedAtLabel": "Senest kørt",
+      "unknown": "Ukendt",
+      "license": "Ajour er open source under AGPL-3.0 og en del af Haij-familien."
+    }
+  },
+  "settings": {
+    "title": "Indstillinger",
+    "subtitle": "Din sikkerhed og din installation.",
+    "nav": {
+      "security": "Sikkerhed",
+      "about": "Om",
+      "access": "Adgang"
+    },
+    "access": {
+      "title": "Adgang til installationen",
+      "subtitle": "Hvem der må oprette et arbejdsrum her. Du godkender og sender linket; resten sker af sig selv.",
+      "pendingTitle": "Ansøgninger",
+      "pendingEmpty": "Ingen ventende ansøgninger.",
+      "approve": "Godkend",
+      "decline": "Afvis",
+      "declinedToast": "Ansøgningen er afvist.",
+      "linkTitle": "Link til {email}",
+      "linkBody": "Vises kun nu. Kopiér det og send det selv. Det virker i 7 dage og kun én gang.",
+      "copy": "Kopiér link",
+      "copiedToast": "Linket er kopieret.",
+      "inviteTitle": "Inviter direkte",
+      "inviteBody": "Uden ansøgning først. Samme link, samme regler.",
+      "inviteEmail": "E-mail",
+      "inviteOrganization": "Arbejdsrummets navn",
+      "inviteSubmit": "Opret invitation",
+      "invitationsTitle": "Invitationer",
+      "invitationsEmpty": "Ingen invitationer endnu.",
+      "renew": "Nyt link",
+      "expires": "Udløber {date}",
+      "used": "Brugt {date}",
+      "applied": "Ansøgt {date}",
+      "decidedApproved": "Godkendt {date}",
+      "decidedDeclined": "Afvist {date}",
+      "historyTitle": "Tidligere afgørelser",
+      "stateOpen": "Ubrugt",
+      "stateUsed": "Brugt",
+      "stateExpired": "Udløbet",
+      "stateRevoked": "Erstattet",
+      "errorInvalid": "Tjek e-mail og navnet på arbejdsrummet."
+    }
+  }
+}
