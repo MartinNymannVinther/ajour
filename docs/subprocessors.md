@@ -6,10 +6,10 @@ public list of who can see what for the installation at ajour.haij.dk. A
 self-hosted Ajour with `LLM_PROVIDER=ollama` has no subprocessor at all
 beyond the machine it runs on.
 
-| Subprocessor        | Purpose                                                   | Data                                                                                                  | Location      | Added      |
-| ------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------- | ---------- |
-| Hetzner Online GmbH | Hosting: the VPS running Docker and the database          | Everything the installation holds                                                                     | Nuremberg, DE | 2026-09-03 |
-| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat | The text of the project the feature works on: names, tasks, milestones, notes, chat messages (wave 2) | Paris, FR     | 2026-09-03 |
+| Subprocessor        | Purpose                                                                  | Data                                                                                                                                                    | Location      | Added      |
+| ------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------- |
+| Hetzner Online GmbH | Hosting: the VPS running Docker and the database                         | Everything the installation holds                                                                                                                       | Nuremberg, DE | 2026-09-03 |
+| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat, the daily tip | The project the feature works on: names of people, tasks, milestones, obstacles, decisions, the budget and its lines, chat messages. Written out below. | Paris, FR     | 2026-09-03 |
 
 ## What each one does and does not see
 
@@ -19,15 +19,42 @@ any hosted deployment and is why the choice of provider matters and why
 the exit plan in `docs/deploy.md` is a design requirement rather than a
 nicety.
 
-**Mistral** receives what a prompt contains and nothing else. In Ajour
-that is the project the person is working on: its description, goals,
-milestones, tasks, obstacles, decisions and the message typed into the
-chat. The budget is sent only when the person asks the AI about it.
-Passwords, passkeys, sessions and the audit log are never sent, and
-nothing is sent at all until the product's AI features arrive in wave 2.
-Everything a person or a participant has written is treated as data in
-the prompt, never as instructions, which is the prompt-injection defense,
-not a privacy measure — both matter, for different reasons.
+**Mistral** receives what a prompt contains and nothing else. Written out
+rather than summarised, because "the project" is vague and the point of
+this list is that it is not:
+
+- **Starting a project**: the description the person typed, and nothing
+  else. No existing project is in that prompt.
+- **The chat, and the daily tip**: the project's name, goal, the names of
+  its owner and manager, every milestone with its date and acceptance
+  criterion, every task with its dates, state, owner and participants and
+  its checklist, the open obstacles, the last ten decisions, **the budget
+  and every money line with its amount and whether it has been spent**,
+  the recent activity as sentences, and the last eight messages of the
+  chat itself.
+- **The weekly status**: the same, minus the individual money lines — the
+  budget, the planned and incurred totals and the number of lines go, the
+  lines themselves do not — plus the previous approved status.
+- **A replan**: only the moved milestone, the tasks hanging on it and the
+  later milestones. In practice this one is computed locally by the rules
+  engine and reaches no model at all.
+
+So the money is sent. An earlier version of this page said the budget went
+only when the person asked about it, which was true of an earlier design
+and is not true now; a workspace that does not want its figures leaving
+the machine should run `LLM_PROVIDER=ollama`, which is the reason that
+option exists.
+
+The names in a project are people's names, and they are usually
+colleagues rather than the account holder. That is personal data going to
+a subprocessor, which is why it is named here and why the terms page says
+so in plain language.
+
+Passwords, passkeys, session tokens, the audit log, share-link tokens and
+anything belonging to another workspace are never sent. Everything a
+person has written is placed in the prompt as data, never as instructions,
+which is the prompt-injection defence rather than a privacy measure —
+both matter, for different reasons.
 
 ## Not subprocessors, but worth naming
 

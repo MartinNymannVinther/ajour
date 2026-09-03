@@ -140,11 +140,16 @@ codebase to:
   project with a snapshot first, daily tip, decision log, obstacles,
   budget, history, templates, the project manager's ABC; share links;
   one-click export and workspace deletion.
-- Wave 3: mobile, accessibility and hardening — every core interaction
-  reachable without drag-and-drop, aria and focus, confirmations before
-  destructive actions, the AI surface hardened, optimistic locking.
-- Wave 4: demo and operations — a demo workspace per visit with cleanup,
-  terms, deploy to ajour.haij.dk, README with screenshots.
+- Wave 3 (done): mobile, accessibility and hardening — every core
+  interaction reachable without drag-and-drop, aria and focus, WCAG 2.1 AA
+  proven by an automated sweep, confirmations before destructive actions,
+  the AI surface hardened, optimistic locking.
+- Wave 4 (done): demo and operations — a demo workspace per visit with
+  cleanup, terms and privacy, README with screenshots, the deploy guide.
+- Next: publish the repository, deploy to ajour.haij.dk with
+  `LLM_PROVIDER=mistral`, and then dogma seven — run a real project on it
+  before the tool card goes up on haij.dk. `docs/launch.md` is the
+  ordered checklist.
 - After v1: the share link as an answer channel (participants update their
   own tasks and answer the AI's questions without a login), fixed-date
   milestones and replanning alternatives, mail through an EU provider.

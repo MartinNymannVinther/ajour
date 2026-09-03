@@ -836,7 +836,7 @@
     },
     "ai": {
       "title": "AI'en",
-      "body": "AI'en foreslår og udfører ændringer i din plan, men den beslutter ikke: der gemmes en kopi af projektet før hver ændring, og du kan fortryde alt. Den sender aldrig noget ud af huset, og den sletter aldrig noget. Den tekst der sendes til modellen er projektets egne felter, og den sendes som data, ikke som instruktioner. Bruger installationen en hostet model, står leverandøren i docs/subprocessors.md; kører den lokalt gennem Ollama, forlader teksten aldrig serveren."
+      "body": "AI'en foreslår og udfører ændringer i din plan, men den beslutter ikke: der gemmes en kopi af projektet før hver ændring, og du kan fortryde alt. Den sender aldrig noget ud af huset, og den sletter aldrig noget. Bruger installationen en hostet model, sendes projektets indhold til den, når du bruger chatten, dagens tip eller ugestatussen: navnene på de personer der står på opgaverne, milepæle, opgaver, forhindringer, beslutninger og budgettet med dets poster. Adgangskoder, passkeys, revisionsspor og andre arbejdsrum sendes aldrig. Teksten sendes som data, ikke som instruktioner. Hvem modellen er, står i docs/subprocessors.md; kører installationen lokalt gennem Ollama, forlader teksten aldrig serveren."
     },
     "shareLinks": {
       "title": "Delelinks",

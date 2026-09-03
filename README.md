@@ -124,8 +124,12 @@ and the migration talks to the wrong server: set `POSTGRES_PORT=5433` in
 
 ## Running it for real
 
-[docs/deploy.md](docs/deploy.md) is the deployment guide: Docker Compose
-on an EU VPS, with Coolify doing the plumbing. Which third parties can
+[docs/launch.md](docs/launch.md) is the ordered checklist for taking an
+installation live the first time, including the two steps that are painful
+to get wrong: the public URL passkeys bind to, and creating the first
+account before anybody else finds the address.
+[docs/deploy.md](docs/deploy.md) is the deployment guide behind it: Docker
+Compose on an EU VPS, with Coolify doing the plumbing. Which third parties can
 see data, and what, is listed in
 [docs/subprocessors.md](docs/subprocessors.md) — today that is the
 hosting provider and the AI provider you choose. With `LLM_PROVIDER=ollama`

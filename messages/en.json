@@ -836,7 +836,7 @@
     },
     "ai": {
       "title": "The AI",
-      "body": "The AI proposes and carries out changes to your plan, but it does not decide: a copy of the project is taken before every change, and you can undo all of it. It never sends anything out of the house and never deletes. What is sent to the model is the project's own fields, and it is sent as data, not as instructions. If the installation uses a hosted model, the provider is listed in docs/subprocessors.md; if it runs locally through Ollama, the text never leaves the server."
+      "body": "The AI proposes and carries out changes to your plan, but it does not decide: a copy of the project is taken before every change, and you can undo all of it. It never sends anything out of the house and never deletes. If the installation uses a hosted model, the project's content is sent to it when you use the chat, the daily tip or the weekly status: the names of the people on the tasks, the milestones, the tasks, the obstacles, the decisions and the budget with its lines. Passwords, passkeys, the audit trail and other workspaces are never sent. The text goes as data, not as instructions. Which model it is is listed in docs/subprocessors.md; if the installation runs locally through Ollama, the text never leaves the server."
     },
     "shareLinks": {
       "title": "Share links",
