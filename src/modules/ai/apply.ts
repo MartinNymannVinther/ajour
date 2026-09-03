@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { people, taskParticipants, tasks } from "@/core/db/schema";
+import { expenses, milestones, obstacles, people, taskParticipants, tasks } from "@/core/db/schema";
 import type { OrgContext, AppTransaction } from "@/core/db/tenant";
 import { personIdsForNames } from "@/modules/projects/people";
 import type { CreatedRows } from "@/modules/projects/snapshots";
@@ -55,7 +55,28 @@ export async function applyChatReply(
   };
   const actor = "ai" as const;
 
+  /**
+   * Defence in depth. The sanitizer already drops ids the project's own
+   * context did not contain, but the write layer must not depend on that:
+   * a service that finds a row by id alone finds it anywhere in the
+   * workspace. So the project's real ids are read once here, and anything
+   * naming a row outside them is skipped rather than written.
+   */
+  const own = async (
+    table: typeof tasks | typeof milestones | typeof expenses | typeof obstacles,
+  ) =>
+    new Set(
+      (await tx.select({ id: table.id }).from(table).where(eq(table.projectId, projectId))).map(
+        (row) => row.id,
+      ),
+    );
+  const ownTasks = await own(tasks);
+  const ownMilestones = await own(milestones);
+  const ownExpenses = await own(expenses);
+  const ownObstacles = await own(obstacles);
+
   for (const mm of reply.milestoneMoves) {
+    if (!ownMilestones.has(mm.id)) continue;
     await updateMilestone(tx, ctx, { milestoneId: mm.id, date: mm.newDate }, actor);
     lines.push({
       type: "milestone.updated",
@@ -63,6 +84,7 @@ export async function applyChatReply(
     });
   }
   for (const tm of reply.taskMoves) {
+    if (!ownTasks.has(tm.id)) continue;
     await moveTask(tx, ctx, tm.id, tm.newStart, tm.newEnd, actor);
     lines.push({
       type: "task.moved",
@@ -95,10 +117,13 @@ export async function applyChatReply(
     });
   }
   for (const sc of reply.stateChanges) {
+    if (!ownTasks.has(sc.id)) continue;
     await setTaskState(tx, ctx, sc.id, sc.state, actor);
     lines.push({ type: "task.state", payload: { title: sc.title, state: sc.state } });
   }
   for (const mc of reply.milestoneChanges) {
+    if (!ownTasks.has(mc.id)) continue;
+    if (mc.milestoneId !== null && !ownMilestones.has(mc.milestoneId)) continue;
     const task = await relinkTaskKeepingDates(tx, ctx, mc.id, mc.milestoneId);
     if (task)
       lines.push({
@@ -124,6 +149,7 @@ export async function applyChatReply(
     });
   }
   for (const ec of reply.expenseChanges) {
+    if (!ownExpenses.has(ec.id)) continue;
     const patch: { incurred?: boolean; amount?: number } = {};
     if (ec.incurred !== null) patch.incurred = ec.incurred;
     if (ec.amount !== null) patch.amount = ec.amount;
@@ -144,14 +170,17 @@ export async function applyChatReply(
     lines.push({ type: "obstacle.added", payload: { title: no.title } });
   }
   for (const ro of reply.resolvedObstacles) {
+    if (!ownObstacles.has(ro.id)) continue;
     await resolveObstacle(tx, ctx, ro.id, actor);
     lines.push({ type: "obstacle.resolved", payload: { title: ro.title } });
   }
   for (const sc of reply.subtaskChanges) {
+    if (!ownTasks.has(sc.id)) continue;
     await updateSubtasks(tx, ctx, sc.id, sc.subtasks, actor);
     lines.push({ type: "task.subtasks", payload: { title: sc.title, count: sc.subtasks.length } });
   }
   for (const pc of reply.peopleChanges) {
+    if (!ownTasks.has(pc.id)) continue;
     const task = await updateTaskPeople(
       tx,
       ctx,
@@ -169,6 +198,7 @@ export async function applyChatReply(
       });
   }
   for (const mu of reply.milestoneUpdates) {
+    if (!ownMilestones.has(mu.id)) continue;
     await updateMilestone(
       tx,
       ctx,

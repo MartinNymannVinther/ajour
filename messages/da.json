@@ -143,7 +143,8 @@
       "english": "English",
       "openMenu": "Åbn menu",
       "menuTitle": "Navigation",
-      "settings": "Indstillinger"
+      "settings": "Indstillinger",
+      "skipToContent": "Spring til indholdet"
     },
     "orgSwitcher": {
       "label": "Arbejdsrum",
@@ -399,7 +400,8 @@
       "zoomOut": "Zoom ud i tid",
       "noOwner": "ingen ansvarlig",
       "taskHandle": "{title}, {owner}, {from} til {to}. Piletaster flytter opgaven, skift og piletaster ændrer længden, alt og piletaster flytter til en anden milepæl.",
-      "milestoneHandle": "Milepælen {title}, {date}. Piletaster flytter milepælen og foreslår en replanlægning."
+      "milestoneHandle": "Milepælen {title}, {date}. Piletaster flytter milepælen og foreslår en replanlægning.",
+      "regionLabel": "Tidslinje, kan rulles vandret"
     },
     "board": {
       "empty": "Ingen opgaver her. Træk et kort hertil, eller brug statusvælgeren på kortet.",

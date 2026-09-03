@@ -39,7 +39,7 @@ export function MilestoneList({
   }) => void;
   onToggleDone: (id: string, done: boolean) => void;
   onDelete: (id: string) => void;
-  onCreate: (title: string, date: string) => void;
+  onCreate: (title: string, date: string) => Promise<boolean>;
 }) {
   const t = useTranslations("projects.milestones");
   const [draft, setDraft] = useState({ title: "", date: "", owner: "", criterion: "" });
@@ -84,7 +84,7 @@ export function MilestoneList({
                   type="button"
                   onClick={() => (isEditing ? onEdit(null) : openEditor(m))}
                   className={cn(
-                    "hover:text-primary min-w-0 truncate text-left text-sm font-medium",
+                    "hover:text-primary min-h-[24px] min-w-0 truncate text-left text-sm font-medium",
                     done && "text-success",
                   )}
                 >
@@ -170,11 +170,11 @@ export function MilestoneList({
         })}
       </ul>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!newDraft.title.trim() || !newDraft.date) return;
-          onCreate(newDraft.title.trim(), newDraft.date);
-          setNewDraft({ title: "", date: "" });
+          if (await onCreate(newDraft.title.trim(), newDraft.date))
+            setNewDraft({ title: "", date: "" });
         }}
         className="border-hairline mt-3 flex flex-wrap gap-2 border-t pt-3"
       >

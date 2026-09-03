@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ownerAccessSummary } from "@/core/access/summary";
 import { getOrgContext, getSession } from "@/core/auth/session";
 import { organizations } from "@/core/db/schema";
@@ -35,9 +35,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // The owner sees how many people are waiting at the door; nobody else
   // is told there is a door.
   const attention = (await ownerAccessSummary())?.pending ?? 0;
+  const t = await getTranslations("app.nav");
 
   return (
     <div className="flex min-h-svh">
+      {/* Tabbing into a page should not mean tabbing through the whole
+          sidebar first, every time. */}
+      <a
+        href="#main"
+        className="bg-card text-foreground focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:ring-2"
+      >
+        {t("skipToContent")}
+      </a>
       <AppSidebar
         userName={session.user.name}
         userEmail={session.user.email}
@@ -51,7 +60,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           organization={organization?.name ?? ""}
           attention={attention}
         />
-        <main className="@container mx-auto w-full max-w-6xl flex-1 px-5 py-6 sm:px-7 lg:px-8 lg:py-[30px]">
+        <main
+          id="main"
+          tabIndex={-1}
+          className="@container mx-auto w-full max-w-6xl flex-1 px-5 py-6 sm:px-7 lg:px-8 lg:py-[30px]"
+        >
           {children}
         </main>
       </div>

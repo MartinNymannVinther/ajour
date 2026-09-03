@@ -180,7 +180,12 @@ export function Timeline({
       </div>
       <div
         ref={scrollRef}
-        className="border-border bg-card overflow-x-auto rounded-xl border select-none"
+        // A horizontally scrolling region needs to be reachable, or a
+        // keyboard user cannot see the half of the plan that is off-screen.
+        tabIndex={0}
+        role="group"
+        aria-label={t("regionLabel")}
+        className="border-border bg-card focus-visible:ring-ring overflow-x-auto rounded-xl border select-none focus-visible:ring-2 focus-visible:outline-none"
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
@@ -247,7 +252,7 @@ export function Timeline({
                             type="button"
                             onClick={() => onMilestoneClick?.(milestone.id)}
                             className={cn(
-                              "hover:text-primary truncate text-left hover:underline",
+                              "hover:text-primary min-h-[24px] truncate text-left hover:underline",
                               milestone.doneAt && "text-success",
                             )}
                           >
@@ -269,8 +274,11 @@ export function Timeline({
                     </div>
                     {milestone && (
                       <>
+                        {/* The diamond is 16px, its hit area 28: small enough
+                            to read as a marker, big enough to hit. */}
                         <button
                           type="button"
+                          data-slot="timeline-milestone"
                           onPointerDown={(e) =>
                             editable &&
                             !milestone.doneAt &&
@@ -282,18 +290,25 @@ export function Timeline({
                             date: formatDateDa(effMilestone(milestone)),
                           })}
                           className={cn(
-                            "focus-visible:ring-ring absolute z-10 h-4 w-4 -translate-x-1/2 rotate-45 rounded-[3px] border-2 focus-visible:ring-2",
-                            milestone.doneAt
-                              ? "border-success bg-success/60"
-                              : pendingMilestoneMove?.id === milestone.id
-                                ? "border-chart-4 bg-chart-4"
-                                : "border-foreground bg-foreground",
+                            "focus-visible:ring-ring absolute z-10 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded focus-visible:ring-2",
                             editable &&
                               !milestone.doneAt &&
                               "cursor-grab touch-none active:cursor-grabbing",
                           )}
                           style={{ left: x(effMilestone(milestone)) + dayWidth / 2 }}
-                        />
+                        >
+                          <span
+                            aria-hidden
+                            className={cn(
+                              "h-4 w-4 rotate-45 rounded-[3px] border-2",
+                              milestone.doneAt
+                                ? "border-success bg-success/60"
+                                : pendingMilestoneMove?.id === milestone.id
+                                  ? "border-chart-4 bg-chart-4"
+                                  : "border-foreground bg-foreground",
+                            )}
+                          />
+                        </button>
                         <div
                           className="border-border absolute top-0 bottom-0 w-px border-l border-dashed"
                           style={{ left: x(effMilestone(milestone)) + dayWidth / 2 }}
@@ -317,6 +332,7 @@ export function Timeline({
                       >
                         <button
                           type="button"
+                          data-slot="timeline-task"
                           onPointerDown={(e) =>
                             editable && startTaskDrag(e, task, "move", eff, known)
                           }

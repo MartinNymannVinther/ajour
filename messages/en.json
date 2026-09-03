@@ -143,7 +143,8 @@
       "english": "English",
       "openMenu": "Open menu",
       "menuTitle": "Navigation",
-      "settings": "Settings"
+      "settings": "Settings",
+      "skipToContent": "Skip to content"
     },
     "orgSwitcher": {
       "label": "Workspace",
@@ -399,7 +400,8 @@
       "zoomOut": "Zoom out",
       "noOwner": "no owner",
       "taskHandle": "{title}, {owner}, {from} to {to}. Arrow keys move the task, shift and arrows change its length, alt and arrows move it to another milestone.",
-      "milestoneHandle": "Milestone {title}, {date}. Arrow keys move the milestone and propose a replan."
+      "milestoneHandle": "Milestone {title}, {date}. Arrow keys move the milestone and propose a replan.",
+      "regionLabel": "Timeline, scrolls sideways"
     },
     "board": {
       "empty": "No tasks here. Drag a card in, or use the state select on the card.",

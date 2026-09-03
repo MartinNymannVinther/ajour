@@ -22,7 +22,7 @@ export function VersionLink({ onNavigate }: { onNavigate?: () => void }) {
       href="/settings/about"
       onClick={onNavigate}
       title={t("title")}
-      className="text-sidebar-foreground/55 hover:text-sidebar-foreground px-3 pt-0.5 text-[0.6875rem] tracking-[0.01em] transition-colors duration-[120ms]"
+      className="text-meta hover:text-sidebar-foreground inline-flex min-h-[24px] items-center px-3 pt-0.5 text-[0.6875rem] tracking-[0.01em] transition-colors duration-[120ms]"
     >
       {t("short", { release: buildInfo.release })}
       {buildInfo.dirty ? ` · ${t("dirtyShort")}` : ""}

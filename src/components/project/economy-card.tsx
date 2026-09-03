@@ -36,7 +36,7 @@ export function EconomyCard({
     amount: number;
     incurred: boolean;
     taskId: string | null;
-  }) => void;
+  }) => Promise<boolean>;
   onToggleExpense: (id: string, incurred: boolean) => void;
   onRemoveExpense: (id: string) => void;
 }) {
@@ -90,7 +90,7 @@ export function EconomyCard({
               setBudgetDraft(budget?.toString() ?? "");
               setEditingBudget(true);
             }}
-            className="hover:text-primary text-sm font-medium"
+            className="hover:text-primary inline-flex min-h-[24px] items-center text-sm font-medium"
           >
             {budget !== null ? t("budget", { amount: formatMoney(budget) }) : t("setBudget")}
             <span className="text-primary ml-2 text-xs font-medium">{t("edit")}</span>
@@ -165,17 +165,17 @@ export function EconomyCard({
         </ul>
 
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             const amount = Number(draft.amount.replace(/[.\s]/g, ""));
             if (!draft.title.trim() || !Number.isFinite(amount) || amount <= 0) return;
-            onAddExpense({
+            const done = await onAddExpense({
               title: draft.title.trim(),
               amount,
               incurred: draft.incurred,
               taskId: draft.taskId || null,
             });
-            setDraft({ title: "", amount: "", incurred: false, taskId: "" });
+            if (done) setDraft({ title: "", amount: "", incurred: false, taskId: "" });
           }}
           className="space-y-2"
         >
@@ -212,6 +212,7 @@ export function EconomyCard({
             <label className="text-meta flex items-center gap-1.5 text-xs">
               <input
                 type="checkbox"
+                className="size-[18px] shrink-0"
                 checked={draft.incurred}
                 onChange={(e) => setDraft((d) => ({ ...d, incurred: e.target.checked }))}
               />

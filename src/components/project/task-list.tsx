@@ -58,7 +58,7 @@ export function TaskList({
     owner: string;
     startDate: string;
     endDate: string;
-  }) => void;
+  }) => Promise<boolean>;
 }) {
   const t = useTranslations("projects.tasks");
   const selected = editingId ? tasks.find((task) => task.id === editingId) : undefined;

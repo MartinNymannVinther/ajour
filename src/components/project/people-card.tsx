@@ -71,7 +71,7 @@ export function PeopleCard({
                         setDraft(person.name);
                         setEditing(person.id);
                       }}
-                      className="hover:text-primary min-w-0 truncate text-left"
+                      className="hover:text-primary min-h-[24px] min-w-0 truncate text-left"
                     >
                       {person.name}
                     </button>

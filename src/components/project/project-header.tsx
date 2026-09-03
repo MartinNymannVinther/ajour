@@ -120,7 +120,7 @@ export function ProjectHeader({
               setRoles({ owner: project.ownerName, manager: project.managerName });
               setEditingRoles(true);
             }}
-            className="text-meta hover:text-primary mt-1.5 text-xs"
+            className="text-meta hover:text-primary mt-1.5 inline-flex min-h-[24px] items-center text-xs"
           >
             {t("roles", {
               owner: project.ownerName || t("unset"),

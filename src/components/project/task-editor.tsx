@@ -133,6 +133,7 @@ export function TaskEditor({
             <li key={`${item.title}-${i}`} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
+                className="size-[18px] shrink-0"
                 checked={item.done}
                 aria-label={item.title}
                 onChange={() =>

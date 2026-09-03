@@ -1,9 +1,11 @@
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Timeline } from "@/components/project/timeline";
 import { HaijMark, PRODUCT_NAME } from "@/components/wordmark";
 import { formatDateDa, todayInCopenhagen, weekNumberFromKey } from "@/core/dates";
+import { callerKey, rateLimit } from "@/core/rate-limit";
 import { readSharedProject } from "@/modules/share/service";
 
 type Params = { params: Promise<{ token: string }> };
@@ -18,6 +20,11 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
  */
 export default async function SharedProjectPage({ params }: Params) {
   const { token } = await params;
+  // A token is 144 random bits, so guessing one is not the threat; a
+  // script hammering the endpoint is. 60 reads a minute per address is
+  // more than a person and less than a load generator.
+  const limit = rateLimit(callerKey(await headers(), "share"), 60, 60_000);
+  if (!limit.allowed) notFound();
   const today = todayInCopenhagen();
   const shared = await readSharedProject(token, today);
   if (!shared) notFound();

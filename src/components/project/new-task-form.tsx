@@ -27,7 +27,7 @@ export function NewTaskForm({
     owner: string;
     startDate: string;
     endDate: string;
-  }) => void;
+  }) => Promise<boolean>;
 }) {
   const t = useTranslations("projects.newTask");
   const [open, setOpen] = useState(false);
@@ -51,16 +51,17 @@ export function NewTaskForm({
 
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => {
         e.preventDefault();
         if (!draft.title.trim()) return;
-        onCreate({
+        const done = await onCreate({
           title: draft.title.trim(),
           milestoneId: draft.milestoneId || null,
           owner: draft.owner.trim(),
           startDate: draft.startDate,
           endDate: draft.endDate,
         });
+        if (!done) return;
         setDraft((d) => ({ ...d, title: "", owner: "" }));
         setOpen(false);
       }}

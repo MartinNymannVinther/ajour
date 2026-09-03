@@ -6,7 +6,13 @@ import { cn } from "@/lib/utils";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+    <div
+      data-slot="table-container"
+      // Scrollable, so focusable: a keyboard user must be able to reach
+      // the columns that a narrow window pushes out of sight.
+      tabIndex={0}
+      className="focus-visible:ring-ring relative w-full overflow-x-auto focus-visible:ring-2 focus-visible:outline-none"
+    >
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}

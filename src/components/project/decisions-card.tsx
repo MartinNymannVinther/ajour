@@ -19,7 +19,7 @@ export function DecisionsCard({
   onAdd,
 }: {
   decisions: Decision[];
-  onAdd: (title: string, note: string) => void;
+  onAdd: (title: string, note: string) => Promise<boolean>;
 }) {
   const t = useTranslations("projects.decisions");
   const [draft, setDraft] = useState({ title: "", note: "" });
@@ -44,11 +44,10 @@ export function DecisionsCard({
         ))}
       </ul>
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           if (!draft.title.trim()) return;
-          onAdd(draft.title.trim(), draft.note.trim());
-          setDraft({ title: "", note: "" });
+          if (await onAdd(draft.title.trim(), draft.note.trim())) setDraft({ title: "", note: "" });
         }}
         className="mt-2 space-y-1.5"
       >

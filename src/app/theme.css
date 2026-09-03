@@ -32,8 +32,15 @@
   --success-tint: oklch(0.925 0.017 150); /* #e4ebe4 */
   --warning: oklch(0.475 0.075 55); /* ink #8c5b3e */
   --warning-tint: oklch(0.938 0.018 55); /* #f6e8e0 */
-  --label: oklch(0.68 0.008 82); /* #a39d92 labels, placeholders, column heads */
-  --meta: oklch(0.585 0.008 82); /* #8a8479 meta text */
+  /*
+   * Two greys darker than the 2a handoff. At the handoff's values meta
+   * reads 4.13:1 and label 2.83:1 on the card, which fails WCAG AA for
+   * the 11-14px text they are used for; these reach 5.19:1 and 4.60:1 on
+   * the worst surface they land on. The hue and the gap between them are
+   * kept, so the page still reads as 2a.
+   */
+  --label: oklch(0.53 0.008 82); /* #6e6b67 labels, placeholders, column heads */
+  --meta: oklch(0.5 0.008 82); /* #65635e meta text */
   --hairline: oklch(0.935 0.008 85); /* #f0ece5 table rules, skeletons */
   --border: oklch(0.918 0.008 85); /* #eae5dc */
   --input: oklch(0.872 0.009 85); /* #ddd8cf */
@@ -79,8 +86,9 @@
   --success-tint: oklch(0.315 0.035 150);
   --warning: oklch(0.8 0.085 62);
   --warning-tint: oklch(0.32 0.04 55);
-  --label: oklch(0.6 0.008 82);
-  --meta: oklch(0.66 0.008 82);
+  /* Lifted for the same reason as the light pair; see the note above. */
+  --label: oklch(0.65 0.008 82);
+  --meta: oklch(0.7 0.008 82);
   --hairline: oklch(1 0 0 / 7%);
   --border: oklch(1 0 0 / 9%);
   --input: oklch(1 0 0 / 14%);

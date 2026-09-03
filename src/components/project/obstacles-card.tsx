@@ -19,7 +19,7 @@ export function ObstaclesCard({
   onResolve,
 }: {
   obstacles: Obstacle[];
-  onAdd: (title: string) => void;
+  onAdd: (title: string) => Promise<boolean>;
   onResolve: (id: string) => void;
 }) {
   const t = useTranslations("projects.obstacles");
@@ -50,11 +50,10 @@ export function ObstaclesCard({
           </div>
         ))}
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             if (!draft.trim()) return;
-            onAdd(draft.trim());
-            setDraft("");
+            if (await onAdd(draft.trim())) setDraft("");
           }}
           className="flex gap-2"
         >

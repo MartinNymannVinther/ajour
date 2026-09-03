@@ -21,7 +21,7 @@ export function HistoryCard({
 }: {
   projectId: string;
   snapshots: Array<{ id: string; label: string; reason: string; createdAt: Date }>;
-  onCreate: (label: string) => void;
+  onCreate: (label: string) => Promise<boolean>;
 }) {
   const t = useTranslations("projects.history");
   const [draft, setDraft] = useState("");
@@ -35,10 +35,9 @@ export function HistoryCard({
     >
       <div className="bg-secondary space-y-2 rounded-lg p-3">
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            onCreate(draft.trim() || t("defaultLabel"));
-            setDraft("");
+            if (await onCreate(draft.trim() || t("defaultLabel"))) setDraft("");
           }}
           className="flex gap-2"
         >
