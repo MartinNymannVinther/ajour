@@ -152,7 +152,9 @@
       "openMenu": "Open menu",
       "menuTitle": "Navigation",
       "settings": "Settings",
-      "skipToContent": "Skip to content"
+      "skipToContent": "Skip to content",
+      "hideMenu": "Hide the menu",
+      "showMenu": "Show the menu"
     },
     "orgSwitcher": {
       "label": "Workspace",

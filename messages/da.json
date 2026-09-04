@@ -152,7 +152,9 @@
       "openMenu": "Åbn menu",
       "menuTitle": "Navigation",
       "settings": "Indstillinger",
-      "skipToContent": "Spring til indholdet"
+      "skipToContent": "Spring til indholdet",
+      "hideMenu": "Skjul menuen",
+      "showMenu": "Vis menuen"
     },
     "orgSwitcher": {
       "label": "Arbejdsrum",

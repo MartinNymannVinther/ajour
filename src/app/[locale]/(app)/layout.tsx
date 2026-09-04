@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { getLocale, getTranslations } from "next-intl/server";
 import { ownerAccessSummary } from "@/core/access/summary";
 import { getOrgContext, getSession } from "@/core/auth/session";
@@ -9,6 +10,7 @@ import { DemoBanner } from "@/components/demo-banner";
 import { isDemoWorkspace } from "@/modules/demo/service";
 import { AppSidebar } from "./app-sidebar";
 import { MobileHeader } from "./mobile-header";
+import { SidebarShell, SidebarToggle } from "./sidebar-shell";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -40,6 +42,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const t = await getTranslations("app.nav");
   const demo = context ? await isDemoWorkspace(context.orgId) : false;
 
+  // Read on the server so the first paint is already the layout this
+  // person left behind, rather than a rail that appears and vanishes.
+  const sidebarHidden = (await cookies()).get("ajour-sidebar")?.value === "hidden";
+
   return (
     <div className="flex min-h-svh">
       {/* Tabbing into a page should not mean tabbing through the whole
@@ -50,13 +56,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       >
         {t("skipToContent")}
       </a>
-      <AppSidebar
-        userName={session.user.name}
-        userEmail={session.user.email}
-        organization={organization?.name ?? ""}
-        attention={attention}
-      />
-      <div className="border-border flex min-w-0 flex-1 flex-col lg:border-l">
+      <SidebarShell
+        defaultHidden={sidebarHidden}
+        sidebar={
+          <AppSidebar
+            userName={session.user.name}
+            userEmail={session.user.email}
+            organization={organization?.name ?? ""}
+            attention={attention}
+            toggle={<SidebarToggle placement="sidebar" />}
+          />
+        }
+      >
         {demo && <DemoBanner />}
         <MobileHeader
           userName={session.user.name}
@@ -71,7 +82,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         >
           {children}
         </main>
-      </div>
+      </SidebarShell>
     </div>
   );
 }

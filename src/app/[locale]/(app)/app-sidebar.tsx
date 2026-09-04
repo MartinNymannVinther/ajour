@@ -3,6 +3,7 @@ import { WordmarkLockup } from "@/components/wordmark";
 import { Link } from "@/i18n/navigation";
 import { OrgSwitcher } from "./org-switcher";
 import { SidebarNav, SidebarSettingsLink } from "./sidebar-nav";
+import { SIDEBAR_ID } from "./sidebar-shell";
 import { UserMenu } from "./user-menu";
 import { VersionLink } from "./version-link";
 
@@ -16,18 +17,24 @@ export async function AppSidebar({
   userEmail,
   organization,
   attention = 0,
+  toggle,
 }: {
   userName: string;
   userEmail: string;
   organization: string;
   /** Items waiting for the installation's owner; zero for everyone else. */
   attention?: number;
+  /** The control that folds the rail away; rendered next to the lockup. */
+  toggle?: React.ReactNode;
 }) {
   const t = await getTranslations("app.orgSwitcher");
   const switchLabel = t("switch");
   return (
-    <aside className="bg-sidebar sticky top-0 hidden h-svh w-[236px] shrink-0 flex-col lg:flex">
-      <div className="px-4 pt-5 pb-3">
+    <aside
+      id={SIDEBAR_ID}
+      className="bg-sidebar sticky top-0 hidden h-svh w-[236px] shrink-0 flex-col lg:flex"
+    >
+      <div className="flex items-start justify-between gap-2 px-4 pt-5 pb-3">
         <Link
           href="/projects"
           aria-label="Ajour"
@@ -35,6 +42,7 @@ export async function AppSidebar({
         >
           <WordmarkLockup organization={organization} />
         </Link>
+        {toggle}
       </div>
       <SidebarNav />
       <div className="flex flex-col gap-1.5 px-3 pt-1 pb-3">

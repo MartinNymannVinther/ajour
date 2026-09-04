@@ -364,8 +364,10 @@ export function Timeline({
                           }}
                         >
                           <span className="truncate">{task.title}</span>
+                          {/* Full opacity: at 10px on the green bar, the
+                              dimmed version fell under AA (3.5:1). */}
                           {task.ownerName && !compact && width > 120 && (
-                            <span className="ml-auto pl-2 text-[10px] opacity-70">
+                            <span className="ml-auto pl-2 text-[10px] opacity-90">
                               {task.ownerName}
                               {task.participants.length > 0 ? ` +${task.participants.length}` : ""}
                             </span>
