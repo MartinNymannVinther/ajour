@@ -144,7 +144,7 @@ export async function draftStatusAction(
     });
     if (!prepared) return fail("notFound");
     const weekLabel = common("weekOf", { date: today });
-    const res = await withEngine((engine) =>
+    const res = await withEngine(ctx, (engine) =>
       engine.draftStatus(buildStatusInput(prepared, locale, weekLabel, activity, today)),
     );
     return ok({ draft: res.result, engine: res.engine, fallback: res.fallback });

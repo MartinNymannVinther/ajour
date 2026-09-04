@@ -50,7 +50,7 @@ export function ChatPanel({
   );
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [fallback, setFallback] = useState(false);
+  const [fallback, setFallback] = useState<{ reason?: string } | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollDown = () =>
@@ -86,7 +86,7 @@ export function ChatPanel({
             applied: outcome.applied ? { ...outcome.applied, undone: false } : undefined,
           },
         ]);
-        setFallback(outcome.fallback);
+        setFallback(outcome.fallback ? { reason: outcome.fallbackReason } : null);
         if (outcome.applied) router.refresh();
       }
       setLoading(false);
@@ -180,7 +180,18 @@ export function ChatPanel({
             {loading && <p className="text-label animate-pulse text-sm">{t("thinking")}</p>}
           </div>
 
-          {fallback && <p className="text-warning mt-2 text-xs">{t("fallback")}</p>}
+          {fallback && (
+            <div className="mt-2 text-xs">
+              <p className="text-warning">{t("fallback")}</p>
+              {/* The server knows why the model did not answer. Saying so
+                  is the difference between "the AI is bad" and "the model
+                  name in .env is wrong". */}
+              {fallback.reason && (
+                <p className="text-meta mt-1 font-mono break-words">{fallback.reason}</p>
+              )}
+              <p className="text-meta mt-1">{t("fallbackWhere")}</p>
+            </div>
+          )}
 
           <form
             onSubmit={(e) => {

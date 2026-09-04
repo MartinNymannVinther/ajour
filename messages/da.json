@@ -329,9 +329,43 @@
       "title": "AI",
       "subtitle": "Hvilken motor der svarer, og hvad den må.",
       "providerTitle": "Sprogmodel",
-      "providerHint": "Modellen sættes i miljøet, ikke i brugerfladen: den hører til installationen, ikke til det enkelte arbejdsrum.",
+      "providerHint": "Installationen sætter en model i miljøet, og hvert arbejdsrum kan vælge sin egen i stedet.",
       "provider": "Udbyder",
-      "model": "Model",
+      "model": {
+        "title": "Din egen sprogmodel",
+        "subtitle": "Arbejdsrummet kan køre på en anden model end den installationen har sat op. Vælger du ingenting, arver du installationens.",
+        "current": "Model",
+        "source": "Valgt af",
+        "fromInstallation": "Installationen",
+        "fromWorkspace": "Dette arbejdsrum",
+        "keySource": "Nøgle",
+        "keyFromWorkspace": "Arbejdsrummets egen",
+        "keyFromInstallation": "Installationens",
+        "keyMissing": "Mangler",
+        "providerLabel": "Udbyder",
+        "provider_mistral": "Mistral (EU)",
+        "provider_ollama": "Ollama (lokal)",
+        "providerNone": "Ingen model",
+        "inherit": "Følg installationen ({provider})",
+        "providerHelp": "Ollama-adressen bestemmes af installationen. Det er med vilje: et arbejdsrum der selv kunne pege på en adresse, ville få serveren til at hente fra hvor som helst.",
+        "modelLabel": "Modelnavn",
+        "modelHelpMistral": "Lad feltet stå tomt for at bruge {placeholder}.",
+        "modelHelpOllama": "Navnet skal matche en model du har hentet med „ollama pull“. Test forbindelsen ovenfor, så siger den hvilke du har.",
+        "keyLabel": "API-nøgle",
+        "keyPlaceholder": "Indsæt din Mistral-nøgle",
+        "keyStored": "Der ligger en gemt nøgle",
+        "keyHelp": "Lad feltet stå tomt for at bruge installationens nøgle. Nøglen krypteres før den gemmes og kan ikke læses ud igen.",
+        "keyStoredHelp": "Arbejdsrummet har sin egen nøgle. Skriv en ny for at erstatte den, eller fjern den for at falde tilbage på installationens.",
+        "keyRemove": "Fjern gemt nøgle",
+        "save": "Gem",
+        "saving": "Gemmer …",
+        "saved": "Gemt",
+        "saveFailed": "Kunne ikke gemmes. Prøv igen.",
+        "notAllowed": "Kun ejere og administratorer kan ændre arbejdsrummets model.",
+        "short_mistral": "Mistral",
+        "short_ollama": "Ollama",
+        "shortNone": "ingen model"
+      },
       "noModel": "Ingen model konfigureret",
       "setupIntro": "Ajour virker uden en model. Vil du have rigtige forslag og fritekstsvar, så sæt en op:",
       "setupOutro": "Kør derefter Ajour igen. Uden en model svarer reservemotoren, og de tre flows virker stadig.",
@@ -347,7 +381,17 @@
       "principleDecides": "AI'en foreslår og udfører, men mennesket beslutter. Den sender aldrig noget ud af huset og sletter aldrig noget.",
       "principleUndo": "Der gemmes en kopi af hele projektet før hver AI-ændring, og hver ændring kan fortrydes fra beskeden der lavede den.",
       "principleData": "Det du og dine kolleger skriver, sendes til modellen som data, aldrig som instruktioner, og modellens svar valideres mod projektets egne id'er, før noget skrives.",
-      "principleSovereign": "Modellen kan skiftes ud, også til en lokal. Hvem der kan se hvad står i docs/subprocessors.md."
+      "principleSovereign": "Modellen kan skiftes ud, også til en lokal. Hvem der kan se hvad står i docs/subprocessors.md.",
+      "test": "Test forbindelsen",
+      "testing": "Tester …",
+      "testPatience": "En lokal model skal måske læses ind fra disken først. Det kan tage op mod et minut første gang.",
+      "testOk": "Modellen svarer",
+      "testOkDetail": "{model} svarede „{sample}“ på {seconds} sekunder.",
+      "testFailed": "Modellen svarer ikke",
+      "failAuth": "Nøglen blev afvist. Tjek arbejdsrummets egen nøgle herunder, eller installationens MISTRAL_API_KEY.",
+      "failUnreachable": "Der er ingen der lytter på adressen. Kører Ollama? Tjek OLLAMA_BASE_URL.",
+      "failConfig": "Modellen er sat op forkert. Ret modelnavnet herunder, eller LLM_MODEL i .env.",
+      "failGeneric": "Kaldet gik galt. Detaljerne står herunder og i serverloggen."
     }
   },
   "projects": {
@@ -625,7 +669,8 @@
     "fallback": "Modellen svarede ikke, så svaret kom fra reservemotoren. Den rådgiver ikke frit, men forstår „budget: 50000“, „forhindring: …“ og „beslutning: …“.",
     "note": "Beder du om ændringer, laver AI'en dem med det samme. Der gemmes altid en kopi af hele projektet først, og du kan fortryde her eller gendanne fra Plan-historik.",
     "snapshotLabel": "Før AI-ændring",
-    "beforeUndo": "Før fortrydelse af AI-ændring"
+    "beforeUndo": "Før fortrydelse af AI-ændring",
+    "fallbackWhere": "Du kan teste forbindelsen under Indstillinger → AI."
   },
   "tip": {
     "label": "Dagens tip",
@@ -818,7 +863,7 @@
   },
   "terms": {
     "title": "Vilkår og privatliv",
-    "updated": "Senest opdateret 3. september 2026.",
+    "updated": "Senest opdateret 4. september 2026.",
     "back": "Tilbage",
     "language": "In English",
     "intro": "Ajour er open source og drives af Vinther Consulting på ajour.haij.dk. Siden her siger, hvad du kan regne med, og hvad vi gør med det du skriver. Den er kort, fordi svaret på de fleste spørgsmål står i de syv dogmer: dine data er dine, alt kan hentes ud, og alt kan slettes.",
@@ -836,7 +881,7 @@
     },
     "ai": {
       "title": "AI'en",
-      "body": "AI'en foreslår og udfører ændringer i din plan, men den beslutter ikke: der gemmes en kopi af projektet før hver ændring, og du kan fortryde alt. Den sender aldrig noget ud af huset, og den sletter aldrig noget. Bruger installationen en hostet model, sendes projektets indhold til den, når du bruger chatten, dagens tip eller ugestatussen: navnene på de personer der står på opgaverne, milepæle, opgaver, forhindringer, beslutninger og budgettet med dets poster. Adgangskoder, passkeys, revisionsspor og andre arbejdsrum sendes aldrig. Teksten sendes som data, ikke som instruktioner. Hvem modellen er, står i docs/subprocessors.md; kører installationen lokalt gennem Ollama, forlader teksten aldrig serveren."
+      "body": "AI'en foreslår og udfører ændringer i din plan, men den beslutter ikke: der gemmes en kopi af projektet før hver ændring, og du kan fortryde alt. Den sender aldrig noget ud af huset, og den sletter aldrig noget. Bruger installationen en hostet model, sendes projektets indhold til den, når du bruger chatten, dagens tip eller ugestatussen: navnene på de personer der står på opgaverne, milepæle, opgaver, forhindringer, beslutninger og budgettet med dets poster. Adgangskoder, passkeys, revisionsspor og andre arbejdsrum sendes aldrig. Teksten sendes som data, ikke som instruktioner. Hvem modellen er, står i docs/subprocessors.md; kører installationen lokalt gennem Ollama, forlader teksten aldrig serveren. Et arbejdsrum kan under Indstillinger → AI vælge en anden model end den installationen bruger, eller slå modellen helt fra. Vælger arbejdsrummet sin egen, er det den udbyder der modtager teksten, og siden siger hvilken. En API-nøgle et arbejdsrum lægger ind, gemmes krypteret og kan ikke læses ud igen."
     },
     "shareLinks": {
       "title": "Delelinks",

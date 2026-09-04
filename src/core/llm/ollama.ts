@@ -125,10 +125,16 @@ export class OllamaProvider implements LlmProvider {
         (name) => name === this.model || name.startsWith(`${this.model}:`),
       );
       if (!present) {
+        // Name what is actually there. "Model not found" sends a person
+        // to the documentation; a list of what they have pulled sends
+        // them to the one line in .env that needs changing.
+        const available = names.filter(Boolean).slice(0, 8).join(", ");
         return {
           ok: false,
           reason: "config",
-          detail: `model ${this.model} is not pulled (ollama pull ${this.model})`,
+          detail: available
+            ? `model ${this.model} is not pulled. Ollama has: ${available}. Set LLM_MODEL to one of those, or run: ollama pull ${this.model}`
+            : `model ${this.model} is not pulled, and Ollama has no models at all. Run: ollama pull ${this.model}`,
         };
       }
     } catch {

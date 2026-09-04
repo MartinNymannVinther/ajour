@@ -104,17 +104,24 @@ export function TaskList({
               <li key={task.id} id={`task-${task.id}`} className="py-2.5">
                 <div className="flex flex-wrap items-center gap-3">
                   <StateSelect value={task.state} onChange={(s) => onStateChange(task.id, s)} />
-                  <span
+                  {/* The name is the obvious thing to click, so it is the
+                      thing that opens the task. The chip stays clickable
+                      too: somebody who learned that path keeps it. */}
+                  <button
+                    type="button"
+                    onClick={() => onEdit(isEditing ? null : task.id)}
+                    aria-expanded={isEditing}
                     className={cn(
-                      "min-w-0 flex-1 truncate text-sm",
+                      "hover:text-primary focus-visible:ring-ring min-h-[24px] min-w-0 flex-1 truncate text-left text-sm focus-visible:ring-2 focus-visible:outline-none",
                       task.state === "done" && "text-label line-through",
                     )}
                   >
                     {task.title}
-                  </span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => onEdit(isEditing ? null : task.id)}
+                    tabIndex={-1}
                     className="border-border bg-secondary text-meta hover:border-primary/40 min-h-[28px] shrink-0 rounded-full border px-2 text-[11px]"
                   >
                     {task.ownerName || t("noOwner")}

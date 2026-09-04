@@ -45,6 +45,23 @@ and is not true now; a workspace that does not want its figures leaving
 the machine should run `LLM_PROVIDER=ollama`, which is the reason that
 option exists.
 
+## A workspace can choose a different one
+
+Since ADR 0009, a workspace may set its own provider, model and API key in
+Settings → AI. Mistral is the default on ajour.haij.dk and the one this
+list covers, and it is what every workspace uses until it says otherwise.
+A workspace that chooses differently has chosen its own processor: its
+project text then goes to the provider named on its own settings page,
+under whatever agreement it has with them, and this list no longer
+describes it. A workspace that sets the provider to "none" sends nothing
+to any model at all and runs on the rules engine.
+
+The Ollama address is not part of that choice — it belongs to the
+installation — so on the hosted instance the real options are Mistral or
+no model. The key a workspace stores is encrypted at rest and is never
+readable from the interface; the settings page says which key is in force,
+the installation's or the workspace's own.
+
 The names in a project are people's names, and they are usually
 colleagues rather than the account holder. That is personal data going to
 a subprocessor, which is why it is named here and why the terms page says

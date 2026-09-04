@@ -31,7 +31,13 @@ runtime but the machine.
    | `BETTER_AUTH_URL`     | `https://ajour.haij.dk` (public URL; passkeys bind to this origin) |
    | `LLM_PROVIDER`        | `mistral` hosted, `ollama` self-hosted, or leave unset for `none`  |
    | `MISTRAL_API_KEY`     | only with `LLM_PROVIDER=mistral`                                   |
-   | `AJOUR_COMMIT`        | the deployed commit, short form (see below)                        |
+
+   These set the default every workspace inherits. A workspace can choose
+   its own provider, model and key in Settings → AI; keys stored that way
+   are encrypted with a key derived from `BETTER_AUTH_SECRET`, so rotating
+   that secret means each such workspace must enter its key again (ADR
+   0009).
+   | `AJOUR_COMMIT` | the deployed commit, short form (see below) |
 
    `SIGNUP` is deliberately absent: it defaults to `closed`, which is what
    an installation on the open internet should be. See section 5.

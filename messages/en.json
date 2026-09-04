@@ -329,9 +329,43 @@
       "title": "AI",
       "subtitle": "Which engine answers, and what it is allowed to do.",
       "providerTitle": "Language model",
-      "providerHint": "The model is set in the environment, not in the interface: it belongs to the installation, not to a single workspace.",
+      "providerHint": "The installation sets a model in the environment, and each workspace can choose its own instead.",
       "provider": "Provider",
-      "model": "Model",
+      "model": {
+        "title": "Your own language model",
+        "subtitle": "This workspace can run on a different model than the installation set up. Choose nothing and you inherit the installation's.",
+        "current": "Model",
+        "source": "Chosen by",
+        "fromInstallation": "The installation",
+        "fromWorkspace": "This workspace",
+        "keySource": "Key",
+        "keyFromWorkspace": "The workspace's own",
+        "keyFromInstallation": "The installation's",
+        "keyMissing": "Missing",
+        "providerLabel": "Provider",
+        "provider_mistral": "Mistral (EU)",
+        "provider_ollama": "Ollama (local)",
+        "providerNone": "No model",
+        "inherit": "Follow the installation ({provider})",
+        "providerHelp": "The Ollama address is set by the installation. That is deliberate: a workspace that could point at an address of its own would make the server fetch from anywhere.",
+        "modelLabel": "Model name",
+        "modelHelpMistral": "Leave the field empty to use {placeholder}.",
+        "modelHelpOllama": "The name must match a model you have pulled with “ollama pull”. Test the connection above and it will list the ones you have.",
+        "keyLabel": "API key",
+        "keyPlaceholder": "Paste your Mistral key",
+        "keyStored": "A key is stored",
+        "keyHelp": "Leave the field empty to use the installation's key. The key is encrypted before it is stored and cannot be read back.",
+        "keyStoredHelp": "This workspace has its own key. Type a new one to replace it, or remove it to fall back on the installation's.",
+        "keyRemove": "Remove stored key",
+        "save": "Save",
+        "saving": "Saving …",
+        "saved": "Saved",
+        "saveFailed": "Could not be saved. Try again.",
+        "notAllowed": "Only owners and administrators can change the workspace's model.",
+        "short_mistral": "Mistral",
+        "short_ollama": "Ollama",
+        "shortNone": "no model"
+      },
       "noModel": "No model configured",
       "setupIntro": "Ajour works without a model. For real proposals and free-text answers, set one up:",
       "setupOutro": "Then start Ajour again. Without a model the rules engine answers and the three flows still work.",
@@ -347,7 +381,17 @@
       "principleDecides": "The AI proposes and carries out, but the human decides. It never sends anything out of the house and never deletes.",
       "principleUndo": "A copy of the whole project is taken before every AI change, and each change can be undone from the message that made it.",
       "principleData": "What you and your colleagues write goes to the model as data, never as instructions, and the model's output is validated against the project's own ids before anything is written.",
-      "principleSovereign": "The model can be swapped, including for a local one. Who can see what is listed in docs/subprocessors.md."
+      "principleSovereign": "The model can be swapped, including for a local one. Who can see what is listed in docs/subprocessors.md.",
+      "test": "Test the connection",
+      "testing": "Testing …",
+      "testPatience": "A local model may have to be read off disk first. That can take up to a minute the first time.",
+      "testOk": "The model answers",
+      "testOkDetail": "{model} answered “{sample}” in {seconds} seconds.",
+      "testFailed": "The model does not answer",
+      "failAuth": "The key was rejected. Check the workspace's own key below, or the installation's MISTRAL_API_KEY.",
+      "failUnreachable": "Nothing is listening at that address. Is Ollama running? Check OLLAMA_BASE_URL.",
+      "failConfig": "The model is set up wrong. Correct the model name below, or LLM_MODEL in .env.",
+      "failGeneric": "The call failed. The details are below and in the server log."
     }
   },
   "projects": {
@@ -625,7 +669,8 @@
     "fallback": "The model did not answer, so the reply came from the rules engine. It does not advise freely, but it understands “budget: 50000”, “obstacle: …” and “decision: …”.",
     "note": "Ask for changes and the AI makes them straight away. A copy of the whole project is always taken first, and you can undo here or restore from plan history.",
     "snapshotLabel": "Before an AI change",
-    "beforeUndo": "Before undoing an AI change"
+    "beforeUndo": "Before undoing an AI change",
+    "fallbackWhere": "You can test the connection under Settings → AI."
   },
   "tip": {
     "label": "Today's tip",
@@ -818,7 +863,7 @@
   },
   "terms": {
     "title": "Terms and privacy",
-    "updated": "Last updated 3 September 2026.",
+    "updated": "Last updated 4 September 2026.",
     "back": "Back",
     "language": "På dansk",
     "intro": "Ajour is open source and run by Vinther Consulting at ajour.haij.dk. This page says what you can count on and what we do with what you write. It is short, because the seven dogmas answer most of it: your data is yours, all of it can be exported, and all of it can be deleted.",
@@ -836,7 +881,7 @@
     },
     "ai": {
       "title": "The AI",
-      "body": "The AI proposes and carries out changes to your plan, but it does not decide: a copy of the project is taken before every change, and you can undo all of it. It never sends anything out of the house and never deletes. If the installation uses a hosted model, the project's content is sent to it when you use the chat, the daily tip or the weekly status: the names of the people on the tasks, the milestones, the tasks, the obstacles, the decisions and the budget with its lines. Passwords, passkeys, the audit trail and other workspaces are never sent. The text goes as data, not as instructions. Which model it is is listed in docs/subprocessors.md; if the installation runs locally through Ollama, the text never leaves the server."
+      "body": "The AI proposes and carries out changes to your plan, but it does not decide: a copy of the project is taken before every change, and you can undo all of it. It never sends anything out of the house and never deletes. If the installation uses a hosted model, the project's content is sent to it when you use the chat, the daily tip or the weekly status: the names of the people on the tasks, the milestones, the tasks, the obstacles, the decisions and the budget with its lines. Passwords, passkeys, the audit trail and other workspaces are never sent. The text goes as data, not as instructions. Which model it is is listed in docs/subprocessors.md; if the installation runs locally through Ollama, the text never leaves the server. Under Settings → AI a workspace can choose a different model than the installation uses, or turn the model off entirely. If the workspace chooses its own, that is the provider receiving the text, and the page says which one. An API key a workspace stores is encrypted and cannot be read back out."
     },
     "shareLinks": {
       "title": "Share links",

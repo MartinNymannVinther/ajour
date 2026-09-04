@@ -71,9 +71,12 @@ codebase to:
   `da` default (no URL prefix) and `en` under `/en`. Timezone
   Europe/Copenhagen, currency DKK.
 - AI: all model access through `src/core/llm` (Mistral hosted in the EU,
-  Ollama for self-hosting). A deterministic engine covers the plan, status
-  and replan flows when no model is configured or the model fails, and
-  the UI says which engine answered.
+  Ollama for self-hosting). The installation sets the default in `.env`
+  and a workspace may choose its own provider, model and key in Settings
+  → AI, encrypted at rest; the Ollama address stays with the installation
+  (ADR 0009). A deterministic engine covers the plan, status and replan
+  flows when no model is configured or the model fails, and the UI says
+  which engine answered.
 - Deployment: Docker Compose run via Coolify on an EU VPS (Hetzner
   initially; the provider must stay replaceable). Nightly encrypted
   backups to EU object storage.

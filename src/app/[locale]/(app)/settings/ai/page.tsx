@@ -4,7 +4,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrgContext } from "@/core/auth/session";
-import { getLlmProvider } from "@/core/llm";
 import { redirect } from "@/i18n/navigation";
 import { RULES_ENGINE_NAME } from "@/modules/ai";
 import {
@@ -12,6 +11,10 @@ import {
   MAX_CALLS_PER_WORKSPACE_PER_DAY,
   MAX_CHAT_CHARS,
 } from "@/modules/ai/limits";
+import { getModelSettings } from "@/modules/ai/model-settings";
+import { currentRole } from "@/modules/export/workspace";
+import { ModelForm } from "./model-form";
+import { TestConnection } from "./test-connection";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings.ai");
@@ -23,6 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * plainly that the tool works without a model at all: the rules engine
  * covers the three flows, so cutting the internet costs quality, not the
  * ability to run a project.
+ *
+ * The workspace can also choose its own model. The installation's setting
+ * is the default it inherits, and the card shows what is actually in
+ * force before it shows the form that changes it.
  */
 export default async function AiSettingsPage() {
   const context = await getOrgContext();
@@ -32,7 +39,10 @@ export default async function AiSettingsPage() {
   }
 
   const t = await getTranslations("settings.ai");
-  const provider = getLlmProvider();
+  const settings = await getModelSettings(context);
+  const role = await currentRole(context);
+  const canEdit = role === "owner" || role === "admin";
+  const active = settings.effective.provider !== "none" && settings.effective.model !== "";
 
   return (
     <div className="flex max-w-2xl flex-col gap-5">
@@ -50,18 +60,38 @@ export default async function AiSettingsPage() {
           <CardDescription>{t("providerHint")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {provider ? (
+          {active ? (
             <div className="flex flex-col gap-2 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t("provider")}</span>
                 <Badge className="bg-primary/15 text-primary border-transparent">
-                  {provider.label}
+                  {t(`model.provider_${settings.effective.provider}`)}
                 </Badge>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">{t("model")}</span>
-                <span className="font-medium tabular-nums">{provider.model}</span>
+                <span className="text-muted-foreground">{t("model.current")}</span>
+                <span className="font-medium tabular-nums">{settings.effective.model}</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">{t("model.source")}</span>
+                <span className="text-meta">
+                  {settings.choice === "inherit"
+                    ? t("model.fromInstallation")
+                    : t("model.fromWorkspace")}
+                </span>
+              </div>
+              {settings.effective.provider === "mistral" && (
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">{t("model.keySource")}</span>
+                  <span className="text-meta">
+                    {settings.effective.keyFrom === "workspace"
+                      ? t("model.keyFromWorkspace")
+                      : settings.effective.keyFrom === "installation"
+                        ? t("model.keyFromInstallation")
+                        : t("model.keyMissing")}
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex flex-col gap-3 text-sm">
@@ -75,6 +105,19 @@ export default async function AiSettingsPage() {
               <p className="text-muted-foreground">{t("setupOutro")}</p>
             </div>
           )}
+          {/* Configured is not the same as working, and only the
+              second one is worth telling somebody. */}
+          <TestConnection />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("model.title")}</CardTitle>
+          <CardDescription>{t("model.subtitle")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ModelForm settings={settings} canEdit={canEdit} />
         </CardContent>
       </Card>
 

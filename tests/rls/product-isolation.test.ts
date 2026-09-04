@@ -67,6 +67,10 @@ const TABLES: Array<{
     table: "share_links",
     row: (o, s) => ({ project_id: `proj_${s}`, token_hash: `hash_${s}` }),
   },
+  {
+    table: "workspace_llm_settings",
+    row: (o, s) => ({ provider: "ollama", model: `model-${s}` }),
+  },
 ];
 
 let admin: Pool;

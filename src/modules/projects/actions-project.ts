@@ -59,7 +59,7 @@ export async function proposePlanAction(
   const locale = (await getLocale()) as Locale;
   try {
     await withOrgContext(ctx, (tx) => reserveAiCall(tx, ctx, "plan", ""));
-    const res = await withEngine((engine) =>
+    const res = await withEngine(ctx, (engine) =>
       engine.generatePlan({ description, today: todayInCopenhagen(), locale }),
     );
     return ok({ proposal: res.result, engine: res.engine, fallback: res.fallback });

@@ -67,7 +67,7 @@ export async function sendChat(
   if (!prepared) return null;
 
   const context = buildChatContext(prepared.full, locale);
-  const res = await withEngine((engine) => engine.chat(context, prepared.history, message));
+  const res = await withEngine(ctx, (engine) => engine.chat(context, prepared.history, message));
   const reply = res.result;
 
   return withOrgContext(ctx, async (tx) => {

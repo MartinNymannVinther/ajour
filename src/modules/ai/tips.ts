@@ -72,7 +72,7 @@ export async function getDailyTip(
     previousTips: prepared.previous,
     observations: observeProject(context, daysSinceLastStatus).map((o) => o.text),
   };
-  const res = await withEngine((engine) => engine.dailyTip(input));
+  const res = await withEngine(ctx, (engine) => engine.dailyTip(input));
 
   return withOrgContext(ctx, async (tx) => {
     if (existing) await tx.delete(tips).where(eq(tips.id, existing.id));
