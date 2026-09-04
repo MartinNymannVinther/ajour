@@ -26,8 +26,12 @@ export type PlanProposal = {
 };
 
 export type StatusDraft = {
-  text: string; // the week's status in plain language, 3-6 sentences
+  text: string; // the week's summary in plain language, 3-6 sentences
   questions: string[]; // what the AI still needs answered, at most 3
+  /** Next week in two to four short lines, each naming who. */
+  nextWeek: string[];
+  /** What management could be asked for, drawn from what is stuck. */
+  suggestedAsks: Array<{ text: string; dueDate: string | null }>;
 };
 
 export type ReplanProposal = {
@@ -64,6 +68,32 @@ export type StatusInput = {
   } | null;
   recentActivity: string[];
   previousStatus: string | null;
+  /** The deterministic assessment, so the words agree with the colour. */
+  assessment: { rag: "green" | "yellow" | "red" | "early"; reason: string };
+  sinceLast: string[];
+  progress: { done: number; total: number };
+  /** Asks to management still open from the previous status. */
+  openAsks: string[];
+};
+
+/** What the engine needs to break a milestone into tasks. */
+export type BreakdownInput = {
+  locale: Locale;
+  today: string;
+  projectName: string;
+  goal: string;
+  milestone: { title: string; date: string; criterion: string; ownerName: string };
+  /** The first day work on this milestone can start: the day after the previous one. */
+  windowStart: string;
+  existingTasks: string[];
+  people: string[];
+};
+
+export type TaskProposal = {
+  title: string;
+  owner: string;
+  startDate: string;
+  endDate: string;
 };
 
 export type ReplanInput = {
@@ -237,6 +267,8 @@ export interface AiEngine {
   generatePlan(input: PlanInput): Promise<PlanProposal>;
   draftStatus(input: StatusInput): Promise<StatusDraft>;
   proposeReplan(input: ReplanInput): Promise<ReplanProposal>;
+  /** Three to seven tasks that would carry the milestone, dated inside its window. */
+  proposeTasks(input: BreakdownInput): Promise<TaskProposal[]>;
   chat(context: ChatContext, history: ChatMessage[], message: string): Promise<ChatReply>;
   dailyTip(input: TipInput): Promise<Tip>;
 }

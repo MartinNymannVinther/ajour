@@ -153,7 +153,43 @@ describe("the plan and the status draft", () => {
       recentActivity: [],
       previousStatus: null,
       economy: { budget: 50000, plannedTotal: 61000, incurredTotal: 20000, postCount: 3 },
+      assessment: { rag: "red", reason: "" },
+      sinceLast: [],
+      progress: { done: 0, total: 4 },
+      openAsks: [],
     });
     expect(res.text).toContain("overstiger budgettet");
+    // An overrun is something management has to decide about.
+    expect(res.suggestedAsks.map((a) => a.text).join(" ")).toContain("11.000");
+  });
+
+  it("names next week's work and asks for help with what is stuck", async () => {
+    const res = await rulesEngine.draftStatus({
+      locale: "da",
+      today: "2026-09-10",
+      weekLabel: "Uge 37",
+      projectName: "Test",
+      goal: "",
+      nextMilestone: { title: "Lokale låst", date: "2026-09-22" },
+      doneTasks: ["Tema"],
+      doingTasks: [{ title: "Vælg lokale", owner: "Mette", endDate: "2026-09-12" }],
+      overdueTasks: [
+        { title: "Byg side", owner: "Sofie", endDate: "2026-09-05" },
+        { title: "Skriv tekst", owner: "", endDate: "2026-09-06" },
+      ],
+      openObstacles: [{ title: "Lokalet er måske optaget", status: "open" }],
+      recentActivity: [],
+      previousStatus: null,
+      economy: null,
+      assessment: { rag: "yellow", reason: "" },
+      sinceLast: [],
+      progress: { done: 1, total: 4 },
+      openAsks: [],
+    });
+    expect(res.nextWeek[0]).toContain("Byg side");
+    expect(res.nextWeek[0]).toContain("Sofie");
+    expect(res.nextWeek.length).toBeLessThanOrEqual(4);
+    expect(res.suggestedAsks[0]!.text).toContain("Lokalet er måske optaget");
+    expect(res.suggestedAsks.some((a) => a.text.includes("Lokale låst"))).toBe(true);
   });
 });

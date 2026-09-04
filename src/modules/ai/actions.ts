@@ -4,19 +4,15 @@ import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { requireOrgContext } from "@/core/auth/guard";
-import { todayInCopenhagen, weekNumberFromKey } from "@/core/dates";
+import { weekNumberFromKey } from "@/core/dates";
 import { withOrgContext } from "@/core/db/tenant";
 import { recentEvents, renderEvent } from "@/modules/projects/events";
-import { readProjectFull } from "@/modules/projects/read";
 import { restoreSnapshotById } from "@/modules/projects/snapshots";
 import { fail, ok, type Result } from "@/modules/projects/types";
-import { approveStatus } from "@/modules/reports/status-report";
-import { buildStatusInput } from "./context";
 import { sendChat, type ChatOutcome } from "./chat";
-import { withEngine } from "./index";
-import { MAX_CHAT_CHARS, RateLimited, capText, reserveAiCall } from "./limits";
+import { MAX_CHAT_CHARS, RateLimited, capText } from "./limits";
 import { dismissTip, getDailyTip, type DailyTip } from "./tips";
-import type { Locale, StatusDraft } from "./types";
+import type { Locale } from "./types";
 
 /**
  * The AI's own actions. Everything here counts a call before the model is
@@ -121,71 +117,4 @@ export async function dismissTipAction(raw: unknown): Promise<Result<undefined>>
   await dismissTip(ctx, parsed.data.tipId);
   revalidatePath(`/projects/${parsed.data.projectId}`);
   return ok(undefined);
-}
-
-/** Ugen, step one: a draft the person edits. Nothing is written yet. */
-export async function draftStatusAction(
-  raw: unknown,
-): Promise<Result<{ draft: StatusDraft; engine: string; fallback: boolean }>> {
-  const ctx = await requireOrgContext();
-  if (!ctx) return fail("unauthorized");
-  const parsed = z.object({ projectId }).safeParse(raw);
-  if (!parsed.success) return fail("invalid");
-  const locale = (await getLocale()) as Locale;
-  const common = await getTranslations("common");
-  const today = todayInCopenhagen();
-  try {
-    const activity = await recentActivity(ctx.orgId, ctx.userId, parsed.data.projectId);
-    const prepared = await withOrgContext(ctx, async (tx) => {
-      const full = await readProjectFull(tx, parsed.data.projectId);
-      if (!full) return null;
-      await reserveAiCall(tx, ctx, "status", "");
-      return full;
-    });
-    if (!prepared) return fail("notFound");
-    const weekLabel = common("weekOf", { date: today });
-    const res = await withEngine(ctx, (engine) =>
-      engine.draftStatus(buildStatusInput(prepared, locale, weekLabel, activity, today)),
-    );
-    return ok({ draft: res.result, engine: res.engine, fallback: res.fallback });
-  } catch (error) {
-    if (error instanceof RateLimited) return fail("conflict");
-    console.error("status draft failed", error);
-    return fail("generic");
-  }
-}
-
-/** Ugen, step two: the person's text becomes a status, frozen with the plan. */
-export async function approveStatusAction(raw: unknown): Promise<Result<string>> {
-  const ctx = await requireOrgContext();
-  if (!ctx) return fail("unauthorized");
-  const parsed = z
-    .object({
-      projectId,
-      text: z.string().trim().min(1).max(4000),
-      questions: z.array(z.string().trim().max(300)).max(5).default([]),
-      engine: z.string().max(80).default(""),
-    })
-    .safeParse(raw);
-  if (!parsed.success) return fail("invalid");
-  try {
-    const statusId = await withOrgContext(ctx, async (tx) => {
-      const full = await readProjectFull(tx, parsed.data.projectId);
-      if (!full) return null;
-      return approveStatus(
-        tx,
-        ctx,
-        full,
-        parsed.data.text,
-        parsed.data.questions,
-        parsed.data.engine,
-      );
-    });
-    if (!statusId) return fail("notFound");
-    revalidatePath(`/projects/${parsed.data.projectId}`);
-    return ok(statusId);
-  } catch (error) {
-    console.error("status approval failed", error);
-    return fail("generic");
-  }
 }

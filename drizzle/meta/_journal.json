@@ -57,6 +57,13 @@
       "when": 1788496430414,
       "tag": "0007_workspace_llm_settings_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788504372709,
+      "tag": "0008_status_assessment",
+      "breakpoints": true
     }
   ]
 }

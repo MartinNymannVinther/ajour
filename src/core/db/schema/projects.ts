@@ -207,6 +207,19 @@ export const expenses = pgTable(
 );
 
 /**
+ * One thing the project asks of management. `carriedFrom` names the week
+ * it was first asked, when it is not this one; `answered` closes it, and
+ * a closed ask is shown once more as closed and then never again.
+ */
+export type ManagementAsk = {
+  id: string;
+  text: string;
+  dueDate: string | null;
+  carriedFrom: string | null;
+  answered: boolean;
+};
+
+/**
  * The weekly status. `details` is the report frozen at approval so the PDF
  * says the same thing next year as it did the day it was shared.
  */
@@ -224,6 +237,16 @@ export const statusUpdates = pgTable(
     questions: jsonb("questions").$type<string[]>().notNull().default([]),
     details: jsonb("details").$type<Record<string, unknown>>(),
     engine: text("engine").notNull().default(""),
+    /**
+     * The overall assessment: green | yellow | red | early, or null on
+     * statuses from before it existed. A column rather than a key in
+     * `details`, because the trend across weeks is a query, not a parse.
+     */
+    rag: text("rag"),
+    /** The project manager's own words, kept apart from the drafted text. */
+    managerComment: text("manager_comment").notNull().default(""),
+    /** What management is asked to do; open items carry to the next status. */
+    managementAsks: jsonb("management_asks").$type<ManagementAsk[]>().notNull().default([]),
     approvedAt: timestamp("approved_at", { withTimezone: true }),
     approvedBy: text("approved_by").references(() => users.id, { onDelete: "set null" }),
     ...timestamps,

@@ -223,7 +223,16 @@ export function ProjectView({
               run(() => setMilestoneDoneAction({ milestoneId, done }))
             }
             onDelete={(milestoneId) => run(() => deleteMilestoneAction({ milestoneId }))}
-            onCreate={(title, date) => run(() => createMilestoneAction({ projectId, title, date }))}
+            onCreate={async (title, date) => {
+              let created: string | null = null;
+              await run(
+                () => createMilestoneAction({ projectId, title, date }),
+                (id) => {
+                  created = id;
+                },
+              );
+              return created;
+            }}
           />
 
           <TaskList

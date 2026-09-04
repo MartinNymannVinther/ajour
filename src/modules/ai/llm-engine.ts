@@ -3,6 +3,8 @@ import { PHRASES } from "./phrases";
 import { rulesEngine } from "./rules-engine";
 import { asString, sanitizeChatReply, sanitizePlan } from "./sanitize";
 import type {
+  BreakdownInput,
+  TaskProposal,
   AiEngine,
   ChatContext,
   ChatMessage,
@@ -99,23 +101,42 @@ Rules: dates are realistic given the description and today's date; tasks end bef
     },
 
     async draftStatus(input: StatusInput): Promise<StatusDraft> {
-      const system = `You write the weekly status in a project tool for small projects.
+      const system = `You write the weekly status in a project tool for small projects. The reader is the steering group: people with two minutes who decide things.
 ${RULES(input.locale)}
-Schema: {"text": string, "questions": [string]}
-"text": 3-6 sentences for the project's participants and stakeholders. Honest and concrete: progress, what is in progress, problems and the next milestone. If "economy" is present, mention spend against budget briefly, especially if it slips.
-"questions": 0-3 short questions about what you actually lack to make the status true (overdue tasks, open obstacles). Address the owner by name when possible.`;
+Schema: {"text": string, "questions": [string], "nextWeek": [string], "suggestedAsks": [{"text": string, "dueDate": "yyyy-mm-dd" | null}]}
+"text": 3-5 sentences. Honest and concrete: what moved, what is at risk and why, the next milestone, and money against work if "economy" is present. The overall assessment has already been made and is given in "assessment"; your text must agree with it and must not restate the colour. Do not repeat "sinceLast" line by line; it is shown separately.
+"questions": 0-3 short questions about what you actually lack to make the status true (overdue tasks, open obstacles). Address the owner by name when possible.
+"nextWeek": 2-4 short lines, each one concrete thing and who does it, from "doingTasks" and "overdueTasks".
+"suggestedAsks": 0-3 things management specifically could do to help the project along: a decision, a resource, an obstacle only they can clear. Only from what the data shows is stuck. Empty list when nothing is stuck. "openAsks" are still unanswered from last week; do not repeat them.`;
       const { locale, ...rest } = input;
       const raw = await chatJson(system, { locale, data: rest });
       const r = (raw ?? {}) as Record<string, unknown>;
       const text = asString(r.text, "", 4000);
       if (!text) throw new EngineUnavailable("empty status draft");
-      const questions = Array.isArray(r.questions)
-        ? r.questions
-            .map((q) => asString(q, "", 300))
-            .filter(Boolean)
+      const strings = (value: unknown, max: number, each: number) =>
+        Array.isArray(value)
+          ? value
+              .map((q) => asString(q, "", each))
+              .filter(Boolean)
+              .slice(0, max)
+          : [];
+      const suggestedAsks = Array.isArray(r.suggestedAsks)
+        ? r.suggestedAsks
+            .map((a) => {
+              const ask = (a ?? {}) as Record<string, unknown>;
+              const text = asString(ask.text, "", 300);
+              const due = asString(ask.dueDate, "", 10);
+              return { text, dueDate: /^\d{4}-\d{2}-\d{2}$/.test(due) ? due : null };
+            })
+            .filter((a) => a.text)
             .slice(0, 3)
         : [];
-      return { text, questions };
+      return {
+        text,
+        questions: strings(r.questions, 3, 300),
+        nextWeek: strings(r.nextWeek, 4, 200),
+        suggestedAsks,
+      };
     },
 
     async chat(context: ChatContext, history: ChatMessage[], message: string): Promise<ChatReply> {
@@ -172,6 +193,41 @@ Priority: overdue tasks and passed milestones first, then milestones close by, t
       if (!title || !text) throw new EngineUnavailable("empty tip");
       const action = asString(r.action, "", 200) || null;
       return { title, text, action };
+    },
+
+    async proposeTasks(input: BreakdownInput): Promise<TaskProposal[]> {
+      const system = `You break one milestone of a small project into the tasks that would reach it.
+${RULES(input.locale)}
+Schema: {"tasks": [{"title": string, "owner": string, "startDate": "yyyy-mm-dd", "endDate": "yyyy-mm-dd"}]}
+3-7 tasks, concrete and in the order they happen, each a thing one person can own and finish. Dates inside the window: no earlier than "windowStart", no later than "milestone.date"; the first tasks start early, the last one ends on or just before the milestone. "owner" is a name from "people" when one fits, otherwise "". Do not repeat "existingTasks". Use the milestone's own words and the project's goal; do not invent scope the milestone does not need.`;
+      const { locale, ...rest } = input;
+      const raw = await chatJson(system, { locale, data: rest });
+      const r = (raw ?? {}) as Record<string, unknown>;
+      const date = /^\d{4}-\d{2}-\d{2}$/;
+      const clamp = (iso: string) =>
+        iso < input.windowStart
+          ? input.windowStart
+          : iso > input.milestone.date
+            ? input.milestone.date
+            : iso;
+      const tasks = Array.isArray(r.tasks)
+        ? r.tasks
+            .map((t) => {
+              const task = (t ?? {}) as Record<string, unknown>;
+              const startDate = asString(task.startDate, "", 10);
+              const endDate = asString(task.endDate, "", 10);
+              return {
+                title: asString(task.title, "", 140),
+                owner: asString(task.owner, "", 80),
+                startDate: date.test(startDate) ? clamp(startDate) : input.windowStart,
+                endDate: date.test(endDate) ? clamp(endDate) : input.milestone.date,
+              };
+            })
+            .filter((t) => t.title)
+            .slice(0, 7)
+        : [];
+      if (tasks.length === 0) throw new EngineUnavailable("empty breakdown");
+      return tasks.map((t) => (t.endDate < t.startDate ? { ...t, endDate: t.startDate } : t));
     },
 
     async proposeReplan(input: ReplanInput): Promise<ReplanProposal> {

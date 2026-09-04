@@ -72,11 +72,19 @@ export function buildStatusInput(
   locale: Locale,
   weekLabel: string,
   recentActivity: string[],
+  extra: {
+    assessment: StatusInput["assessment"];
+    sinceLast: string[];
+  },
   today = todayInCopenhagen(),
 ): StatusInput {
   const { project, tasks, milestones, obstacles, expenses, statusUpdates } = full;
   const previous = statusUpdates.find((s) => s.approvedAt) ?? null;
   return {
+    assessment: extra.assessment,
+    sinceLast: extra.sinceLast,
+    progress: { done: tasks.filter((t) => t.state === "done").length, total: tasks.length },
+    openAsks: (previous?.managementAsks ?? []).filter((a) => !a.answered).map((a) => a.text),
     locale,
     today,
     weekLabel,

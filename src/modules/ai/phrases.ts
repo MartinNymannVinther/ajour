@@ -68,6 +68,13 @@ type PhraseSet = {
   economyNoBudget: (planned: string, incurred: string) => string;
   questionOverdue: (title: string, date: string, owner: string) => string;
   questionObstacle: (title: string) => string;
+  nextWeekLate: (title: string, owner: string) => string;
+  nextWeekDoing: (title: string, owner: string) => string;
+  askObstacle: (title: string) => string;
+  askBudget: (amount: string) => string;
+  askMilestone: (title: string, date: string) => string;
+  /** The generic breakdown of a milestone, in order, each taking the milestone's title. */
+  breakdown: Array<(title: string) => string>;
   budgetSet: (amount: string) => string;
   noAmount: string;
   obstacleCreated: string;
@@ -120,6 +127,19 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     questionOverdue: (title, date, owner) =>
       `"${title}" skulle være færdig ${date}. Hvad er status${owner ? `, ${owner}` : ""}?`,
     questionObstacle: (title) => `Er der nyt om "${title}"?`,
+    nextWeekLate: (title, owner) =>
+      `Færdiggøre "${title}", som er forsinket${owner ? ` (${owner})` : ""}`,
+    nextWeekDoing: (title, owner) => `Arbejde videre på "${title}"${owner ? ` (${owner})` : ""}`,
+    askObstacle: (title) => `Hjælp med at fjerne forhindringen "${title}"`,
+    askBudget: (amount) => `Tag stilling til et forventet merforbrug på ${amount}`,
+    askMilestone: (title, date) =>
+      `Bekræft at milepælen "${title}" den ${date} stadig gælder, eller flyt den`,
+    breakdown: [
+      (title) => `Afklar hvad "${title}" kræver, og hvem der skal med`,
+      (title) => `Planlæg arbejdet frem mod "${title}" og fordel det`,
+      (title) => `Gennemfør det der skal til for "${title}"`,
+      (title) => `Tjek at "${title}" er nået, og aflever`,
+    ],
     budgetSet: (amount) => `Budgettet er sat til ${amount}`,
     noAmount: "Jeg kunne ikke læse et beløb.",
     obstacleCreated: "Forhindringen er oprettet.",
@@ -166,6 +186,18 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     questionOverdue: (title, date, owner) =>
       `"${title}" was due ${date}. What is the status${owner ? `, ${owner}` : ""}?`,
     questionObstacle: (title) => `Any news on "${title}"?`,
+    nextWeekLate: (title, owner) => `Finish "${title}", which is late${owner ? ` (${owner})` : ""}`,
+    nextWeekDoing: (title, owner) => `Keep working on "${title}"${owner ? ` (${owner})` : ""}`,
+    askObstacle: (title) => `Help clear the obstacle "${title}"`,
+    askBudget: (amount) => `Decide on an expected overrun of ${amount}`,
+    askMilestone: (title, date) =>
+      `Confirm that the milestone "${title}" on ${date} still stands, or move it`,
+    breakdown: [
+      (title) => `Work out what "${title}" needs, and who has to be involved`,
+      (title) => `Plan the work towards "${title}" and hand it out`,
+      (title) => `Do what it takes to reach "${title}"`,
+      (title) => `Check that "${title}" is reached, and hand over`,
+    ],
     budgetSet: (amount) => `The budget is set to ${amount}`,
     noAmount: "I could not read an amount.",
     obstacleCreated: "The obstacle has been added.",

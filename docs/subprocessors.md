@@ -34,7 +34,12 @@ this list is that it is not:
   chat itself.
 - **The weekly status**: the same, minus the individual money lines — the
   budget, the planned and incurred totals and the number of lines go, the
-  lines themselves do not — plus the previous approved status.
+  lines themselves do not — plus the previous approved status, the
+  derived assessment and its reason, the "since last" lines, and the text
+  of what management was asked for last week and has not answered.
+- **Breaking a milestone into tasks**: the project's name and goal, the
+  milestone's title, date, criterion and owner, the titles of tasks
+  already under it, and the names of the people in the project.
 - **A replan**: only the moved milestone, the tasks hanging on it and the
   later milestones. In practice this one is computed locally by the rules
   engine and reaches no model at all.

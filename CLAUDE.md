@@ -149,6 +149,12 @@ codebase to:
   the AI surface hardened, optimistic locking.
 - Wave 4 (done): demo and operations — a demo workspace per visit with
   cleanup, terms and privacy, README with screenshots, the deploy guide.
+- Wave 5 (done): the status report for the people who decide — a derived
+  assessment the manager can overrule, what management is asked to do
+  with carry-over, the manager's own comment, since-last and the trend
+  worked out from the data, a two-page PDF with figures that never break
+  across a page, and a milestone broken into tasks by the engine with a
+  snapshot first (ADR 0010).
 - Next: publish the repository, deploy to ajour.haij.dk with
   `LLM_PROVIDER=mistral`, and then dogma seven — run a real project on it
   before the tool card goes up on haij.dk. `docs/launch.md` is the

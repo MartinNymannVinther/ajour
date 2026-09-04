@@ -1,7 +1,10 @@
 import { addDaysIso, diffDays } from "@/core/dates";
 import { PHRASES, formatDay, formatMoney } from "./phrases";
+import { ruleBreakdown } from "./breakdown-rules";
 import { fallbackTip, observeProject } from "./tip-rules";
 import type {
+  BreakdownInput,
+  TaskProposal,
   AiEngine,
   ChatContext,
   ChatMessage,
@@ -105,7 +108,43 @@ export const rulesEngine: AiEngine = {
     for (const t of input.overdueTasks.slice(0, 2))
       questions.push(p.questionOverdue(t.title, day(t.endDate), t.owner));
     for (const o of input.openObstacles.slice(0, 1)) questions.push(p.questionObstacle(o.title));
-    return { text: parts.join(" "), questions: questions.slice(0, 3) };
+
+    // Next week is what is in motion and what is late, by name.
+    const nextWeek = [
+      ...input.overdueTasks.map((t) => p.nextWeekLate(t.title, t.owner)),
+      ...input.doingTasks.map((t) => p.nextWeekDoing(t.title, t.owner)),
+    ].slice(0, 4);
+
+    // What management could do: clear an obstacle, cover an overrun, or
+    // accept a late milestone. Only when there is something to ask for.
+    const suggestedAsks: StatusDraft["suggestedAsks"] = [];
+    for (const o of input.openObstacles.slice(0, 2))
+      suggestedAsks.push({ text: p.askObstacle(o.title), dueDate: null });
+    if (
+      input.economy?.budget !== null &&
+      input.economy !== null &&
+      input.economy.plannedTotal > input.economy.budget
+    ) {
+      suggestedAsks.push({
+        text: p.askBudget(
+          formatMoney(input.economy.plannedTotal - input.economy.budget, input.locale),
+        ),
+        dueDate: null,
+      });
+    }
+    if (input.nextMilestone && input.overdueTasks.length >= 2) {
+      suggestedAsks.push({
+        text: p.askMilestone(input.nextMilestone.title, day(input.nextMilestone.date)),
+        dueDate: input.nextMilestone.date,
+      });
+    }
+
+    return {
+      text: parts.join(" "),
+      questions: questions.slice(0, 3),
+      nextWeek,
+      suggestedAsks: suggestedAsks.slice(0, 3),
+    };
   },
 
   async chat(context: ChatContext, _history: ChatMessage[], message: string): Promise<ChatReply> {
@@ -149,6 +188,10 @@ export const rulesEngine: AiEngine = {
       input.previousTips,
       input.context.locale,
     );
+  },
+
+  async proposeTasks(input: BreakdownInput): Promise<TaskProposal[]> {
+    return ruleBreakdown(input);
   },
 
   async proposeReplan(input: ReplanInput): Promise<ReplanProposal> {

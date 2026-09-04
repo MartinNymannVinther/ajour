@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import { formatDateDa } from "@/core/dates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Sparkles } from "lucide-react";
+import { BreakdownPanel } from "./breakdown-panel";
 import { FunctionCard } from "./function-card";
 import { ConfirmButton } from "./confirm-button";
 import { FUNCTION_ACCENT, PEOPLE_LIST_ID, SECTION_IDS } from "@/modules/projects/constants";
@@ -39,11 +41,14 @@ export function MilestoneList({
   }) => void;
   onToggleDone: (id: string, done: boolean) => void;
   onDelete: (id: string) => void;
-  onCreate: (title: string, date: string) => Promise<boolean>;
+  /** Resolves with the new milestone's id, or null when it was not created. */
+  onCreate: (title: string, date: string) => Promise<string | null>;
 }) {
   const t = useTranslations("projects.milestones");
   const [draft, setDraft] = useState({ title: "", date: "", owner: "", criterion: "" });
-  const [newDraft, setNewDraft] = useState({ title: "", date: "" });
+  const [newDraft, setNewDraft] = useState({ title: "", date: "", suggest: true });
+  // The milestone whose breakdown is open; one at a time, like the editor.
+  const [breakingId, setBreakingId] = useState<string | null>(null);
 
   const openEditor = (m: MilestoneView) => {
     setDraft({ title: m.title, date: m.date, owner: m.ownerName, criterion: m.criterion });
@@ -94,7 +99,27 @@ export function MilestoneList({
                   {m.ownerName && <span className="mr-2">{m.ownerName}</span>}
                   {formatDateDa(m.date)}
                 </span>
+                {!done && (
+                  <button
+                    type="button"
+                    onClick={() => setBreakingId(breakingId === m.id ? null : m.id)}
+                    aria-expanded={breakingId === m.id}
+                    title={t("suggestTasks")}
+                    className="border-border bg-secondary text-primary hover:border-primary/40 flex min-h-[28px] shrink-0 items-center gap-1 rounded-full border px-2 text-[11px] font-medium"
+                  >
+                    <Sparkles className="size-3" aria-hidden />
+                    <span className="hidden sm:inline">{t("suggestTasks")}</span>
+                    <span className="sr-only sm:hidden">{t("suggestTasks")}</span>
+                  </button>
+                )}
               </div>
+              {breakingId === m.id && (
+                <BreakdownPanel
+                  milestoneId={m.id}
+                  onClose={() => setBreakingId(null)}
+                  onApplied={() => setBreakingId(null)}
+                />
+              )}
               {!isEditing && m.criterion && (
                 <p className="text-meta mt-0.5 pl-1 text-xs">
                   {t("criterion", { text: m.criterion })}
@@ -173,10 +198,15 @@ export function MilestoneList({
         onSubmit={async (e) => {
           e.preventDefault();
           if (!newDraft.title.trim() || !newDraft.date) return;
-          if (await onCreate(newDraft.title.trim(), newDraft.date))
-            setNewDraft({ title: "", date: "" });
+          const id = await onCreate(newDraft.title.trim(), newDraft.date);
+          if (id) {
+            setNewDraft((d) => ({ ...d, title: "", date: "" }));
+            // Straight into the breakdown: a new milestone with no tasks
+            // under it is a promise with nothing behind it yet.
+            if (newDraft.suggest) setBreakingId(id);
+          }
         }}
-        className="border-hairline mt-3 flex flex-wrap gap-2 border-t pt-3"
+        className="border-hairline mt-3 flex flex-wrap items-center gap-2 border-t pt-3"
       >
         <Input
           value={newDraft.title}
@@ -195,6 +225,15 @@ export function MilestoneList({
         <Button type="submit" variant="outline" size="sm">
           {t("add")}
         </Button>
+        <label className="text-meta flex items-center gap-1.5 text-xs">
+          <input
+            type="checkbox"
+            checked={newDraft.suggest}
+            onChange={(e) => setNewDraft((d) => ({ ...d, suggest: e.target.checked }))}
+            className="accent-primary size-4"
+          />
+          {t("suggestOnCreate")}
+        </label>
       </form>
     </FunctionCard>
   );

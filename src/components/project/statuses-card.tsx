@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { formatDateDa } from "@/core/dates";
 import type { StatusUpdate } from "@/core/db/schema";
 import { FUNCTION_ACCENT, SECTION_IDS } from "@/modules/projects/constants";
+import { RAG_COLOR } from "@/modules/reports/charts";
+import type { Rag } from "@/modules/reports/status-report";
 import { FunctionSection } from "./function-card";
 
 /**
@@ -22,6 +24,7 @@ export function StatusesCard({
   weekLabel: (weekKey: string) => string;
 }) {
   const t = useTranslations("projects.statuses");
+  const ragWord = useTranslations("report.rag");
   const approved = statuses.filter((s) => s.approvedAt);
   return (
     <FunctionSection
@@ -36,6 +39,16 @@ export function StatusesCard({
         {approved.map((status) => (
           <li key={status.id} className="bg-secondary rounded-lg p-3">
             <div className="flex items-center gap-2">
+              {/* The colour first: it is what the week was about. */}
+              {status.rag && (
+                <span
+                  className="inline-block size-3 shrink-0 rounded-full"
+                  style={{ background: RAG_COLOR[status.rag as Rag].dot }}
+                  title={ragWord(status.rag)}
+                  aria-label={ragWord(status.rag)}
+                  role="img"
+                />
+              )}
               <p className="text-sm font-medium">{weekLabel(status.weekKey)}</p>
               <a
                 href={`/api/projects/${projectId}/status/${status.id}/pdf`}

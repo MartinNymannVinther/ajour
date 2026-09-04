@@ -4,7 +4,7 @@ import { withOrgContext } from "@/core/db/tenant";
 import { createProjectFromProposal } from "@/modules/projects/plan";
 import { getProjectFull } from "@/modules/projects/read";
 import { setBudget } from "@/modules/projects/write-misc";
-import { approveStatus } from "@/modules/reports/status-report";
+import { approveStatus, plainAuthored } from "@/modules/reports/status-report";
 import { buildTemplate, PROJECT_TEMPLATES } from "@/modules/projects/templates";
 import { createShareLink, readSharedProject, revokeShareLink } from "@/modules/share/service";
 import { adminPool } from "../helpers/db";
@@ -32,7 +32,14 @@ beforeAll(async () => {
   await withOrgContext(ctx, (tx) => setBudget(tx, ctx, projectId, 60000));
   const full = (await getProjectFull(ctx, projectId))!;
   await withOrgContext(ctx, (tx) =>
-    approveStatus(tx, ctx, full, "Alt går efter planen.", [], "rules"),
+    approveStatus(
+      tx,
+      ctx,
+      full,
+      plainAuthored("Alt går efter planen.", "rules"),
+      { sinceLast: [], approvedByName: "Test" },
+      [],
+    ),
   );
 });
 

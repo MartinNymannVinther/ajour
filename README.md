@@ -143,4 +143,4 @@ decision worth arguing about later. Found a security problem? Please
 report it privately as described in [SECURITY.md](SECURITY.md) rather
 than in a public issue.
 
-License: [AGPL-3.0](LICENSE).
+License: [AGPL-3.0](LICENSE). The Archivo typeface in `public/fonts` is by the Archivo Project Authors under the [SIL Open Font License 1.1](public/fonts/OFL.txt).

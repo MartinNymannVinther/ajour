@@ -6,6 +6,7 @@ import { Timeline } from "@/components/project/timeline";
 import { HaijMark, PRODUCT_NAME } from "@/components/wordmark";
 import { formatDateDa, todayInCopenhagen, weekNumberFromKey } from "@/core/dates";
 import { callerKey, rateLimit } from "@/core/rate-limit";
+import { RAG_COLOR } from "@/modules/reports/charts";
 import { readSharedProject } from "@/modules/share/service";
 
 type Params = { params: Promise<{ token: string }> };
@@ -30,6 +31,7 @@ export default async function SharedProjectPage({ params }: Params) {
   if (!shared) notFound();
   const t = await getTranslations("share");
   const common = await getTranslations("common");
+  const report = await getTranslations("report");
 
   const done = shared.tasks.filter((task) => task.state === "done").length;
   const nextMilestone =
@@ -56,13 +58,52 @@ export default async function SharedProjectPage({ params }: Params) {
 
       {latest ? (
         <section className="border-border bg-card rounded-xl border p-5">
-          <h2 className="font-heading text-sm font-semibold">
-            {common("week", { number: weekNumberFromKey(latest.weekKey) })}
-          </h2>
-          <p className="text-label mt-0.5 text-xs">
-            {formatDateDa(latest.approvedAt.toISOString().slice(0, 10))}
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-heading flex items-center gap-2 text-sm font-semibold">
+                {latest.report?.rag && (
+                  <span
+                    className="inline-block size-3 rounded-full"
+                    style={{ background: RAG_COLOR[latest.report.rag].dot }}
+                    role="img"
+                    aria-label={report(`rag.${latest.report.rag}`)}
+                  />
+                )}
+                {common("week", { number: weekNumberFromKey(latest.weekKey) })}
+                {latest.report?.rag && (
+                  <span className="text-meta font-normal">
+                    · {report(`rag.${latest.report.rag}`)}
+                  </span>
+                )}
+              </h2>
+              <p className="text-label mt-0.5 text-xs">
+                {formatDateDa(latest.approvedAt.toISOString().slice(0, 10))}
+              </p>
+            </div>
+            {latest.report && (
+              <a
+                href={`/api/s/${token}/${latest.id}/pdf`}
+                target="_blank"
+                rel="noreferrer"
+                className="border-input bg-card text-primary hover:bg-secondary rounded-md border px-3 py-1.5 text-xs font-medium"
+              >
+                {t("openPdf")}
+              </a>
+            )}
+          </div>
           <p className="mt-3 text-[15px] leading-relaxed whitespace-pre-line">{latest.text}</p>
+          {latest.report?.managerComment && (
+            <div className="border-primary mt-3 border-l-[3px] pl-3">
+              <p className="text-[14px] leading-relaxed whitespace-pre-line">
+                {latest.report.managerComment}
+              </p>
+              <p className="text-meta mt-1 text-xs">
+                {report("commentBy", {
+                  name: latest.report.managerName || latest.report.approvedByName,
+                })}
+              </p>
+            </div>
+          )}
         </section>
       ) : (
         <section className="border-border text-meta rounded-xl border border-dashed p-5 text-sm">

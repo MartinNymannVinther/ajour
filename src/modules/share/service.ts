@@ -73,7 +73,10 @@ export async function revokeShareLink(ctx: OrgContext, linkId: string): Promise<
 function publicReport(raw: unknown): StatusReport | null {
   const report = parseStatusReport(raw);
   if (!report) return null;
-  return { ...report, economy: null, obstacles: [] };
+  // Money, obstacles, what management is asked for and the money lines
+  // are for the workspace; a participant with a link gets the plan and
+  // the words.
+  return { ...report, economy: null, expenses: [], obstacles: [], managementAsks: [] };
 }
 
 export type SharedProject = {

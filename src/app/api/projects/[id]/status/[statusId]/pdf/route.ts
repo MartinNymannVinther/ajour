@@ -1,11 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import { getTranslations } from "next-intl/server";
 import { requireOrgContext } from "@/core/auth/guard";
-import { weekNumberFromKey } from "@/core/dates";
 import { statusUpdates } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
+import { pdfFileName, serverReportWords } from "@/modules/reports/pdf-words";
 import { parseStatusReport } from "@/modules/reports/status-report";
-import { renderStatusPdf, type PdfWords } from "@/modules/reports/status-pdf";
+import { renderStatusPdf } from "@/modules/reports/status-pdf";
 
 /**
  * The status as a PDF, rendered when it is asked for. Nothing is stored:
@@ -32,42 +31,11 @@ export async function GET(
   const report = parseStatusReport(row.details);
   if (!report) return new Response("Not found", { status: 404 });
 
-  const t = await getTranslations("pdf");
-  const common = await getTranslations("common");
-  const states = await getTranslations("projects.states");
-  const week = (key: string) => common("week", { number: weekNumberFromKey(key) });
-
-  const words: PdfWords = {
-    statusFor: (key) => t("statusFor", { week: week(key) }),
-    goal: t("goal"),
-    owner: t("owner"),
-    manager: t("manager"),
-    plan: t("plan"),
-    milestones: t("milestones"),
-    tasks: t("tasks"),
-    obstacles: t("obstacles"),
-    decisions: t("decisions"),
-    decisionsSince: (key) => t("decisionsSince", { week: week(key) }),
-    economy: t("economy"),
-    economyLine: (planned, incurred, budget) => t("economyLine", { planned, incurred, budget }),
-    overBudget: t("overBudget"),
-    reached: t("reached"),
-    open: t("open"),
-    criterion: t("criterion"),
-    otherTasks: t("otherTasks"),
-    none: t("none"),
-    since: (date) => t("since", { date }),
-    states: { todo: states("todo"), doing: states("doing"), done: states("done") },
-    madeWith: t("madeWith"),
-  };
-
-  const buffer = await renderStatusPdf(report, words);
-  const name = `${report.projectName.replace(/[^\p{L}\p{N}]+/gu, "-").toLowerCase()}-${report.weekKey}.pdf`;
-
+  const buffer = await renderStatusPdf(report, await serverReportWords());
   return new Response(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="${name}"`,
+      "Content-Disposition": `inline; filename="${pdfFileName(report.projectName, report.weekKey)}"`,
       "Cache-Control": "private, no-store",
     },
   });
