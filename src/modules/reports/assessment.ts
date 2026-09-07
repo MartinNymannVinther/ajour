@@ -17,8 +17,10 @@ export type AssessmentInput = {
   today: string;
   /** Days since the project was created; a plan younger than a week is "early". */
   ageDays: number;
-  nextMilestone: { date: string; taskCount: number; openCount: number } | null;
+  nextMilestone: { title: string; date: string; taskCount: number; openCount: number } | null;
   overdueTasks: number;
+  /** The first late task by name, so the reason can point at it. */
+  overdueExample: string;
   /** Overdue by more than a week: the ones that will move the milestone. */
   badlyOverdueTasks: number;
   openObstacles: number;
@@ -29,9 +31,9 @@ export type AssessmentInput = {
 export type AssessmentReason =
   | { key: "early" }
   | { key: "onTrack" }
-  | { key: "milestoneAtRisk"; days: number; open: number }
-  | { key: "milestoneMissed"; days: number }
-  | { key: "overdue"; count: number }
+  | { key: "milestoneAtRisk"; title: string; date: string; days: number; open: number }
+  | { key: "milestoneMissed"; title: string; date: string; days: number }
+  | { key: "overdue"; count: number; example: string }
   | { key: "obstacles"; count: number }
   | { key: "overBudget"; percent: number }
   | { key: "spendAhead"; spendPercent: number; workPercent: number };
@@ -55,22 +57,33 @@ export function assessProject(input: AssessmentInput): Assessment {
     const days = diffDays(input.today, input.nextMilestone.date);
     if (days < 0) {
       rag = worse(rag, "red");
-      reasons.push({ key: "milestoneMissed", days: -days });
+      reasons.push({
+        key: "milestoneMissed",
+        title: input.nextMilestone.title,
+        date: input.nextMilestone.date,
+        days: -days,
+      });
     } else if (
       (days <= 14 && input.nextMilestone.openCount > 0 && input.overdueTasks > 0) ||
       input.badlyOverdueTasks > 0
     ) {
       rag = worse(rag, "yellow");
-      reasons.push({ key: "milestoneAtRisk", days, open: input.nextMilestone.openCount });
+      reasons.push({
+        key: "milestoneAtRisk",
+        title: input.nextMilestone.title,
+        date: input.nextMilestone.date,
+        days,
+        open: input.nextMilestone.openCount,
+      });
     }
   }
 
   if (input.overdueTasks >= 3) {
     rag = worse(rag, "red");
-    reasons.push({ key: "overdue", count: input.overdueTasks });
+    reasons.push({ key: "overdue", count: input.overdueTasks, example: input.overdueExample });
   } else if (input.overdueTasks > 0 && !reasons.some((r) => r.key === "milestoneAtRisk")) {
     rag = worse(rag, "yellow");
-    reasons.push({ key: "overdue", count: input.overdueTasks });
+    reasons.push({ key: "overdue", count: input.overdueTasks, example: input.overdueExample });
   }
 
   if (input.openObstacles > 0) {

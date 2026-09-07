@@ -11,8 +11,9 @@ import { assessProject, type AssessmentInput } from "@/modules/reports/assessmen
 const base: AssessmentInput = {
   today: "2026-09-10",
   ageDays: 30,
-  nextMilestone: { date: "2026-10-01", taskCount: 3, openCount: 2 },
+  nextMilestone: { title: "Lokale låst", date: "2026-10-01", taskCount: 3, openCount: 2 },
   overdueTasks: 0,
+  overdueExample: "",
   badlyOverdueTasks: 0,
   openObstacles: 0,
   progress: { done: 2, total: 6 },
@@ -49,20 +50,32 @@ describe("assessProject", () => {
   it("turns red when the next milestone has passed", () => {
     const a = assessProject({
       ...base,
-      nextMilestone: { date: "2026-09-01", taskCount: 3, openCount: 1 },
+      nextMilestone: { title: "Lokale låst", date: "2026-09-01", taskCount: 3, openCount: 1 },
     });
     expect(a.rag).toBe("red");
-    expect(a.reasons[0]).toEqual({ key: "milestoneMissed", days: 9 });
+    expect(a.reasons[0]).toEqual({
+      key: "milestoneMissed",
+      title: "Lokale låst",
+      date: "2026-09-01",
+      days: 9,
+    });
   });
 
   it("puts the milestone at risk when it is close and something is already late", () => {
     const a = assessProject({
       ...base,
-      nextMilestone: { date: "2026-09-20", taskCount: 3, openCount: 2 },
+      nextMilestone: { title: "Lokale låst", date: "2026-09-20", taskCount: 3, openCount: 2 },
       overdueTasks: 1,
+      overdueExample: "Byg side",
     });
     expect(a.rag).toBe("yellow");
-    expect(a.reasons[0]).toEqual({ key: "milestoneAtRisk", days: 10, open: 2 });
+    expect(a.reasons[0]).toEqual({
+      key: "milestoneAtRisk",
+      title: "Lokale låst",
+      date: "2026-09-20",
+      days: 10,
+      open: 2,
+    });
   });
 
   it("reads the money: over budget is red, spend well ahead of work is yellow", () => {

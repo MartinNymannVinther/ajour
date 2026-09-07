@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { z } from "zod";
+import { formatDateDa } from "@/core/dates";
 import { getSession } from "@/core/auth/session";
 import { withOrgContext, type OrgContext } from "@/core/db/tenant";
 import { formatMoney } from "@/modules/ai/phrases";
@@ -59,11 +60,16 @@ export async function statusWords(locale: Locale): Promise<StatusWords> {
         case "onTrack":
           return t("onTrack");
         case "milestoneAtRisk":
-          return t("milestoneAtRisk", { days: r.days, open: r.open });
+          return t("milestoneAtRisk", {
+            title: r.title,
+            date: formatDateDa(r.date),
+            days: r.days,
+            open: r.open,
+          });
         case "milestoneMissed":
-          return t("milestoneMissed", { days: r.days });
+          return t("milestoneMissed", { title: r.title, date: formatDateDa(r.date), days: r.days });
         case "overdue":
-          return t("overdue", { count: r.count });
+          return t("overdue", { count: r.count, example: r.example });
         case "obstacles":
           return t("obstacles", { count: r.count });
         case "overBudget":

@@ -34,6 +34,7 @@ export function assessmentInputFor(full: ProjectFull, today = todayInCopenhagen(
       .filter((m) => !m.doneAt)
       .sort((a, b) => a.date.localeCompare(b.date))
       .map((m) => ({
+        title: m.title,
         date: m.date,
         taskCount: tasks.filter((t) => t.milestoneId === m.id).length,
         openCount: tasks.filter((t) => t.milestoneId === m.id && t.state !== "done").length,
@@ -44,6 +45,7 @@ export function assessmentInputFor(full: ProjectFull, today = todayInCopenhagen(
     ageDays: diffDays(project.createdAt.toISOString().slice(0, 10), today),
     nextMilestone: next,
     overdueTasks: overdue.length,
+    overdueExample: overdue[0]?.title ?? "",
     badlyOverdueTasks: overdue.filter((t) => diffDays(t.endDate, today) > 7).length,
     openObstacles: obstacles.filter((o) => o.status !== "resolved").length,
     progress: { done: tasks.filter((t) => t.state === "done").length, total: tasks.length },
