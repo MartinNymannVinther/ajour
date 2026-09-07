@@ -52,6 +52,7 @@ export type ReportWords = {
   expenseCols: { post: string; planned: string; incurred: string };
   incurred: string;
   expected: string;
+  ofAmount: (amount: string) => string;
   total: string;
   budgetOf: (amount: string) => string;
   approvedBy: (name: string, date: string) => string;
@@ -126,6 +127,7 @@ export function reportWords(
     expenseCols: { post: t("colPost"), planned: t("colPlanned"), incurred: t("colIncurred") },
     incurred: t("incurred"),
     expected: t("expected"),
+    ofAmount: (amount) => t("ofAmount", { amount }),
     total: t("total"),
     budgetOf: (amount) => t("budgetOf", { amount }),
     approvedBy: (name, date) => t("approvedBy", { name, date: formatDateDa(date) }),

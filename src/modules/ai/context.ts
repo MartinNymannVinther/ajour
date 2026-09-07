@@ -53,11 +53,12 @@ export function buildChatContext(
         ? {
             budget: project.budget,
             plannedTotal: expenses.reduce((sum, e) => sum + e.amount, 0),
-            incurredTotal: expenses.filter((e) => e.incurred).reduce((sum, e) => sum + e.amount, 0),
+            incurredTotal: expenses.reduce((sum, e) => sum + e.spent, 0),
             expenses: expenses.map((e) => ({
               id: e.id,
               title: e.title,
               amount: e.amount,
+              spent: e.spent,
               incurred: e.incurred,
               taskId: e.taskId,
             })),
@@ -110,7 +111,7 @@ export function buildStatusInput(
         ? {
             budget: project.budget,
             plannedTotal: expenses.reduce((sum, e) => sum + e.amount, 0),
-            incurredTotal: expenses.filter((e) => e.incurred).reduce((sum, e) => sum + e.amount, 0),
+            incurredTotal: expenses.reduce((sum, e) => sum + e.spent, 0),
             postCount: expenses.length,
           }
         : null,

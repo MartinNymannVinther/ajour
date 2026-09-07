@@ -163,7 +163,9 @@ export function sanitizeChatReply(raw: unknown, context: ChatContext): ChatReply
       const amount = asAmount(ee.amount);
       if (!title || amount === null) return null;
       const taskId = taskById.has(asString(ee.taskId, "", 64)) ? asString(ee.taskId, "", 64) : null;
-      return { title, amount, incurred: asBool(ee.incurred) ?? false, taskId };
+      const incurred = asBool(ee.incurred) ?? false;
+      const spent = ee.spent === undefined ? (incurred ? amount : 0) : (asAmount(ee.spent) ?? 0);
+      return { title, amount, spent, incurred: spent >= amount, taskId };
     }),
   ).slice(0, 10);
   out.expenseChanges = present(
@@ -172,12 +174,14 @@ export function sanitizeChatReply(raw: unknown, context: ChatContext): ChatReply
       if (!e) return null;
       const incurred = asBool(ec.incurred);
       const amount = ec.amount === undefined ? null : asAmount(ec.amount);
+      const spent = ec.spent === undefined ? null : asAmount(ec.spent);
       if (
         (incurred === null || incurred === e.incurred) &&
-        (amount === null || amount === e.amount)
+        (amount === null || amount === e.amount) &&
+        (spent === null || spent === e.spent)
       )
         return null;
-      return { id: e.id, title: e.title, incurred, amount };
+      return { id: e.id, title: e.title, incurred, amount, spent };
     }),
   ).slice(0, 10);
 

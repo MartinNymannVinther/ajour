@@ -54,7 +54,7 @@ export function assessmentInputFor(full: ProjectFull, today = todayInCopenhagen(
         ? {
             budget: project.budget,
             plannedTotal: expenses.reduce((sum, e) => sum + e.amount, 0),
-            incurredTotal: expenses.filter((e) => e.incurred).reduce((sum, e) => sum + e.amount, 0),
+            incurredTotal: expenses.reduce((sum, e) => sum + e.spent, 0),
           }
         : null,
   };

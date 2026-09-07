@@ -62,6 +62,7 @@ export type SnapshotData = {
     taskId: string | null;
     title: string;
     amount: number;
+    spent?: number;
     incurred: boolean;
   }>;
   obstacles: Array<{
@@ -143,6 +144,7 @@ export async function collectSnapshot(
       taskId: e.taskId,
       title: e.title,
       amount: e.amount,
+      spent: e.spent,
       incurred: e.incurred,
     })),
     obstacles: ob.map((o) => ({
@@ -266,7 +268,15 @@ export async function restoreSnapshot(
     ).map((e) => e.id),
   );
   for (const e of data.expenses) {
-    const values = { taskId: e.taskId, title: e.title, amount: e.amount, incurred: e.incurred };
+    // Snapshots from before partial spend carry the flag only.
+    const spent = e.spent ?? (e.incurred ? e.amount : 0);
+    const values = {
+      taskId: e.taskId,
+      title: e.title,
+      amount: e.amount,
+      spent,
+      incurred: e.incurred,
+    };
     if (currentEx.has(e.id)) await tx.update(expenses).set(values).where(eq(expenses.id, e.id));
     else await tx.insert(expenses).values({ id: e.id, orgId: ctx.orgId, projectId, ...values });
   }

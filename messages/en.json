@@ -543,11 +543,23 @@
       "amount": "DKK",
       "linkedTask": "Linked task",
       "noTask": "No task linked",
-      "alreadyIncurred": "Already incurred",
       "add": "Add",
       "remove": "Remove",
       "removeQuestion": "Remove the line “{title}” ({amount})?",
-      "notShared": "Money is never shown on the public share link."
+      "notShared": "Money is never shown on the public share link.",
+      "spend": {
+        "none": "Expected",
+        "all": "Spent",
+        "part": "{spent} of {amount}",
+        "over": "Overrun · {spent}",
+        "editLabel": "Edit amount spent ({state})",
+        "prompt": "Spent so far, of {amount}",
+        "save": "Save",
+        "markAll": "All spent",
+        "markNone": "Nothing yet",
+        "close": "Close"
+      },
+      "spentSoFar": "Of which spent (kr.)"
     },
     "obstacles": {
       "title": "Obstacles",
@@ -1054,6 +1066,7 @@
       "ofTasks": "{done} of {total} done",
       "ahead": "Money is running {points} points ahead of the work"
     },
-    "nothingSince": "No changes to the plan since last time"
+    "nothingSince": "No changes to the plan since last time",
+    "ofAmount": "of {amount}"
   }
 }

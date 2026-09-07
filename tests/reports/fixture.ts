@@ -55,9 +55,9 @@ export function fullReport(): StatusReport {
     progress: { done: 4, total: 9 },
     economy: { budget: 60000, plannedTotal: 53000, incurredTotal: 45000, postCount: 4 },
     expenses: [
-      { title: "Lokaleleje, forskud", amount: 25000, incurred: true },
-      { title: "Oplægsholdere, honorarer", amount: 20000, incurred: true },
-      { title: "Forplejning", amount: 8000, incurred: false },
+      { title: "Lokaleleje, forskud", amount: 25000, spent: 25000, incurred: true },
+      { title: "Oplægsholdere, honorarer", amount: 20000, spent: 20000, incurred: true },
+      { title: "Forplejning", amount: 8000, spent: 0, incurred: false },
     ],
     milestones: [
       {

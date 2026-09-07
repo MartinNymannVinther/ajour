@@ -152,8 +152,8 @@ Leave out fields you do not use; empty lists are fine.
  "milestoneChanges": [{"id": string, "milestoneId": string | null}],  // move an existing task to another milestone; null = no milestone
  "newDecisions": [{"title": string, "note": string}],  // decisions taken in the conversation; note is the short reason
  "budgetChange": {"budget": number | null},  // total budget in whole kroner; null removes the budget
- "newExpenses": [{"title": string, "amount": number, "incurred": boolean, "taskId": string | null}],  // incurred: true = spent, false = expected
- "expenseChanges": [{"id": string, "incurred": boolean, "amount": number}],  // change an existing line; omit the field that does not change
+ "newExpenses": [{"title": string, "amount": number, "spent": number, "taskId": string | null}],  // amount: what the line is expected to cost; spent: paid so far, 0 if nothing yet
+ "expenseChanges": [{"id": string, "amount": number, "spent": number}],  // change an existing line; omit the field that does not change. "spent" may be part of the amount: 5000 of a 20000 line
  "newObstacles": [{"title": string}],
  "resolvedObstacles": [{"id": string}],
  "subtaskChanges": [{"id": string, "subtasks": [{"title": string, "done": boolean}]}],  // the whole checklist of the task; repeat existing items you keep

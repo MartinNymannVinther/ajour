@@ -543,11 +543,23 @@
       "amount": "Kr.",
       "linkedTask": "Tilknyttet opgave",
       "noTask": "Ingen opgave tilknyttet",
-      "alreadyIncurred": "Allerede afholdt",
       "add": "Tilføj",
       "remove": "Fjern",
       "removeQuestion": "Fjern posten „{title}“ ({amount})?",
-      "notShared": "Økonomi vises aldrig på det åbne delelink."
+      "notShared": "Økonomi vises aldrig på det åbne delelink.",
+      "spend": {
+        "none": "Forventet",
+        "all": "Afholdt",
+        "part": "{spent} af {amount}",
+        "over": "Overskredet · {spent}",
+        "editLabel": "Ret afholdt beløb ({state})",
+        "prompt": "Afholdt indtil nu, af {amount}",
+        "save": "Gem",
+        "markAll": "Alt afholdt",
+        "markNone": "Intet endnu",
+        "close": "Luk"
+      },
+      "spentSoFar": "Heraf afholdt (kr.)"
     },
     "obstacles": {
       "title": "Forhindringer",
@@ -1054,6 +1066,7 @@
       "ofTasks": "{done} af {total} færdige",
       "ahead": "Pengene løber {points} point foran arbejdet"
     },
-    "nothingSince": "Ingen ændringer i planen siden sidst"
+    "nothingSince": "Ingen ændringer i planen siden sidst",
+    "ofAmount": "af {amount}"
   }
 }

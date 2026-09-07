@@ -145,24 +145,21 @@ export async function applyChatReply(
     created.expenses.push(id);
     lines.push({
       type: "expense.added",
-      payload: { title: ne.title, amount: ne.amount, incurred: ne.incurred ? "yes" : "no" },
+      payload: { title: ne.title, amount: ne.amount, spent: ne.spent },
     });
   }
   for (const ec of reply.expenseChanges) {
     if (!ownExpenses.has(ec.id)) continue;
-    const patch: { incurred?: boolean; amount?: number } = {};
+    const patch: { incurred?: boolean; amount?: number; spent?: number } = {};
     if (ec.incurred !== null) patch.incurred = ec.incurred;
     if (ec.amount !== null) patch.amount = ec.amount;
+    if (ec.spent !== null) patch.spent = ec.spent;
     const row = await updateExpense(tx, ctx, ec.id, patch, actor);
-    if (row)
-      lines.push({
-        type: "expense.toggled",
-        payload: {
-          title: ec.title,
-          incurred: (ec.incurred ?? row.incurred) ? "yes" : "no",
-          amount: ec.amount ?? row.amount,
-        },
-      });
+    if (row) {
+      const amount = ec.amount ?? row.amount;
+      const spent = ec.spent ?? (ec.incurred === null ? row.spent : ec.incurred ? amount : 0);
+      lines.push({ type: "expense.toggled", payload: { title: ec.title, amount, spent } });
+    }
   }
   for (const no of reply.newObstacles) {
     const id = await addObstacle(tx, ctx, projectId, no.title, actor);

@@ -187,7 +187,12 @@ export const decisions = pgTable(
   (t) => [index("decisions_project_idx").on(t.projectId, t.createdAt)],
 );
 
-/** A budget line: expected until the money is spent, then incurred. */
+/**
+ * A budget line: `amount` is what it is expected to cost, `spent` what has
+ * been paid so far. A line is incurred once the money is spent in full;
+ * the flag is kept in step by the write service so a report from before
+ * partial spend existed still reads the same.
+ */
 export const expenses = pgTable(
   "expenses",
   {
@@ -200,6 +205,8 @@ export const expenses = pgTable(
     title: text("title").notNull(),
     /** Whole kroner. */
     amount: integer("amount").notNull(),
+    /** Whole kroner paid so far; may exceed `amount` when a line overruns. */
+    spent: integer("spent").notNull().default(0),
     incurred: boolean("incurred").notNull().default(false),
     ...timestamps,
   },

@@ -64,6 +64,13 @@
       "when": 1788504372709,
       "tag": "0008_status_assessment",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788766854311,
+      "tag": "0009_expense_spent",
+      "breakpoints": true
     }
   ]
 }

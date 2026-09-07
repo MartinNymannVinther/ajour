@@ -38,7 +38,9 @@ const context: ChatContext = {
     budget: 50000,
     plannedTotal: 10000,
     incurredTotal: 0,
-    expenses: [{ id: "e1", title: "Depositum", amount: 10000, incurred: false, taskId: null }],
+    expenses: [
+      { id: "e1", title: "Depositum", amount: 10000, spent: 0, incurred: false, taskId: null },
+    ],
   },
 };
 
@@ -121,7 +123,17 @@ describe("sanitizeChatReply", () => {
     expect(r!.newExpenses[0]!.taskId).toBe("t1");
     expect(r!.newExpenses[1]!.taskId).toBeNull();
     expect(r!.expenseChanges).toEqual([
-      { id: "e1", title: "Depositum", incurred: true, amount: null },
+      { id: "e1", title: "Depositum", incurred: true, amount: null, spent: null },
+    ]);
+  });
+
+  it("lets the model pay part of a line", () => {
+    const r = sanitizeChatReply(
+      { reply: "ok", expenseChanges: [{ id: "e1", spent: 5000 }] },
+      context,
+    );
+    expect(r!.expenseChanges).toEqual([
+      { id: "e1", title: "Depositum", incurred: null, amount: null, spent: 5000 },
     ]);
   });
 

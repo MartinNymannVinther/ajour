@@ -70,6 +70,25 @@ export async function setBudget(
   return project;
 }
 
+/**
+ * What a line's spend means for its flag: a line is incurred once every
+ * krone expected is paid. `spent` is the number; `incurred` follows it,
+ * and nothing else writes the flag.
+ */
+export function spendOf(input: {
+  amount: number;
+  spent?: number | null;
+  incurred?: boolean | null;
+}) {
+  const spent =
+    input.spent !== undefined && input.spent !== null
+      ? Math.max(0, Math.round(input.spent))
+      : input.incurred
+        ? input.amount
+        : 0;
+  return { spent, incurred: input.amount > 0 && spent >= input.amount };
+}
+
 export async function addExpense(
   tx: AppTransaction,
   ctx: OrgContext,
@@ -77,7 +96,9 @@ export async function addExpense(
     projectId: string;
     title: string;
     amount: number;
-    incurred: boolean;
+    /** Kroner paid so far; `incurred` is the older, all-or-nothing way of saying it. */
+    spent?: number | null;
+    incurred?: boolean;
     taskId: string | null;
   },
   actor: ActorKind = "user",
@@ -91,6 +112,7 @@ export async function addExpense(
       .limit(1);
     taskId = task?.id ?? null;
   }
+  const money = spendOf(input);
   const [row] = await tx
     .insert(expenses)
     .values({
@@ -99,7 +121,8 @@ export async function addExpense(
       taskId,
       title: input.title,
       amount: input.amount,
-      incurred: input.incurred,
+      spent: money.spent,
+      incurred: money.incurred,
     })
     .returning({ id: expenses.id });
   await recordEvent(
@@ -107,7 +130,7 @@ export async function addExpense(
     ctx,
     input.projectId,
     "expense.added",
-    { title: input.title, amount: input.amount, incurred: input.incurred ? "yes" : "no" },
+    { title: input.title, amount: input.amount, spent: money.spent },
     actor,
   );
   return row!.id;
@@ -117,22 +140,30 @@ export async function updateExpense(
   tx: AppTransaction,
   ctx: OrgContext,
   expenseId: string,
-  patch: { incurred?: boolean; amount?: number },
+  patch: { incurred?: boolean; amount?: number; spent?: number },
   actor: ActorKind = "user",
 ) {
   const [e] = await tx.select().from(expenses).where(eq(expenses.id, expenseId)).limit(1);
   if (!e) return null;
-  await tx.update(expenses).set(patch).where(eq(expenses.id, e.id));
+  const amount = patch.amount ?? e.amount;
+  // An explicit spend wins; the old flag still means "all of it" or
+  // "none of it"; with neither, the spend stays and the flag follows a
+  // changed amount.
+  const money = spendOf({
+    amount,
+    spent: patch.spent ?? (patch.incurred === undefined ? e.spent : null),
+    incurred: patch.incurred,
+  });
+  await tx
+    .update(expenses)
+    .set({ amount, spent: money.spent, incurred: money.incurred })
+    .where(eq(expenses.id, e.id));
   await recordEvent(
     tx,
     ctx,
     e.projectId,
     "expense.toggled",
-    {
-      title: e.title,
-      incurred: (patch.incurred ?? e.incurred) ? "yes" : "no",
-      amount: patch.amount ?? e.amount,
-    },
+    { title: e.title, amount, spent: money.spent },
     actor,
   );
   return e;

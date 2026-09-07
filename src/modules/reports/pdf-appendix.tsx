@@ -137,10 +137,13 @@ export function PdfAppendix({ report, words }: { report: StatusReport; words: Re
                 style={[
                   styles.td,
                   { width: CONTENT_W * 0.22 },
-                  e.incurred ? {} : { color: INK.meta },
+                  e.spent > 0 ? {} : { color: INK.meta },
                 ]}
               >
-                {e.incurred ? words.money(e.amount) : words.expected}
+                {e.spent > 0 ? words.money(e.spent) : words.expected}
+                {e.spent > 0 && e.spent < e.amount ? (
+                  <Text style={{ color: INK.meta }}> {words.ofAmount(words.money(e.amount))}</Text>
+                ) : null}
               </Text>
             </View>
           ))}

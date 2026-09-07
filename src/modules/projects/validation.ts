@@ -81,7 +81,8 @@ export const NewExpenseSchema = z.object({
   projectId: id,
   title: shortText(100).min(1),
   amount: amount.min(1),
-  incurred: z.boolean(),
+  spent: amount.optional(),
+  incurred: z.boolean().optional(),
   taskId: id.nullable(),
 });
 export const RolesSchema = z.object({ projectId: id, owner: name, manager: name });

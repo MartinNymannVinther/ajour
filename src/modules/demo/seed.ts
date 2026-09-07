@@ -92,6 +92,7 @@ export async function seedDemoProject(
     projectId,
     title: words.expenses[0]!.title,
     amount: 15000,
+    spent: 15000,
     incurred: true,
     taskId: null,
   });

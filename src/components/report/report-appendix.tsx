@@ -102,8 +102,16 @@ export function ReportAppendix({ report, words }: { report: StatusReport; words:
                   <td className="py-1.5 pr-2">{e.title}</td>
                   <td className="py-1.5 pr-2 tabular-nums">{words.money(e.amount)}</td>
                   <td className="py-1.5 tabular-nums">
-                    {e.incurred ? (
-                      words.money(e.amount)
+                    {e.spent > 0 ? (
+                      <>
+                        {words.money(e.spent)}
+                        {e.spent < e.amount && (
+                          <span className="text-meta">
+                            {" "}
+                            {words.ofAmount(words.money(e.amount))}
+                          </span>
+                        )}
+                      </>
                     ) : (
                       <span className="text-meta">{words.expected}</span>
                     )}

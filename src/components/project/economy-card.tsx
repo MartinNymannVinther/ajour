@@ -8,6 +8,7 @@ import type { Expense } from "@/core/db/schema";
 import type { TaskView } from "@/modules/projects/types";
 import { FUNCTION_ACCENT, SECTION_IDS } from "@/modules/projects/constants";
 import { ConfirmButton } from "./confirm-button";
+import { ExpenseSpend } from "./expense-spend";
 import { FunctionSection } from "./function-card";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ export function EconomyCard({
   formatMoney,
   onSetBudget,
   onAddExpense,
-  onToggleExpense,
+  onSetSpent,
   onRemoveExpense,
 }: {
   budget: number | null;
@@ -34,19 +35,19 @@ export function EconomyCard({
   onAddExpense: (input: {
     title: string;
     amount: number;
-    incurred: boolean;
+    spent: number;
     taskId: string | null;
   }) => Promise<boolean>;
-  onToggleExpense: (id: string, incurred: boolean) => void;
+  onSetSpent: (id: string, spent: number) => void;
   onRemoveExpense: (id: string) => void;
 }) {
   const t = useTranslations("projects.economy");
   const [editingBudget, setEditingBudget] = useState(false);
   const [budgetDraft, setBudgetDraft] = useState("");
-  const [draft, setDraft] = useState({ title: "", amount: "", incurred: false, taskId: "" });
+  const [draft, setDraft] = useState({ title: "", amount: "", spent: "", taskId: "" });
 
   const plannedTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const incurredTotal = expenses.filter((e) => e.incurred).reduce((sum, e) => sum + e.amount, 0);
+  const incurredTotal = expenses.reduce((sum, e) => sum + e.spent, 0);
   const share = budget ? Math.min(999, Math.round((plannedTotal / budget) * 100)) : null;
   const over = budget !== null && plannedTotal > budget;
 
@@ -129,19 +130,12 @@ export function EconomyCard({
             const task = tasks.find((x) => x.id === expense.taskId);
             return (
               <li key={expense.id} className="flex items-center gap-2 text-sm">
-                <button
-                  type="button"
-                  onClick={() => onToggleExpense(expense.id, !expense.incurred)}
-                  aria-pressed={expense.incurred}
-                  className={cn(
-                    "min-h-[26px] shrink-0 rounded-full border px-2 text-[10px] font-medium",
-                    expense.incurred
-                      ? "border-success bg-success-tint text-success"
-                      : "border-input bg-card text-meta",
-                  )}
-                >
-                  {expense.incurred ? t("incurred") : t("planned")}
-                </button>
+                <ExpenseSpend
+                  amount={expense.amount}
+                  spent={expense.spent}
+                  formatMoney={formatMoney}
+                  onChange={(spent) => onSetSpent(expense.id, spent)}
+                />
                 <span className="min-w-0 truncate">
                   {expense.title}
                   {task && <span className="text-meta ml-1 text-[11px]">· {task.title}</span>}
@@ -172,10 +166,10 @@ export function EconomyCard({
             const done = await onAddExpense({
               title: draft.title.trim(),
               amount,
-              incurred: draft.incurred,
+              spent: Number(draft.spent.replace(/[^\d]/g, "")) || 0,
               taskId: draft.taskId || null,
             });
-            if (done) setDraft({ title: "", amount: "", incurred: false, taskId: "" });
+            if (done) setDraft({ title: "", amount: "", spent: "", taskId: "" });
           }}
           className="space-y-2"
         >
@@ -209,15 +203,14 @@ export function EconomyCard({
             ))}
           </select>
           <div className="flex items-center gap-2">
-            <label className="text-meta flex items-center gap-1.5 text-xs">
-              <input
-                type="checkbox"
-                className="size-[18px] shrink-0"
-                checked={draft.incurred}
-                onChange={(e) => setDraft((d) => ({ ...d, incurred: e.target.checked }))}
-              />
-              {t("alreadyIncurred")}
-            </label>
+            <Input
+              inputMode="numeric"
+              value={draft.spent}
+              onChange={(e) => setDraft((d) => ({ ...d, spent: e.target.value }))}
+              placeholder={t("spentSoFar")}
+              aria-label={t("spentSoFar")}
+              className="w-40"
+            />
             <Button type="submit" variant="outline" size="sm" className="ml-auto">
               {t("add")}
             </Button>

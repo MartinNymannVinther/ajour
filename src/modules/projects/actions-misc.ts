@@ -70,13 +70,19 @@ export async function addExpenseAction(raw: unknown): Promise<Result<string>> {
 
 export async function updateExpenseAction(raw: unknown): Promise<Result<string>> {
   return action(
-    z.object({ expenseId: id, incurred: z.boolean().optional(), amount: amount.optional() }),
+    z.object({
+      expenseId: id,
+      incurred: z.boolean().optional(),
+      amount: amount.optional(),
+      spent: amount.optional(),
+    }),
     raw,
     async (tx, ctx, input) => {
       const e = found(
         await updateExpense(tx, ctx, input.expenseId, {
           incurred: input.incurred,
           amount: input.amount,
+          spent: input.spent,
         }),
       );
       return e.projectId;

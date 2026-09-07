@@ -70,7 +70,7 @@ export type StatusReport = {
     incurredTotal: number;
     postCount: number;
   } | null;
-  expenses: Array<{ title: string; amount: number; incurred: boolean }>;
+  expenses: Array<{ title: string; amount: number; spent: number; incurred: boolean }>;
   milestones: ReportMilestone[];
   tasks: ReportTask[];
   obstacles: Array<{ title: string; since: string }>;
@@ -166,11 +166,16 @@ export function buildStatusReport(
         ? {
             budget: project.budget,
             plannedTotal: expenses.reduce((sum, e) => sum + e.amount, 0),
-            incurredTotal: expenses.filter((e) => e.incurred).reduce((sum, e) => sum + e.amount, 0),
+            incurredTotal: expenses.reduce((sum, e) => sum + e.spent, 0),
             postCount: expenses.length,
           }
         : null,
-    expenses: expenses.map((e) => ({ title: e.title, amount: e.amount, incurred: e.incurred })),
+    expenses: expenses.map((e) => ({
+      title: e.title,
+      amount: e.amount,
+      spent: e.spent,
+      incurred: e.incurred,
+    })),
     milestones: sorted.map((m) => ({
       title: m.title,
       date: m.date,

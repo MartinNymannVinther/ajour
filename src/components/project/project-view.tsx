@@ -271,9 +271,7 @@ export function ProjectView({
             formatMoney={formatMoney}
             onSetBudget={(budget) => run(() => setBudgetAction({ projectId, budget }))}
             onAddExpense={(input) => run(() => addExpenseAction({ projectId, ...input }))}
-            onToggleExpense={(expenseId, incurred) =>
-              run(() => updateExpenseAction({ expenseId, incurred }))
-            }
+            onSetSpent={(expenseId, spent) => run(() => updateExpenseAction({ expenseId, spent }))}
             onRemoveExpense={(expenseId) => run(() => removeExpenseAction({ expenseId }))}
           />
 

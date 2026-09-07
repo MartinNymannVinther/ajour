@@ -145,6 +145,7 @@ export type ChatContext = {
       id: string;
       title: string;
       amount: number;
+      spent: number;
       incurred: boolean;
       taskId: string | null;
     }[];
@@ -180,8 +181,20 @@ export type ChatReply = {
   }[];
   newDecisions: { title: string; note: string }[];
   budgetChange: { budget: number | null } | null;
-  newExpenses: { title: string; amount: number; incurred: boolean; taskId: string | null }[];
-  expenseChanges: { id: string; title: string; incurred: boolean | null; amount: number | null }[];
+  newExpenses: {
+    title: string;
+    amount: number;
+    spent: number;
+    incurred: boolean;
+    taskId: string | null;
+  }[];
+  expenseChanges: {
+    id: string;
+    title: string;
+    incurred: boolean | null;
+    amount: number | null;
+    spent: number | null;
+  }[];
   newObstacles: { title: string }[];
   resolvedObstacles: { id: string; title: string }[];
   subtaskChanges: { id: string; title: string; subtasks: { title: string; done: boolean }[] }[];
