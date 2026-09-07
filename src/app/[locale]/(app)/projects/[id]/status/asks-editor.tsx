@@ -53,7 +53,7 @@ export function AsksEditor({
                     type="date"
                     value={ask.dueDate ?? ""}
                     onChange={(e) => update(ask.id, { dueDate: e.target.value || null })}
-                    className="h-8 w-auto text-xs"
+                    className="h-8 text-xs"
                     aria-label={t("dueLabel", { n: i + 1 })}
                   />
                 </label>

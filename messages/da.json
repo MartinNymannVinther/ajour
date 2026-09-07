@@ -824,19 +824,35 @@
     "howTo": {
       "start": {
         "title": "Start et projekt",
-        "body": "Klik på Nyt projekt. Beskriv projektet med dine egne ord, eller vælg en af skabelonerne, så står en plan klar med det samme. AI'en foreslår mål, milepæle og opgaver, og du retter til og godkender. Intet gemmes, før du siger god for planen."
+        "body": "Klik på Nyt projekt. Beskriv projektet med dine egne ord, eller vælg en af skabelonerne, så står en plan klar med det samme. Planlægningsmotoren foreslår mål, milepæle og opgaver, og du retter til og godkender. Intet gemmes, før du siger god for planen."
+      },
+      "plan": {
+        "title": "Hold planen ved lige",
+        "body": "Alt vedligehold sker på projektsiden. Klik på en opgaves navn for at åbne den: her sætter du ansvarlig, deltagere, tjekliste og hvilken milepæl den hører til. Over opgavelisten ligger en knap pr. milepæl, så du kan nøjes med at se de opgaver der bærer den ene milepæl du arbejder på, og opretter du en opgave mens et filter er slået til, lander den under den milepæl. Sætter du en opgave i gang på en anden dag end dens startdato, spørger Ajour om datoen skal flyttes til i dag. Klik på en milepæl, i listen eller på tidslinjen, for at give den ejer, dato og et acceptkriterium. Træk i en opgave på tidslinjen for at flytte den, op eller ned for at skifte milepæl, i højre kant for at ændre længden; piletasterne gør det samme. Trækker du i en milepæl, regner Ajour en replanlægning ud, som du godkender eller fortryder."
+      },
+      "breakdown": {
+        "title": "Bryd en milepæl ned i opgaver",
+        "body": "En milepæl uden opgaver under sig er et løfte uden noget bagved. Klik Foreslå opgaver ud for milepælen, så bryder planlægningsmotoren den ned i tre til syv opgaver med datoer inden for milepælens vindue og et bud på hvem der ejer dem. Du retter, fjerner og krydser af, og først når du trykker opret, bliver de til rigtige opgaver. Der gemmes en kopi af planen først, så hele sættet kan tages tilbage fra historikken. Opretter du en ny milepæl, er forslaget slået til som standard."
       },
       "tip": {
         "title": "Dagens tip",
-        "body": "Øverst på projektsiden står dagens tip: AI'en har set på hele projektet og peger på den ene ting, du bør gøre i dag. Kan tippet udføres i planen, er der en Udfør-knap, som går gennem AI-chatten og kan fortrydes. Kig igen beder om en ny vurdering, og Skjul gemmer det væk til i morgen."
+        "body": "Øverst på projektsiden står dagens tip: AI'en har set på hele projektet og peger på den ene ting du bør gøre i dag. Kan tippet udføres i planen, står der under tippet præcis hvad Udfør vil sende til AI'en, så du ved hvad du siger ja til. Kig igen beder om en ny vurdering, og Skjul gemmer det væk til i morgen."
       },
-      "maintain": {
-        "title": "Hold planen ved lige",
-        "body": "Alt vedligehold sker på projektsiden. Klik på en opgave for at åbne den: her sætter du ansvarlig, deltagere, tjekliste og hvilken milepæl opgaven hører til. Klik på en milepæl for at give den ejer, dato og et acceptkriterium. Træk i en opgave på tidslinjen for at flytte den, op eller ned for at skifte milepæl, i højre kant for at ændre længden. Med tastaturet gør piletasterne det samme. Trækker du i en milepæl, regner Ajour en replanlægning ud, som du godkender eller fortryder. Du kan også bare skrive til AI'en under planen: den svarer på spørgsmål og udfører det, du beder om, i hele projektet. Den sletter aldrig noget, og der gemmes altid en kopi af planen først."
+      "economy": {
+        "title": "Budget og forbrug",
+        "body": "Sæt et budget, og skriv posterne ind. Hver post har et beløb den forventes at koste og et tal for hvad der er betalt indtil nu, så en rate eller et forskud kan bogføres uden at posten er lukket. Klik på linjen under posten for at rette det betalte, med Alt afholdt og Intet endnu som genveje. Bjælken øverst viser registreret og afholdt i hver sin farve, så du kan se om pengene løber foran arbejdet. Økonomi vises aldrig på det åbne delelink."
+      },
+      "status": {
+        "title": "Ugestatus",
+        "body": "Klik Ny ugestatus. Planlægningsmotoren læser planen, vurderer den og skriver udkastet, og rapporten står færdig ved siden af felterne og opdaterer sig mens du skriver. Vurderingen er grøn, gul eller rød, udledt af forsinkelser, forhindringer og forbrug; du kan ændre den, og så står der på rapporten både hvad motoren foreslog og hvad du valgte. Under Det ledelsen skal hjælpe med skriver du de beslutninger eller ressourcer kun ledelsen kan levere, med en frist; punkter der ikke er besvaret, følger automatisk med til næste uges status, mærket med hvornår de blev rejst. Din egen kommentar står under dit navn på forsiden. Er der noget motoren mangler svar på, spørger den, og trykker du Indarbejd svar, bliver dine svar skrevet ind i teksten som fakta i stedet for at hænge under den. Du kan hente udkastet som PDF før du godkender."
       },
       "share": {
-        "title": "Del status",
-        "body": "Klik Ny ugestatus. AI'en skriver udkastet ud fra det, der faktisk er sket, og spørger om det, der mangler svar. Ret til og godkend. Statussen kan læses uden login via et delelink, og hver godkendt status kan hentes som PDF med planen, milepælene, forhindringerne og beslutningerne fra den dag. Økonomi kommer aldrig med på det åbne link."
+        "title": "Del med andre",
+        "body": "Hver godkendt status kan hentes som en PDF på to sider: forsiden med vurdering, ledelsespunkter, din kommentar, økonomi og den del af planen der bærer de næste milepæle, og et bilag med hele tidslinjen, alle opgaver, beslutningerne og økonomiposterne. Med et delelink kan projektet læses uden login, med plan, milepæle og godkendte statusser, og PDF'en kan hentes derfra. Økonomi, forhindringer og ledelsespunkter kommer aldrig med på det åbne link. Under Indstillinger → Data henter du hele arbejdsrummet som regneark eller JSON, og sletter det igen."
+      },
+      "model": {
+        "title": "Sprogmodellen",
+        "body": "Ajour virker uden en sprogmodel: en indbygget regelmotor lægger planer, skriver statusudkast og forstår faste vendinger i chatten, så du kan klippe internettet og stadig køre projektet. Med en model bliver svarene bedre. Installationen sætter en model op, og under Indstillinger → AI kan arbejdsrummet vælge sin egen udbyder, model og nøgle i stedet, eller slå modellen helt fra. Tryk Test forbindelsen, så får du at vide om den svarer, og hvad der er galt hvis den ikke gør. Rapporten siger altid hvilken motor der skrev udkastet."
       }
     },
     "abcTitle": "Projektlederens ABC",
@@ -883,7 +899,7 @@
         "body": "Den ugentlige status føles som pligt, men den er din tænkepause: fem minutter hvor du ser projektet udefra. Lad AI'en skrive udkastet, og brug din energi på at rette det, der ikke passer. Det er dér, du opdager skreddet i tide."
       }
     },
-    "closing": "Sidder du fast, så spørg AI'en på projektsiden. Den kender din plan og svarer ud fra den, og beder du den om ændringer, udfører den dem med det samme. Der gemmes altid en kopi af planen først, så du kan fortryde alt."
+    "closing": "Sidder du fast, så spørg AI'en på projektsiden. Den kender din plan og svarer ud fra den, og beder du den om ændringer, udfører den dem med det samme, også i økonomien, forhindringerne og beslutningerne. Der gemmes altid en kopi af planen først, så alt kan fortrydes fra beskeden der lavede det."
   },
   "events": {
     "project": {

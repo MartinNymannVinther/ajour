@@ -824,19 +824,35 @@
     "howTo": {
       "start": {
         "title": "Start a project",
-        "body": "Click New project. Describe the project in your own words, or pick one of the templates and have a plan straight away. The AI proposes a goal, milestones and tasks; you edit and approve. Nothing is saved until you say yes to the plan."
+        "body": "Click New project. Describe the project in your own words, or pick one of the templates and a plan is ready at once. The planning engine proposes a goal, milestones and tasks, and you correct and approve. Nothing is saved until you say yes to the plan."
+      },
+      "plan": {
+        "title": "Keep the plan up to date",
+        "body": "Everything is maintained on the project page. Click a task's name to open it: owner, participants, checklist and which milestone it belongs to. Above the task list there is one button per milestone, so you can see only the tasks that carry the one milestone you are working on, and a task added while a filter is on lands under that milestone. Set a task in progress on a day other than its start date and Ajour asks whether to move the date to today. Click a milestone, in the list or on the timeline, to give it an owner, a date and an acceptance criterion. Drag a task on the timeline to move it, up or down to change milestone, at the right edge to change its length; the arrow keys do the same. Drag a milestone and Ajour works out a replan for you to approve or undo."
+      },
+      "breakdown": {
+        "title": "Break a milestone into tasks",
+        "body": "A milestone with no tasks under it is a promise with nothing behind it. Click Suggest tasks next to the milestone and the planning engine breaks it into three to seven tasks, dated inside the milestone's window, with a guess at who owns them. You edit, drop and tick, and only when you press create do they become real tasks. A copy of the plan is taken first, so the whole set can be taken back from the history. When you create a new milestone the suggestion is on by default."
       },
       "tip": {
-        "title": "Today's tip",
-        "body": "At the top of the project page is today's tip: the AI has read the whole project and points at the one thing worth doing today. If the tip can be carried out in the plan, there is a button that goes through the AI chat and can be undone. Look again asks for a fresh reading, and Hide puts it away until tomorrow."
+        "title": "The daily tip",
+        "body": "At the top of the project page is the daily tip: the AI has read the whole project and points at the one thing worth doing today. If the tip can be carried out in the plan, the exact instruction Run will send to the AI stands under the tip, so you know what you are saying yes to. Look again asks for a fresh assessment, and Hide puts it away until tomorrow."
       },
-      "maintain": {
-        "title": "Keep the plan honest",
-        "body": "All maintenance happens on the project page. Click a task to open it: owner, participants, checklist and which milestone it belongs to. Click a milestone to give it an owner, a date and an acceptance criterion. Drag a task on the timeline to move it, up or down to change milestone, its right edge to change its length. The arrow keys do the same. Drag a milestone and Ajour works out a replan for you to approve or cancel. Or just write to the AI below the plan: it answers questions and carries out what you ask, across the whole project. It never deletes, and a copy of the plan is always taken first."
+      "economy": {
+        "title": "Budget and spend",
+        "body": "Set a budget and write the lines in. Each line has an amount it is expected to cost and a number for what has been paid so far, so an instalment or a deposit can be booked without closing the line. Click the row under the line to change what is paid, with All spent and Nothing yet as shortcuts. The bar at the top shows registered and paid in separate colours, so you can see whether the money is running ahead of the work. Money is never shown on the public share link."
+      },
+      "status": {
+        "title": "The weekly status",
+        "body": "Click New weekly status. The planning engine reads the plan, assesses it and writes the draft, and the report stands finished beside the fields and updates as you type. The assessment is green, yellow or red, derived from delays, obstacles and spend; you can change it, and the report then says both what the engine proposed and what you chose. Under What management is asked to do you write the decisions or resources only management can provide, with a deadline; items left unanswered carry over to next week's status, marked with when they were first raised. Your own comment appears under your name on the front page. If the engine lacks an answer it asks, and pressing Work the answers in writes them into the text as facts instead of leaving them hanging under it. You can download the draft as a PDF before you approve."
       },
       "share": {
-        "title": "Share a status",
-        "body": "Click New weekly status. The AI writes the draft from what actually happened and asks about what it cannot know. Edit and approve. The status can be read without a login through a share link, and every approved status can be downloaded as a PDF with the plan, the milestones, the obstacles and the decisions from that day. Money never appears on the public link."
+        "title": "Share with others",
+        "body": "Every approved status can be downloaded as a two-page PDF: a front page with the assessment, what management is asked for, your comment, the money and the part of the plan that carries the next milestones, and an appendix with the whole timeline, every task, the decisions and the money lines. A share link lets the project be read without a login, with the plan, the milestones and the approved statuses, and the PDF can be downloaded from there. Money, obstacles and the management items never appear on the public link. Under Settings → Data you can export the whole workspace as a spreadsheet or JSON, and delete it again."
+      },
+      "model": {
+        "title": "The language model",
+        "body": "Ajour works without a language model: a built-in rules engine lays out plans, writes status drafts and understands fixed phrases in the chat, so you can cut the internet and still run the project. With a model the answers get better. The installation sets one up, and under Settings → AI a workspace can choose its own provider, model and key instead, or turn the model off entirely. Press Test the connection and you are told whether it answers, and what is wrong if it does not. The report always says which engine wrote the draft."
       }
     },
     "abcTitle": "The project manager's ABC",
@@ -883,7 +899,7 @@
         "body": "The weekly status feels like a chore, but it is your pause for thought: five minutes seeing the project from outside. Let the AI write the draft and spend your energy fixing what is wrong. That is where you catch the slip in time."
       }
     },
-    "closing": "If you are stuck, ask the AI on the project page. It knows your plan and answers from it, and if you ask for changes it makes them straight away. A copy of the plan is always taken first, so everything can be undone."
+    "closing": "If you are stuck, ask the AI on the project page. It knows your plan and answers from it, and if you ask for changes it makes them at once, in the money, the obstacles and the decisions too. A copy of the plan is always taken first, so everything can be undone from the message that did it."
   },
   "events": {
     "project": {

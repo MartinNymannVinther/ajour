@@ -104,7 +104,6 @@ export function NewTaskForm({
           value={draft.startDate}
           onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value }))}
           aria-label={t("startLabel")}
-          className="w-auto"
         />
         <span className="text-label text-xs">{t("to")}</span>
         <Input
@@ -112,7 +111,6 @@ export function NewTaskForm({
           value={draft.endDate}
           onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
           aria-label={t("endLabel")}
-          className="w-auto"
         />
         <Button type="submit" size="sm">
           {t("create")}

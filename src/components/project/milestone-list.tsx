@@ -158,7 +158,6 @@ export function MilestoneList({
           value={newDraft.date}
           onChange={(e) => setNewDraft((d) => ({ ...d, date: e.target.value }))}
           aria-label={t("dateLabel")}
-          className="w-auto"
         />
         <Button type="submit" variant="outline" size="sm">
           {t("add")}

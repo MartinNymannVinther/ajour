@@ -121,7 +121,6 @@ export function ProposalEditor({
                     ),
                   })
                 }
-                className="w-auto"
               />
             </div>
           ))}
@@ -171,7 +170,6 @@ export function ProposalEditor({
                     ),
                   })
                 }
-                className="w-auto"
               />
               <Input
                 type="date"
@@ -184,7 +182,6 @@ export function ProposalEditor({
                     ),
                   })
                 }
-                className="w-auto"
               />
               <Button
                 type="button"

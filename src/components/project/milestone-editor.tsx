@@ -72,7 +72,6 @@ export function MilestoneEditor({
           onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
           aria-label={t("dateLabel")}
           aria-invalid={!draft.date}
-          className="w-auto"
         />
         <Input
           value={draft.owner}

@@ -8,7 +8,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const ABC_COUNT = 10;
-const HOW_TO = ["start", "tip", "maintain", "share"] as const;
+const HOW_TO = [
+  "start",
+  "plan",
+  "breakdown",
+  "tip",
+  "economy",
+  "status",
+  "share",
+  "model",
+] as const;
 
 /**
  * Two things on this page: how the tool works, and how to run a small
