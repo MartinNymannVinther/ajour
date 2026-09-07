@@ -491,7 +491,13 @@
       "selectedTitle": "Selected task",
       "empty": "No tasks yet.",
       "noOwner": "No owner",
-      "pickOnBoard": "Click a card on the board to open the task here."
+      "pickOnBoard": "Click a card on the board to open the task here.",
+      "startToday": {
+        "question": "The task is in progress. Move its start date from {date} to today?",
+        "hint": "The plan will then show when the work actually began.",
+        "move": "Move to today",
+        "keep": "Keep the date"
+      }
     },
     "newTask": {
       "open": "+ New task",
@@ -707,7 +713,9 @@
     "applied": "Done in the project",
     "answer": "The AI's answer",
     "undoHint": "Can be undone in the chat below the plan.",
-    "fallback": "The model did not answer; this tip comes from the system's own rules."
+    "fallback": "The model did not answer; this tip comes from the system's own rules.",
+    "runExplainer": "Run sends to the AI:",
+    "runNote": "A copy of the plan is taken first, and it can be undone."
   },
   "status": {
     "metaTitle": "Weekly status",

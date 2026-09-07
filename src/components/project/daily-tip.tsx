@@ -91,6 +91,15 @@ export function DailyTip({ projectId }: { projectId: string }) {
           <>
             <p className="mt-0.5 text-sm font-semibold">{tip.title}</p>
             <p className="mt-0.5 text-sm">{tip.text}</p>
+            {/* What the button will do, in words, before it is pressed. A
+                button that acts on the project must say what it acts on;
+                the tooltip alone is not saying it. */}
+            {tip.action && !applied && (
+              <p className="text-meta mt-1.5 text-[13px]">
+                <span className="font-semibold">{t("runExplainer")}</span> „{tip.action}“
+                <span className="text-label"> · {t("runNote")}</span>
+              </p>
+            )}
             {applied && (
               <div className="border-success bg-success-tint text-success mt-2 rounded-lg border p-2.5 text-[13px]">
                 <p className="font-semibold">

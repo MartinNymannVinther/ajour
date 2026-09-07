@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { weekNumberFromKey } from "@/core/dates";
-import type { Subtask, TaskState } from "@/core/db/schema";
+import type { Subtask } from "@/core/db/schema";
 import type { ProjectFull } from "@/modules/projects/types";
 import { PEOPLE_LIST_ID } from "@/modules/projects/constants";
 import {
@@ -35,7 +35,6 @@ import {
   deleteTaskAction,
   moveTaskAction,
   relinkTaskAction,
-  setTaskStateAction,
   updateSubtasksAction,
   updateTaskPeopleAction,
 } from "@/modules/projects/actions-tasks";
@@ -48,6 +47,7 @@ import { HistoryCard } from "./history-card";
 import { ObstaclesCard } from "./obstacles-card";
 import { PeopleCard } from "./people-card";
 import { StatusesCard } from "./statuses-card";
+import { useStateChange } from "./use-state-change";
 import { OverviewTiles } from "./overview-tiles";
 import { PlanCard } from "./plan-card";
 import { ProjectHeader } from "./project-header";
@@ -74,6 +74,7 @@ export function ProjectView({
   const common = useTranslations("common");
   const t = useTranslations("projects");
   const { run } = useProjectActions();
+  const changeState = useStateChange(full.tasks, today, run);
   const [view, setView] = useState<"timeline" | "board">("timeline");
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
@@ -194,9 +195,7 @@ export function ProjectView({
         onMilestoneMove={proposeReplan}
         onTaskClick={openTask}
         onMilestoneClick={openMilestone}
-        onStateChange={(id, state: TaskState) =>
-          run(() => setTaskStateAction({ taskId: id, state }))
-        }
+        onStateChange={changeState}
       />
 
       <datalist id={PEOPLE_LIST_ID}>
@@ -244,7 +243,7 @@ export function ProjectView({
             editingId={editingTaskId}
             formatMoney={formatMoney}
             onEdit={openTask}
-            onStateChange={(taskId, state) => run(() => setTaskStateAction({ taskId, state }))}
+            onStateChange={changeState}
             onSavePeople={(taskId, input) =>
               run(
                 () => updateTaskPeopleAction({ taskId, ...input }),

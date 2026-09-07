@@ -491,7 +491,13 @@
       "selectedTitle": "Valgt opgave",
       "empty": "Ingen opgaver endnu.",
       "noOwner": "Ingen ansvarlig",
-      "pickOnBoard": "Klik på et kort på boardet for at åbne opgaven her."
+      "pickOnBoard": "Klik på et kort på boardet for at åbne opgaven her.",
+      "startToday": {
+        "question": "Opgaven er i gang. Skal startdatoen flyttes fra {date} til i dag?",
+        "hint": "Planen viser så hvornår arbejdet faktisk begyndte.",
+        "move": "Flyt til i dag",
+        "keep": "Behold datoen"
+      }
     },
     "newTask": {
       "open": "+ Ny opgave",
@@ -707,7 +713,9 @@
     "applied": "Udført i projektet",
     "answer": "AI'ens svar",
     "undoHint": "Kan fortrydes i chatten under planen.",
-    "fallback": "Modellen svarede ikke; tippet bygger på systemets egne regler."
+    "fallback": "Modellen svarede ikke; tippet bygger på systemets egne regler.",
+    "runExplainer": "Udfør sender til AI'en:",
+    "runNote": "Der tages en kopi af planen først, og det kan fortrydes."
   },
   "status": {
     "metaTitle": "Ugestatus",
