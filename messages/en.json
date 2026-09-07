@@ -535,7 +535,6 @@
       "budgetPlaceholder": "Budget in DKK",
       "edit": "Edit",
       "save": "Save",
-      "summary": "{planned} recorded · {incurred} incurred",
       "overBudget": "(over budget)",
       "incurred": "Incurred",
       "planned": "Planned",
@@ -548,18 +547,21 @@
       "removeQuestion": "Remove the line “{title}” ({amount})?",
       "notShared": "Money is never shown on the public share link.",
       "spend": {
-        "none": "Expected",
+        "none": "Nothing spent yet",
         "all": "Spent",
-        "part": "{spent} of {amount}",
-        "over": "Overrun · {spent}",
-        "editLabel": "Edit amount spent ({state})",
+        "part": "{spent} of {amount} spent",
+        "over": "Overrun by {by}",
+        "edit": "Edit",
+        "editLabel": "Edit what is spent of “{title}”",
         "prompt": "Spent so far, of {amount}",
         "save": "Save",
         "markAll": "All spent",
         "markNone": "Nothing yet",
         "close": "Close"
       },
-      "spentSoFar": "Of which spent (kr.)"
+      "spentSoFar": "Of which spent (kr.)",
+      "registered": "{planned} registered",
+      "spentTotal": "{incurred} spent"
     },
     "obstacles": {
       "title": "Obstacles",

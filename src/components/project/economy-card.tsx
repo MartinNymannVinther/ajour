@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import type { Expense } from "@/core/db/schema";
 import type { TaskView } from "@/modules/projects/types";
 import { FUNCTION_ACCENT, SECTION_IDS } from "@/modules/projects/constants";
-import { ConfirmButton } from "./confirm-button";
-import { ExpenseSpend } from "./expense-spend";
+import { ExpenseRow } from "./expense-row";
 import { FunctionSection } from "./function-card";
 import { cn } from "@/lib/utils";
 
@@ -100,62 +99,65 @@ export function EconomyCard({
 
         {(budget !== null || expenses.length > 0) && (
           <>
-            <p className={cn("text-xs", over ? "text-destructive" : "text-meta")}>
-              {t("summary", {
-                planned: formatMoney(plannedTotal),
-                incurred: formatMoney(incurredTotal),
-              })}
-              {over ? ` ${t("overBudget")}` : ""}
+            <p
+              className={cn(
+                "flex flex-wrap items-center gap-x-3 gap-y-1 text-xs",
+                over ? "text-destructive" : "text-meta",
+              )}
+            >
+              <span className="flex items-center gap-1.5">
+                <i className="bg-chart-3 inline-block size-2 rounded-full" aria-hidden />
+                {t("registered", { planned: formatMoney(plannedTotal) })}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="bg-primary inline-block size-2 rounded-full" aria-hidden />
+                {t("spentTotal", { incurred: formatMoney(incurredTotal) })}
+              </span>
+              {over ? <span>{t("overBudget")}</span> : null}
             </p>
             {budget !== null && budget > 0 && (
               <div
-                className="bg-muted h-1.5 overflow-hidden rounded-full"
+                className="bg-muted relative h-1.5 overflow-hidden rounded-full"
                 role="progressbar"
                 aria-valuenow={share ?? 0}
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-label={t("title")}
               >
+                {/* Registered lines in sand, paid in green: the same two
+                    tones the status report uses for the same numbers. */}
                 <div
-                  className={cn("h-full rounded-full", over ? "bg-destructive" : "bg-primary")}
+                  className={cn(
+                    "absolute inset-y-0 left-0 rounded-full",
+                    over ? "bg-destructive/40" : "bg-chart-3",
+                  )}
                   style={{ width: `${Math.min(100, Math.round((plannedTotal / budget) * 100))}%` }}
+                />
+                <div
+                  className={cn(
+                    "absolute inset-y-0 left-0 rounded-full",
+                    incurredTotal > budget ? "bg-destructive" : "bg-primary",
+                  )}
+                  style={{ width: `${Math.min(100, Math.round((incurredTotal / budget) * 100))}%` }}
                 />
               </div>
             )}
           </>
         )}
 
-        <ul className="space-y-1.5">
-          {expenses.map((expense) => {
-            const task = tasks.find((x) => x.id === expense.taskId);
-            return (
-              <li key={expense.id} className="flex items-center gap-2 text-sm">
-                <ExpenseSpend
-                  amount={expense.amount}
-                  spent={expense.spent}
-                  formatMoney={formatMoney}
-                  onChange={(spent) => onSetSpent(expense.id, spent)}
-                />
-                <span className="min-w-0 truncate">
-                  {expense.title}
-                  {task && <span className="text-meta ml-1 text-[11px]">· {task.title}</span>}
-                </span>
-                <span className="text-meta ml-auto shrink-0 text-xs">
-                  {formatMoney(expense.amount)}
-                </span>
-                <ConfirmButton
-                  label="✕"
-                  question={t("removeQuestion", {
-                    title: expense.title,
-                    amount: formatMoney(expense.amount),
-                  })}
-                  confirmLabel={t("remove")}
-                  onConfirm={() => onRemoveExpense(expense.id)}
-                  className="h-6 shrink-0 px-1.5"
-                />
-              </li>
-            );
-          })}
+        <ul className="border-hairline border-t">
+          {expenses.map((expense) => (
+            <ExpenseRow
+              key={expense.id}
+              title={expense.title}
+              taskTitle={tasks.find((x) => x.id === expense.taskId)?.title}
+              amount={expense.amount}
+              spent={expense.spent}
+              formatMoney={formatMoney}
+              onSetSpent={(spent) => onSetSpent(expense.id, spent)}
+              onRemove={() => onRemoveExpense(expense.id)}
+            />
+          ))}
         </ul>
 
         <form

@@ -535,7 +535,6 @@
       "budgetPlaceholder": "Budget i kr.",
       "edit": "Ret",
       "save": "Gem",
-      "summary": "{planned} registreret · {incurred} afholdt",
       "overBudget": "(over budget)",
       "incurred": "Afholdt",
       "planned": "Forventet",
@@ -548,18 +547,21 @@
       "removeQuestion": "Fjern posten „{title}“ ({amount})?",
       "notShared": "Økonomi vises aldrig på det åbne delelink.",
       "spend": {
-        "none": "Forventet",
+        "none": "Intet afholdt endnu",
         "all": "Afholdt",
-        "part": "{spent} af {amount}",
-        "over": "Overskredet · {spent}",
-        "editLabel": "Ret afholdt beløb ({state})",
+        "part": "{spent} af {amount} afholdt",
+        "over": "Overskredet med {by}",
+        "edit": "Ret",
+        "editLabel": "Ret hvad der er afholdt af „{title}“",
         "prompt": "Afholdt indtil nu, af {amount}",
         "save": "Gem",
         "markAll": "Alt afholdt",
         "markNone": "Intet endnu",
         "close": "Luk"
       },
-      "spentSoFar": "Heraf afholdt (kr.)"
+      "spentSoFar": "Heraf afholdt (kr.)",
+      "registered": "{planned} registreret",
+      "spentTotal": "{incurred} afholdt"
     },
     "obstacles": {
       "title": "Forhindringer",
