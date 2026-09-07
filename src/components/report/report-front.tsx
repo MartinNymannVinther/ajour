@@ -33,11 +33,16 @@ export function ReportFront({
   return (
     <div className="flex flex-col gap-5">
       <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
+        {/* The title keeps at least half the row; the badge wraps under it
+            before the two ever fight over the width. A long single word
+            breaks rather than running under the badge. */}
+        <div className="min-w-[min(100%,20rem)] flex-1 basis-1/2">
           <p className="text-label text-[11px] font-semibold tracking-[0.08em] uppercase">
             {words.eyebrow(words.week(report.weekKey), formatDateDa(report.today))}
           </p>
-          <h2 className="mt-0.5 text-2xl font-semibold tracking-tight">{report.projectName}</h2>
+          <h2 className="mt-0.5 text-2xl font-semibold tracking-tight break-words hyphens-auto">
+            {report.projectName}
+          </h2>
           <p className="text-meta mt-0.5 text-[13px]">
             {words.roles(report.ownerName || "–", report.managerName || "–")}
             {report.goal && ` · ${words.goal(report.goal)}`}

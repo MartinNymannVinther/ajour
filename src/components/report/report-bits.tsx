@@ -33,7 +33,10 @@ export function RagBadge({ report, words }: { report: StatusReport; words: Repor
   const overridden = report.ragSuggested && report.ragSuggested !== report.rag;
   return (
     <div
-      className="min-w-[240px] rounded-[10px] border px-4 py-3"
+      // Bounded on both sides: wide enough to read, never so wide that it
+      // pushes the title into a sliver next to it. Below that it takes a
+      // full row of its own.
+      className="w-full rounded-[10px] border px-4 py-3 sm:w-auto sm:max-w-[380px] sm:min-w-[260px]"
       style={{ background: colour.tint, borderColor: colour.edge }}
     >
       <div className="flex items-center gap-2.5">
