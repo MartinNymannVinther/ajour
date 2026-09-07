@@ -70,7 +70,10 @@ export class MistralProvider implements LlmProvider {
       throw new LlmError("rate_limit", "mistral: rate limited");
     }
     if (!response.ok) {
-      throw new LlmError("bad_response", `mistral: HTTP ${response.status}`);
+      throw new LlmError(
+        "bad_response",
+        `mistral: HTTP ${response.status}: ${await apiMessage(response)}`,
+      );
     }
 
     let payload: ChatResponse;
@@ -113,6 +116,45 @@ export class MistralProvider implements LlmProvider {
     if (!response.ok) {
       return { ok: false, reason: "unreachable", detail: `HTTP ${response.status}` };
     }
+    // The key works; now the one thing left to get wrong is the model
+    // name, and the list we just fetched says whether it exists.
+    try {
+      const body = (await response.json()) as { data?: Array<{ id?: string }> };
+      const ids = (body.data ?? []).map((m) => m.id).filter((id): id is string => Boolean(id));
+      if (ids.length > 0 && !ids.includes(this.model)) {
+        const shown = ids
+          .filter((id) => /latest$/.test(id))
+          .slice(0, 8)
+          .join(", ");
+        return {
+          ok: false,
+          reason: "config",
+          detail: `model ${this.model} is not one this key can use. Available: ${shown || ids.slice(0, 8).join(", ")}`,
+        };
+      }
+    } catch {
+      // A list we cannot read is not a reason to call a working key broken.
+    }
     return { ok: true, detail: `authenticated, model ${this.model}` };
+  }
+}
+
+/**
+ * Mistral answers errors as JSON with a message that says what was
+ * wrong: an unknown model, a bad parameter, a key from the wrong product.
+ * That sentence is worth more than the status code, and carries no secret.
+ */
+async function apiMessage(response: Response): Promise<string> {
+  try {
+    const text = await response.text();
+    try {
+      const body = JSON.parse(text) as { message?: unknown; detail?: unknown; error?: unknown };
+      const message = body.message ?? body.detail ?? body.error;
+      return (typeof message === "string" ? message : JSON.stringify(message)).slice(0, 240);
+    } catch {
+      return text.slice(0, 240);
+    }
+  } catch {
+    return "no body";
   }
 }
