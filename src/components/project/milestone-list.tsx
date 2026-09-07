@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Sparkles } from "lucide-react";
 import { BreakdownPanel } from "./breakdown-panel";
 import { FunctionCard } from "./function-card";
-import { ConfirmButton } from "./confirm-button";
-import { FUNCTION_ACCENT, PEOPLE_LIST_ID, SECTION_IDS } from "@/modules/projects/constants";
+import { MilestoneEditor } from "./milestone-editor";
+import { FUNCTION_ACCENT, SECTION_IDS } from "@/modules/projects/constants";
 import type { MilestoneView } from "@/modules/projects/types";
 import { cn } from "@/lib/utils";
 
@@ -45,15 +45,9 @@ export function MilestoneList({
   onCreate: (title: string, date: string) => Promise<string | null>;
 }) {
   const t = useTranslations("projects.milestones");
-  const [draft, setDraft] = useState({ title: "", date: "", owner: "", criterion: "" });
   const [newDraft, setNewDraft] = useState({ title: "", date: "", suggest: true });
   // The milestone whose breakdown is open; one at a time, like the editor.
   const [breakingId, setBreakingId] = useState<string | null>(null);
-
-  const openEditor = (m: MilestoneView) => {
-    setDraft({ title: m.title, date: m.date, owner: m.ownerName, criterion: m.criterion });
-    onEdit(m.id);
-  };
 
   const sorted = [...milestones].sort((a, b) => a.date.localeCompare(b.date));
 
@@ -87,7 +81,7 @@ export function MilestoneList({
                 </button>
                 <button
                   type="button"
-                  onClick={() => (isEditing ? onEdit(null) : openEditor(m))}
+                  onClick={() => onEdit(isEditing ? null : m.id)}
                   className={cn(
                     "hover:text-primary min-h-[24px] min-w-0 truncate text-left text-sm font-medium",
                     done && "text-success",
@@ -126,69 +120,13 @@ export function MilestoneList({
                 </p>
               )}
               {isEditing && (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    onSave({
-                      milestoneId: m.id,
-                      title: draft.title.trim(),
-                      date: draft.date,
-                      owner: draft.owner.trim(),
-                      criterion: draft.criterion.trim(),
-                      expectedUpdatedAt: m.updatedAt.toISOString(),
-                    });
-                  }}
-                  className="bg-secondary mt-2 space-y-2 rounded-lg p-3"
-                >
-                  <div className="flex flex-wrap gap-2">
-                    <Input
-                      value={draft.title}
-                      onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-                      placeholder={t("namePlaceholder")}
-                      aria-label={t("namePlaceholder")}
-                      className="min-w-52 flex-1"
-                    />
-                    <Input
-                      type="date"
-                      value={draft.date}
-                      onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
-                      aria-label={t("dateLabel")}
-                      className="w-auto"
-                    />
-                    <Input
-                      value={draft.owner}
-                      onChange={(e) => setDraft((d) => ({ ...d, owner: e.target.value }))}
-                      list={PEOPLE_LIST_ID}
-                      placeholder={t("ownerPlaceholder")}
-                      aria-label={t("ownerPlaceholder")}
-                      className="w-36"
-                    />
-                  </div>
-                  <Input
-                    value={draft.criterion}
-                    onChange={(e) => setDraft((d) => ({ ...d, criterion: e.target.value }))}
-                    placeholder={t("criterionPlaceholder")}
-                    aria-label={t("criterionPlaceholder")}
-                  />
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button type="submit" size="sm">
-                      {t("save")}
-                    </Button>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => onEdit(null)}>
-                      {t("close")}
-                    </Button>
-                    <ConfirmButton
-                      className="ml-auto"
-                      label={t("delete")}
-                      question={t("deleteQuestion", { title: m.title })}
-                      onConfirm={() => {
-                        onEdit(null);
-                        onDelete(m.id);
-                      }}
-                    />
-                  </div>
-                  <p className="text-meta text-xs">{t("dateNote")}</p>
-                </form>
+                <MilestoneEditor
+                  key={m.id}
+                  milestone={m}
+                  onSave={onSave}
+                  onClose={() => onEdit(null)}
+                  onDelete={() => onDelete(m.id)}
+                />
               )}
             </li>
           );

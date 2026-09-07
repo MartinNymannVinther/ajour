@@ -484,7 +484,8 @@
       "newPlaceholder": "Ny milepæl …",
       "add": "Tilføj",
       "suggestTasks": "Foreslå opgaver",
-      "suggestOnCreate": "og foreslå opgaver"
+      "suggestOnCreate": "og foreslå opgaver",
+      "needsTitleAndDate": "En milepæl skal have et navn og en dato."
     },
     "tasks": {
       "title": "Opgaver",
@@ -497,7 +498,11 @@
         "hint": "Planen viser så hvornår arbejdet faktisk begyndte.",
         "move": "Flyt til i dag",
         "keep": "Behold datoen"
-      }
+      },
+      "filterLabel": "Vis opgaver under",
+      "filterAll": "Alle · {count}",
+      "filterNone": "Uden milepæl · {count}",
+      "filterEmpty": "Ingen opgaver under den milepæl endnu."
     },
     "newTask": {
       "open": "+ Ny opgave",

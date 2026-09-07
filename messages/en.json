@@ -484,7 +484,8 @@
       "newPlaceholder": "New milestone …",
       "add": "Add",
       "suggestTasks": "Suggest tasks",
-      "suggestOnCreate": "and suggest tasks"
+      "suggestOnCreate": "and suggest tasks",
+      "needsTitleAndDate": "A milestone needs a name and a date."
     },
     "tasks": {
       "title": "Tasks",
@@ -497,7 +498,11 @@
         "hint": "The plan will then show when the work actually began.",
         "move": "Move to today",
         "keep": "Keep the date"
-      }
+      },
+      "filterLabel": "Show tasks under",
+      "filterAll": "All · {count}",
+      "filterNone": "No milestone · {count}",
+      "filterEmpty": "No tasks under that milestone yet."
     },
     "newTask": {
       "open": "+ New task",
