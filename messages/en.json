@@ -747,7 +747,7 @@
     "draftLabel": "Summary",
     "questionsLabel": "The AI still needs answers on",
     "answerPlaceholder": "Write a short answer (or leave it empty)",
-    "answersNote": "Answers are added to the status so everyone can see them.",
+    "answersNote": "The answers are written into the summary and next week, not under them. Approving with answers still typed does it first, automatically.",
     "approve": "Approve and share",
     "approving": "Approving …",
     "approveFailed": "The status was not approved. Try again.",
@@ -801,7 +801,11 @@
       "remove": "Remove item {n}",
       "suggested": "Suggestions from what is stuck:",
       "add": "Add item"
-    }
+    },
+    "revise": "Work the answers in",
+    "revising": "Working in …",
+    "reviseFailed": "The answers could not be worked in. Try again.",
+    "reviseFallback": "The model did not answer, so the answers were added as sentences at the end."
   },
   "share": {
     "kicker": "Project status · read-only",

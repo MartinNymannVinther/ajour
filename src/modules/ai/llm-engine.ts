@@ -4,6 +4,7 @@ import { rulesEngine } from "./rules-engine";
 import { asString, sanitizeChatReply, sanitizePlan } from "./sanitize";
 import type {
   BreakdownInput,
+  ReviseInput,
   TaskProposal,
   AiEngine,
   ChatContext,
@@ -193,6 +194,28 @@ Priority: overdue tasks and passed milestones first, then milestones close by, t
       if (!title || !text) throw new EngineUnavailable("empty tip");
       const action = asString(r.action, "", 200) || null;
       return { title, text, action };
+    },
+
+    async reviseStatus(input: ReviseInput): Promise<{ text: string; nextWeek: string[] }> {
+      const system = `You revise the weekly status of a small project after the project manager answered the questions you had.
+${RULES(input.locale)}
+Schema: {"text": string, "nextWeek": [string]}
+"text": the summary rewritten so that every answer is worked in as a fact where it belongs, in the same tone and roughly the same length. Never keep a question-and-answer form, never write "the answer is", never repeat something already said. Keep the milestone and task titles in quotes as they are. Facts from the answers override the draft where they disagree.
+"nextWeek": the same lines, corrected where an answer changes them (for example an owner now named), same length, each naming who.`;
+      const { locale, context, ...rest } = input;
+      const plan: Partial<typeof context> = { ...context };
+      delete plan.locale;
+      const raw = await chatJson(system, { locale, draft: rest, plan });
+      const r = (raw ?? {}) as Record<string, unknown>;
+      const text = asString(r.text, "", 4000);
+      if (!text) throw new EngineUnavailable("empty revision");
+      const nextWeek = Array.isArray(r.nextWeek)
+        ? r.nextWeek
+            .map((l) => asString(l, "", 200))
+            .filter(Boolean)
+            .slice(0, 6)
+        : input.nextWeek;
+      return { text, nextWeek: nextWeek.length > 0 ? nextWeek : input.nextWeek };
     },
 
     async proposeTasks(input: BreakdownInput): Promise<TaskProposal[]> {

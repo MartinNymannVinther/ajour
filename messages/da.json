@@ -747,7 +747,7 @@
     "draftLabel": "Sammenfatning",
     "questionsLabel": "AI'en mangler svar på",
     "answerPlaceholder": "Skriv et kort svar (eller lad stå tomt)",
-    "answersNote": "Svar føjes til statussen, så alle kan se dem.",
+    "answersNote": "Svarene skrives ind i sammenfatningen og næste uge, ikke under dem. Godkender du med ubesvarede svar stående, sker det automatisk først.",
     "approve": "Godkend og del",
     "approving": "Godkender …",
     "approveFailed": "Statussen blev ikke godkendt. Prøv igen.",
@@ -801,7 +801,11 @@
       "remove": "Fjern punkt {n}",
       "suggested": "Forslag ud fra det der sidder fast:",
       "add": "Tilføj punkt"
-    }
+    },
+    "revise": "Indarbejd svar",
+    "revising": "Indarbejder …",
+    "reviseFailed": "Svarene kunne ikke indarbejdes. Prøv igen.",
+    "reviseFallback": "Modellen svarede ikke, så svarene er sat ind som sætninger til sidst."
   },
   "share": {
     "kicker": "Projektstatus · læsevisning",

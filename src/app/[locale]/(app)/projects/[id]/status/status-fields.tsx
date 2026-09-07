@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,6 +32,8 @@ export function StatusFieldsForm({
   suggestions,
   weekLabel,
   onChange,
+  revising,
+  onRevise,
 }: {
   fields: StatusFields;
   suggested: Rag;
@@ -38,6 +41,8 @@ export function StatusFieldsForm({
   suggestions: Array<{ text: string; dueDate: string | null }>;
   weekLabel: (key: string) => string;
   onChange: (patch: Partial<StatusFields>) => void;
+  revising: boolean;
+  onRevise: () => void;
 }) {
   const t = useTranslations("status");
   const r = useTranslations("report.rag");
@@ -115,7 +120,18 @@ export function StatusFieldsForm({
               />
             </div>
           ))}
-          <p className="text-label text-xs">{t("answersNote")}</p>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onRevise}
+              disabled={revising || !Object.values(fields.answers).some((a) => a.trim())}
+            >
+              {revising ? t("revising") : t("revise")}
+            </Button>
+            <p className="text-label text-xs">{t("answersNote")}</p>
+          </div>
         </div>
       )}
 

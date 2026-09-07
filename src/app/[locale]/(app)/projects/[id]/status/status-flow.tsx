@@ -9,7 +9,11 @@ import { toast } from "sonner";
 import { weekNumberFromKey } from "@/core/dates";
 import { Button } from "@/components/ui/button";
 import { StatusReportView } from "@/components/report/status-report-view";
-import { approveStatusAction, draftStatusAction } from "@/modules/reports/actions";
+import {
+  approveStatusAction,
+  draftStatusAction,
+  reviseStatusAction,
+} from "@/modules/reports/actions";
 import type { StatusDraftResult } from "@/modules/reports/actions";
 import type { StatusReport } from "@/modules/reports/status-report";
 import { StatusFieldsForm, type StatusFields } from "./status-fields";
@@ -37,6 +41,9 @@ export function StatusFlow({
   const [fields, setFields] = useState<StatusFields | null>(null);
   const [loading, setLoading] = useState(true);
   const [pdfPending, setPdfPending] = useState(false);
+  // Questions the engine asked that have not been worked into the words yet.
+  const [openQuestions, setOpenQuestions] = useState<string[]>([]);
+  const [revising, setRevising] = useState(false);
   const [approving, startApprove] = useTransition();
   const started = useRef(false);
 
@@ -48,6 +55,7 @@ export function StatusFlow({
       } else {
         const d = result.data;
         setDraft(d);
+        setOpenQuestions(d.draft.questions);
         setFields({
           rag: d.rag,
           ragReason: d.reason,
@@ -70,30 +78,64 @@ export function StatusFlow({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const finalText = (f: StatusFields, questions: string[]) => {
-    const answered = questions
+  const lines = (raw: string) =>
+    raw
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 6);
+
+  const answered = (f: StatusFields) =>
+    openQuestions
       .map((question, i) => ({ question, answer: (f.answers[i] ?? "").trim() }))
       .filter((x) => x.answer);
-    return answered.length > 0
-      ? `${f.text.trim()}\n\n${answered.map((x) => `${x.question}\n– ${x.answer}`).join("\n\n")}`
-      : f.text.trim();
+
+  /**
+   * Works the answers into the summary and next week, through the engine.
+   * Returns the fields as they stand afterwards, so approval can run it
+   * first and use the result in the same breath.
+   */
+  const revise = async (f: StatusFields): Promise<StatusFields> => {
+    const answers = answered(f);
+    if (answers.length === 0) return f;
+    setRevising(true);
+    try {
+      const result = await reviseStatusAction({
+        projectId,
+        text: f.text.trim(),
+        nextWeek: lines(f.nextWeek),
+        answers,
+      });
+      if (!result.ok) {
+        toast.error(result.error === "conflict" ? t("rateLimited") : t("reviseFailed"));
+        return f;
+      }
+      const next: StatusFields = {
+        ...f,
+        text: result.data.text,
+        nextWeek: result.data.nextWeek.join("\n"),
+        answers: {},
+      };
+      setFields(next);
+      setOpenQuestions((qs) => qs.filter((q) => !answers.some((a) => a.question === q)));
+      if (result.data.fallback) toast.message(t("reviseFallback"));
+      return next;
+    } finally {
+      setRevising(false);
+    }
   };
 
   const authored = useMemo(() => {
     if (!draft || !fields) return null;
     return {
       projectId,
-      text: finalText(fields, draft.draft.questions),
+      text: fields.text.trim(),
       rag: fields.rag,
       ragSuggested: draft.rag,
       ragReason: fields.ragReason.trim(),
       managerComment: fields.managerComment.trim(),
       managementAsks: fields.managementAsks.filter((a) => a.text.trim()),
-      nextWeek: fields.nextWeek
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean)
-        .slice(0, 6),
+      nextWeek: lines(fields.nextWeek),
       questions: draft.draft.questions,
       engine: draft.engine,
     };
@@ -118,9 +160,16 @@ export function StatusFlow({
   }, [draft, authored]);
 
   const approve = () => {
-    if (!authored) return;
+    if (!authored || !fields) return;
     startApprove(async () => {
-      const result = await approveStatusAction(authored);
+      // Answers typed but not yet worked in go in first; a status should
+      // never leave with a question hanging under it.
+      const current = answered(fields).length > 0 ? await revise(fields) : fields;
+      const result = await approveStatusAction({
+        ...authored,
+        text: current.text.trim(),
+        nextWeek: lines(current.nextWeek),
+      });
       if (!result.ok) {
         toast.error(t("approveFailed"));
         return;
@@ -174,7 +223,9 @@ export function StatusFlow({
               <StatusFieldsForm
                 fields={fields}
                 suggested={draft.rag}
-                questions={draft.draft.questions}
+                questions={openQuestions}
+                revising={revising}
+                onRevise={() => void revise(fields)}
                 suggestions={draft.draft.suggestedAsks}
                 weekLabel={weekOf}
                 onChange={(patch) => setFields((f) => (f ? { ...f, ...patch } : f))}
@@ -184,7 +235,7 @@ export function StatusFlow({
                   type="button"
                   size="lg"
                   onClick={approve}
-                  disabled={approving || !fields.text.trim()}
+                  disabled={approving || revising || !fields.text.trim()}
                 >
                   {approving ? t("approving") : t("approve")}
                 </Button>

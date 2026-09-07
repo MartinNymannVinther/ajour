@@ -4,6 +4,7 @@ import { ruleBreakdown } from "./breakdown-rules";
 import { fallbackTip, observeProject } from "./tip-rules";
 import type {
   BreakdownInput,
+  ReviseInput,
   TaskProposal,
   AiEngine,
   ChatContext,
@@ -188,6 +189,22 @@ export const rulesEngine: AiEngine = {
       input.previousTips,
       input.context.locale,
     );
+  },
+
+  async reviseStatus(input: ReviseInput): Promise<{ text: string; nextWeek: string[] }> {
+    // No model to rewrite with: each answer becomes one plain sentence at
+    // the end of the summary, in the person's own words.
+    const answered = input.answers.filter((a) => a.answer.trim());
+    if (answered.length === 0) return { text: input.text, nextWeek: input.nextWeek };
+    const p = PHRASES[input.locale];
+    const sentences = answered.map((a) => {
+      const answer = a.answer.trim().replace(/[.!?]+$/, "");
+      // The question usually names a task or an obstacle in quotes; that
+      // name is the context the answer needs, the rest of the question is not.
+      const named = /"([^"]+)"/.exec(a.question)?.[1];
+      return named ? p.answerAbout(named, answer) : `${answer}.`;
+    });
+    return { text: `${input.text.trim()} ${sentences.join(" ")}`, nextWeek: input.nextWeek };
   },
 
   async proposeTasks(input: BreakdownInput): Promise<TaskProposal[]> {

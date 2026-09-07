@@ -115,6 +115,73 @@ export async function draftStatusAction(raw: unknown): Promise<Result<StatusDraf
   }
 }
 
+const Revise = z.object({
+  projectId,
+  text: z.string().trim().min(1).max(4000),
+  nextWeek: z.array(z.string().trim().max(200)).max(6),
+  answers: z
+    .array(z.object({ question: z.string().max(300), answer: z.string().trim().max(600) }))
+    .max(5),
+});
+
+/**
+ * Between the draft and the approval: the person answered what the
+ * engine lacked, and the answers go into the words rather than under
+ * them. Counted as a call, like the draft.
+ */
+export async function reviseStatusAction(
+  raw: unknown,
+): Promise<Result<{ text: string; nextWeek: string[]; fallback: boolean }>> {
+  const ctx = await requireOrgContext();
+  if (!ctx) return fail("unauthorized");
+  const parsed = Revise.safeParse(raw);
+  if (!parsed.success) return fail("invalid");
+  const answers = parsed.data.answers.filter((a) => a.answer.trim());
+  if (answers.length === 0) {
+    return ok({ text: parsed.data.text, nextWeek: parsed.data.nextWeek, fallback: false });
+  }
+  const locale = (await getLocale()) as Locale;
+  const common = await getTranslations("common");
+  const eventText = await getTranslations("events");
+  const words = await statusWords(locale);
+  const today = todayInCopenhagen();
+  try {
+    const prepared = await withOrgContext(ctx, async (tx) => {
+      const full = await readProjectFull(tx, parsed.data.projectId);
+      if (!full) return null;
+      await reserveAiCall(tx, ctx, "status", "");
+      const activity = (await recentEvents(tx, parsed.data.projectId, 25)).map((row) =>
+        renderEvent(eventText, row),
+      );
+      return { full, activity, status: await prepareStatus(tx, full, words, today) };
+    });
+    if (!prepared) return fail("notFound");
+    const { full, activity, status } = prepared;
+    const context = buildStatusInput(
+      full,
+      locale,
+      common("weekOf", { date: today }),
+      activity,
+      { assessment: { rag: status.rag, reason: status.reason }, sinceLast: status.sinceLast },
+      today,
+    );
+    const res = await withEngine(ctx, (engine) =>
+      engine.reviseStatus({
+        locale,
+        text: parsed.data.text,
+        nextWeek: parsed.data.nextWeek,
+        answers,
+        context,
+      }),
+    );
+    return ok({ ...res.result, fallback: res.fallback });
+  } catch (error) {
+    if (error instanceof RateLimited) return fail("conflict");
+    console.error("status revision failed", error);
+    return fail("generic");
+  }
+}
+
 /** Ugen, step two: what the person decided becomes a status, frozen with the plan. */
 export async function approveStatusAction(raw: unknown): Promise<Result<string>> {
   const ctx = await requireOrgContext();

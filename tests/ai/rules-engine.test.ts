@@ -193,3 +193,26 @@ describe("the plan and the status draft", () => {
     expect(res.suggestedAsks.some((a) => a.text.includes("Lokale låst"))).toBe(true);
   });
 });
+
+describe("reviseStatus without a model", () => {
+  it("adds each answer as one sentence about the thing that was asked", async () => {
+    const res = await rulesEngine.reviseStatus({
+      locale: "da",
+      text: "Alt går efter planen.",
+      nextWeek: ["Mette booker lokalet"],
+      answers: [
+        {
+          question: 'Er der nyt om "Lokalet er optaget"?',
+          answer: "Mette ejer den, bekræftes fredag",
+        },
+        { question: "Hvem ejer opsætningen?", answer: "Andreas" },
+        { question: "Ubesvaret?", answer: "" },
+      ],
+      context: {} as never,
+    });
+    expect(res.text).toBe(
+      'Alt går efter planen. Om "Lokalet er optaget": Mette ejer den, bekræftes fredag. Andreas.',
+    );
+    expect(res.nextWeek).toEqual(["Mette booker lokalet"]);
+  });
+});

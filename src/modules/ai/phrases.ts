@@ -75,6 +75,7 @@ type PhraseSet = {
   askMilestone: (title: string, date: string) => string;
   /** The generic breakdown of a milestone, in order, each taking the milestone's title. */
   breakdown: Array<(title: string) => string>;
+  answerAbout: (title: string, answer: string) => string;
   budgetSet: (amount: string) => string;
   noAmount: string;
   obstacleCreated: string;
@@ -134,6 +135,7 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     askBudget: (amount) => `Tag stilling til et forventet merforbrug på ${amount}`,
     askMilestone: (title, date) =>
       `Bekræft at milepælen "${title}" den ${date} stadig gælder, eller flyt den`,
+    answerAbout: (title, answer) => `Om "${title}": ${answer}.`,
     breakdown: [
       (title) => `Afklar hvad "${title}" kræver, og hvem der skal med`,
       (title) => `Planlæg arbejdet frem mod "${title}" og fordel det`,
@@ -192,6 +194,7 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     askBudget: (amount) => `Decide on an expected overrun of ${amount}`,
     askMilestone: (title, date) =>
       `Confirm that the milestone "${title}" on ${date} still stands, or move it`,
+    answerAbout: (title, answer) => `On "${title}": ${answer}.`,
     breakdown: [
       (title) => `Work out what "${title}" needs, and who has to be involved`,
       (title) => `Plan the work towards "${title}" and hand it out`,

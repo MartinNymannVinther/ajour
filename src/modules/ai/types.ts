@@ -25,6 +25,16 @@ export type PlanProposal = {
   }[];
 };
 
+/** A draft plus the answers the person gave to what the engine lacked. */
+export type ReviseInput = {
+  locale: Locale;
+  text: string;
+  nextWeek: string[];
+  answers: Array<{ question: string; answer: string }>;
+  /** The same plan the draft was written from, so the rewrite stays true to it. */
+  context: StatusInput;
+};
+
 export type StatusDraft = {
   text: string; // the week's summary in plain language, 3-6 sentences
   questions: string[]; // what the AI still needs answered, at most 3
@@ -279,6 +289,8 @@ export interface AiEngine {
   readonly name: string;
   generatePlan(input: PlanInput): Promise<PlanProposal>;
   draftStatus(input: StatusInput): Promise<StatusDraft>;
+  /** Works the answers into the words, so a status never reads as a form. */
+  reviseStatus(input: ReviseInput): Promise<{ text: string; nextWeek: string[] }>;
   proposeReplan(input: ReplanInput): Promise<ReplanProposal>;
   /** Three to seven tasks that would carry the milestone, dated inside its window. */
   proposeTasks(input: BreakdownInput): Promise<TaskProposal[]>;
