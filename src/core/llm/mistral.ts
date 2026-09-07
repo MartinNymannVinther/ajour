@@ -43,60 +43,72 @@ export class MistralProvider implements LlmProvider {
     messages: LlmMessage[],
     options: LlmCompletionOptions = {},
   ): Promise<LlmCompletion> {
-    let response: Response;
-    try {
-      response = await this.fetchFn(`${BASE_URL}/chat/completions`, {
-        method: "POST",
-        headers: this.headers(),
-        body: JSON.stringify({
-          model: this.model,
-          messages,
-          temperature: options.temperature ?? 0.2,
-          max_tokens: options.maxTokens ?? 1024,
-          ...(options.responseFormat === "json"
-            ? { response_format: { type: "json_object" } }
-            : {}),
-        }),
-        signal: AbortSignal.timeout(options.timeoutMs ?? 30_000),
-      });
-    } catch {
-      throw new LlmError("unreachable", "mistral: network error or timeout");
-    }
+    const body = JSON.stringify({
+      model: this.model,
+      messages,
+      temperature: options.temperature ?? 0.2,
+      max_tokens: options.maxTokens ?? 1024,
+      ...(options.responseFormat === "json" ? { response_format: { type: "json_object" } } : {}),
+    });
 
-    if (response.status === 401 || response.status === 403) {
-      throw new LlmError("auth", "mistral: the API key was rejected");
-    }
-    if (response.status === 429) {
-      throw new LlmError("rate_limit", "mistral: rate limited");
-    }
-    if (!response.ok) {
-      throw new LlmError(
-        "bad_response",
-        `mistral: HTTP ${response.status}: ${await apiMessage(response)}`,
-      );
-    }
+    // One retry on 429. Mistral answers 429 both for a real rate limit
+    // and for "capacity exceeded", which on the lower tiers means the
+    // model was busy for a second; a person pressing a button once should
+    // not be told to try again for that.
+    for (let attempt = 0; ; attempt++) {
+      let response: Response;
+      try {
+        response = await this.fetchFn(`${BASE_URL}/chat/completions`, {
+          method: "POST",
+          headers: this.headers(),
+          body,
+          signal: AbortSignal.timeout(options.timeoutMs ?? 30_000),
+        });
+      } catch {
+        throw new LlmError("unreachable", "mistral: network error or timeout");
+      }
 
-    let payload: ChatResponse;
-    try {
-      payload = (await response.json()) as ChatResponse;
-    } catch {
-      throw new LlmError("bad_response", "mistral: malformed response body");
+      if (response.status === 401 || response.status === 403) {
+        throw new LlmError("auth", "mistral: the API key was rejected");
+      }
+      if (response.status === 429) {
+        const message = await apiMessage(response);
+        if (attempt === 0) {
+          const after = Number(response.headers.get("retry-after"));
+          await sleep(Math.min(Number.isFinite(after) && after > 0 ? after * 1000 : 1500, 5000));
+          continue;
+        }
+        throw new LlmError("rate_limit", `mistral: rate limited (429): ${message}`);
+      }
+      if (!response.ok) {
+        throw new LlmError(
+          "bad_response",
+          `mistral: HTTP ${response.status}: ${await apiMessage(response)}`,
+        );
+      }
+
+      let payload: ChatResponse;
+      try {
+        payload = (await response.json()) as ChatResponse;
+      } catch {
+        throw new LlmError("bad_response", "mistral: malformed response body");
+      }
+      const content = payload.choices?.[0]?.message?.content;
+      if (typeof content !== "string") {
+        throw new LlmError("bad_response", "mistral: response carried no content");
+      }
+      return {
+        content,
+        model: payload.model ?? this.model,
+        usage:
+          payload.usage?.prompt_tokens != null
+            ? {
+                inputTokens: payload.usage.prompt_tokens ?? 0,
+                outputTokens: payload.usage.completion_tokens ?? 0,
+              }
+            : null,
+      };
     }
-    const content = payload.choices?.[0]?.message?.content;
-    if (typeof content !== "string") {
-      throw new LlmError("bad_response", "mistral: response carried no content");
-    }
-    return {
-      content,
-      model: payload.model ?? this.model,
-      usage:
-        payload.usage?.prompt_tokens != null
-          ? {
-              inputTokens: payload.usage.prompt_tokens ?? 0,
-              outputTokens: payload.usage.completion_tokens ?? 0,
-            }
-          : null,
-    };
   }
 
   /** GET /models validates the key and reachability without token spend. */
@@ -138,6 +150,8 @@ export class MistralProvider implements LlmProvider {
     return { ok: true, detail: `authenticated, model ${this.model}` };
   }
 }
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
  * Mistral answers errors as JSON with a message that says what was

@@ -17,7 +17,7 @@ export type LlmTestResult =
   | { status: "ok"; model: string; sample: string; ms: number }
   | {
       status: "failed";
-      reason: "auth" | "unreachable" | "config" | "generic";
+      reason: "auth" | "unreachable" | "config" | "rate_limit" | "generic";
       detail: string;
     };
 
@@ -64,7 +64,9 @@ export async function testLlmAction(): Promise<LlmTestResult> {
           ? "auth"
           : error.reason === "unreachable"
             ? "unreachable"
-            : "generic";
+            : error.reason === "rate_limit"
+              ? "rate_limit"
+              : "generic";
       return { status: "failed", reason, detail: error.message };
     }
     console.error("llm: test failed", error);

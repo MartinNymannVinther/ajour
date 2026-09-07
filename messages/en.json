@@ -393,7 +393,8 @@
       "failAuth": "The key was rejected. Check the workspace's own key below, or the installation's MISTRAL_API_KEY.",
       "failUnreachable": "Nothing is listening at that address. Is Ollama running? Check OLLAMA_BASE_URL.",
       "failConfig": "The model is set up wrong. Correct the model name below, or LLM_MODEL in .env.",
-      "failGeneric": "The call failed. The details are below and in the server log."
+      "failGeneric": "The call failed. The details are below and in the server log.",
+      "failRateLimited": "Mistral refused the call as too many (429). The key works, but the account or plan sets the ceiling: on the free Experiment plan this happens often when the model is busy, and a key under a workspace with no active plan gets the same answer. Check Billing and Limits on console.mistral.ai for the organisation the key belongs to."
     }
   },
   "projects": {

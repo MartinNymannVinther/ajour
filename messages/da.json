@@ -393,7 +393,8 @@
       "failAuth": "Nøglen blev afvist. Tjek arbejdsrummets egen nøgle herunder, eller installationens MISTRAL_API_KEY.",
       "failUnreachable": "Der er ingen der lytter på adressen. Kører Ollama? Tjek OLLAMA_BASE_URL.",
       "failConfig": "Modellen er sat op forkert. Ret modelnavnet herunder, eller LLM_MODEL i .env.",
-      "failGeneric": "Kaldet gik galt. Detaljerne står herunder og i serverloggen."
+      "failGeneric": "Kaldet gik galt. Detaljerne står herunder og i serverloggen.",
+      "failRateLimited": "Mistral afviste kaldet som for mange (429). Nøglen virker, men kontoen eller planen sætter loftet: på den gratis Experiment-plan sker det ofte når modellen er travl, og en nøgle under et arbejdsrum uden aktiv plan får det samme svar. Tjek Billing og Limits på console.mistral.ai for den organisation nøglen hører til."
     }
   },
   "projects": {

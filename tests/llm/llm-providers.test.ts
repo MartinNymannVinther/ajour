@@ -63,13 +63,36 @@ describe("MistralProvider", () => {
       reason: "auth",
     });
 
-    const limited = new MistralProvider("k", "m", fetchReturning({}, 429).fetchFn);
-    await expect(limited.complete([{ role: "user", content: "x" }])).rejects.toMatchObject({
-      reason: "rate_limit",
-    });
+    const limited = fetchReturning({ message: "Service tier capacity exceeded" }, 429);
+    const limitedProvider = new MistralProvider("k", "m", limited.fetchFn);
+    const error = await limitedProvider.complete([{ role: "user", content: "x" }]).catch((e) => e);
+    expect(error).toMatchObject({ reason: "rate_limit" });
+    // Mistral's own sentence comes through, and a 429 was tried twice.
+    expect(String(error.message)).toContain("capacity exceeded");
+    expect(limited.calls).toHaveLength(2);
 
     const down = new MistralProvider("k", "m", failingFetch);
     await expect(down.complete([{ role: "user", content: "x" }])).rejects.toBeInstanceOf(LlmError);
+  });
+
+  it("recovers when the second try after a 429 succeeds", async () => {
+    let n = 0;
+    const fetchFn: typeof fetch = async () => {
+      n += 1;
+      return n === 1
+        ? new Response(JSON.stringify({ message: "busy" }), {
+            status: 429,
+            headers: { "Content-Type": "application/json", "Retry-After": "0" },
+          })
+        : new Response(JSON.stringify(okBody), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+    };
+    const provider = new MistralProvider("k", "m", fetchFn);
+    const result = await provider.complete([{ role: "user", content: "x" }]);
+    expect(result.content).toBe("Hej Martin");
+    expect(n).toBe(2);
   });
 
   it("errors never contain the API key", async () => {

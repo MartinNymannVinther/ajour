@@ -68,7 +68,9 @@ export function TestConnection() {
                     ? t("failUnreachable")
                     : result.reason === "config"
                       ? t("failConfig")
-                      : t("failGeneric")}
+                      : result.reason === "rate_limit"
+                        ? t("failRateLimited")
+                        : t("failGeneric")}
               </p>
               <p className="text-meta mt-1 font-mono text-xs break-words">{result.detail}</p>
             </div>
