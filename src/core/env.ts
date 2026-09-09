@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MISTRAL_EU_BASE_URL } from "@/core/llm/mistral";
 
 /** The value shipped in .env.example. Refused in production, by name. */
 const PLACEHOLDER_SECRET = "dev-only-secret-change-me-in-production";
@@ -23,6 +24,12 @@ export const EnvSchema = z
     // Model override; sensible per-provider defaults apply when unset.
     LLM_MODEL: z.string().min(1).optional(),
     OLLAMA_BASE_URL: z.url().default("http://localhost:11434"),
+    // Which Mistral endpoint to call. Defaults to the EU one, which is
+    // what dogma four and docs/subprocessors.md commit this installation
+    // to; api.mistral.ai carries no location commitment at all. Like the
+    // Ollama address this belongs to the installation, so a workspace
+    // cannot move where its project text is processed.
+    MISTRAL_BASE_URL: z.url().default(MISTRAL_EU_BASE_URL),
     // Who may create an account: "closed" (the default) admits nobody once
     // the first user exists, "open" lets anyone register. See
     // src/core/auth/signup.ts.

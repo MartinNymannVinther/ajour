@@ -9,7 +9,7 @@ beyond the machine it runs on.
 | Subprocessor        | Purpose                                                                              | Data                                                                                                                                                      | Location                                                      | Added      |
 | ------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------- |
 | Hetzner Online GmbH | Hosting: the VPS running Docker and the database                                     | Everything the installation holds                                                                                                                         | Nuremberg, DE                                                 | 2026-09-03 |
-| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat, the daily tip             | The project the feature works on: names of people, tasks, milestones, obstacles, decisions, the budget and its lines, chat messages. Written out below.   | Paris, FR                                                     | 2026-09-03 |
+| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat, the daily tip             | The project the feature works on: names of people, tasks, milestones, obstacles, decisions, the budget and its lines, chat messages. Written out below.   | EU/EFTA data centres, via `api.eu.mistral.ai`                 | 2026-09-03 |
 | _(mail provider)_   | Outgoing mail: the approved status to its recipients, the weekly reminder (ADR 0013) | The project's name, the status summary, the manager's comment, the PDF, the recipients' addresses; for the reminder, project names and members' addresses | _to be named before `SMTP_URL` is set on the hosted instance_ | —          |
 
 ## What each one does and does not see
@@ -20,7 +20,21 @@ any hosted deployment and is why the choice of provider matters and why
 the exit plan in `docs/deploy.md` is a design requirement rather than a
 nicety.
 
-**Mistral** receives what a prompt contains and nothing else. Written out
+**Mistral** is a French company, and that is not by itself the answer to
+where the data goes. Mistral runs three endpoints: `api.mistral.ai`,
+`api.eu.mistral.ai` and `api.us.mistral.ai`, and they state that they do
+not commit to any particular inference location for the first of them.
+Ajour calls the EU one, and `MISTRAL_BASE_URL` in the environment is what
+decides it, so it is an installation's choice and not a workspace's. The
+regional endpoints cost 1.1x list price; that is what this row costs.
+
+The location column said "Paris, FR" until the pre-release review in
+September 2026, while the code called the endpoint with no location
+commitment. That was wrong, and it is the second correction on this page.
+Both are left visible rather than tidied away, because a list like this
+one is worth exactly as much as its worst entry.
+
+Mistral receives what a prompt contains and nothing else. Written out
 rather than summarised, because "the project" is vague and the point of
 this list is that it is not:
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MistralProvider } from "@/core/llm/mistral";
+import { MISTRAL_EU_BASE_URL, MistralProvider } from "@/core/llm/mistral";
 import { OllamaProvider } from "@/core/llm/ollama";
 import { LlmError } from "@/core/llm/types";
 
@@ -25,6 +25,36 @@ const failingFetch: typeof fetch = async () => {
   throw new Error("down");
 };
 
+/**
+ * Where the prompts go, asserted rather than assumed.
+ *
+ * Mistral's api.mistral.ai carries no commitment about where inference
+ * happens; api.eu.mistral.ai does. docs/subprocessors.md tells the people
+ * whose names are in those prompts that they go to the EU, and dogma four
+ * says the same. This is the test that keeps the sentence true.
+ */
+describe("the Mistral endpoint", () => {
+  it("is the EU one unless the installation says otherwise", async () => {
+    expect(MISTRAL_EU_BASE_URL).toBe("https://api.eu.mistral.ai/v1");
+    const { fetchFn, calls } = fetchReturning({ data: [] });
+    await new MistralProvider("k", "m", fetchFn).healthCheck();
+    expect(calls[0]!.url.startsWith(MISTRAL_EU_BASE_URL)).toBe(true);
+  });
+
+  it("never falls back to the endpoint with no location commitment", async () => {
+    const { fetchFn, calls } = fetchReturning({ data: [] });
+    await new MistralProvider("k", "m", fetchFn).healthCheck();
+    expect(calls[0]!.url).not.toContain("//api.mistral.ai");
+  });
+
+  it("names the host it could not reach, whichever one it is", async () => {
+    const provider = new MistralProvider("k", "m", failingFetch, "https://api.us.mistral.ai/v1");
+    const health = await provider.healthCheck();
+    expect(health.ok).toBe(false);
+    expect(health.ok === false && health.detail).toContain("api.us.mistral.ai");
+  });
+});
+
 describe("MistralProvider", () => {
   const okBody = {
     model: "mistral-small-latest",
@@ -40,7 +70,7 @@ describe("MistralProvider", () => {
     expect(result.content).toBe("Hej Martin");
     expect(result.usage).toEqual({ inputTokens: 12, outputTokens: 3 });
     const call = calls[0]!;
-    expect(call.url).toBe("https://api.mistral.ai/v1/chat/completions");
+    expect(call.url).toBe("https://api.eu.mistral.ai/v1/chat/completions");
     const headers = call.init?.headers as Record<string, string>;
     expect(headers.Authorization).toBe("Bearer secret-key");
     const body = JSON.parse(String(call.init?.body));
@@ -109,7 +139,7 @@ describe("MistralProvider", () => {
     const { fetchFn, calls } = fetchReturning({ data: [] });
     const provider = new MistralProvider("k", "m", fetchFn);
     expect((await provider.healthCheck()).ok).toBe(true);
-    expect(calls[0]!.url).toBe("https://api.mistral.ai/v1/models");
+    expect(calls[0]!.url).toBe("https://api.eu.mistral.ai/v1/models");
 
     const bad = new MistralProvider("bad", "m", fetchReturning({}, 401).fetchFn);
     expect(await bad.healthCheck()).toMatchObject({ ok: false, reason: "auth" });

@@ -17,9 +17,11 @@ export { DEFAULT_MODEL } from "./models";
 export type { LlmProviderId } from "./models";
 
 /**
- * What a provider needs to exist. The Ollama address is not part of it on
- * purpose: it comes from the environment, so no caller — a workspace
- * setting included — can point the server at an address of its choosing.
+ * What a provider needs to exist. Neither address is part of it on
+ * purpose: both the Ollama address and the Mistral endpoint come from the
+ * environment, so no caller — a workspace setting included — can point
+ * the server at an address of its choosing, or move where a project's
+ * text is processed.
  */
 export type LlmConfig = {
   provider: LlmProviderId;
@@ -47,7 +49,12 @@ export function llmProviderFrom(config: LlmConfig): LlmProvider | null {
     case "mistral": {
       const key = config.apiKey?.trim();
       if (!key) return null;
-      return new MistralProvider(key, config.model?.trim() || DEFAULT_MODEL.mistral);
+      return new MistralProvider(
+        key,
+        config.model?.trim() || DEFAULT_MODEL.mistral,
+        fetch,
+        env.MISTRAL_BASE_URL,
+      );
     }
     case "ollama":
       return new OllamaProvider(env.OLLAMA_BASE_URL, config.model?.trim() || DEFAULT_MODEL.ollama);

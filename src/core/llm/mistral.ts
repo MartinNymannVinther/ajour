@@ -9,7 +9,20 @@ import {
 
 type FetchLike = typeof fetch;
 
-const BASE_URL = "https://api.mistral.ai/v1";
+/**
+ * The EU endpoint, and the default on purpose.
+ *
+ * Mistral runs three: api.mistral.ai, api.eu.mistral.ai and
+ * api.us.mistral.ai. The first is the obvious-looking one and is the
+ * wrong one here, because Mistral states plainly that they do not commit
+ * to an inference location for it. Dogma four says EU or self-hosted,
+ * language models included, and docs/subprocessors.md makes that claim in
+ * writing to the people whose names are in the prompts.
+ *
+ * The regional endpoints cost 1.1x. That is the price of the sentence on
+ * the subprocessors page being true, which makes it cheap.
+ */
+export const MISTRAL_EU_BASE_URL = "https://api.eu.mistral.ai/v1";
 
 type ChatResponse = {
   model?: string;
@@ -18,9 +31,10 @@ type ChatResponse = {
 };
 
 /**
- * EU-hosted provider (Mistral, Paris). The API key is a secret: it is
- * read from the environment, sent only as the Authorization header, and
- * never appears in errors or logs.
+ * Mistral, on whichever endpoint the installation named; EU unless it
+ * said otherwise. The API key is a secret: it is read from the
+ * environment, sent only as the Authorization header, and never appears
+ * in errors or logs.
  */
 export class MistralProvider implements LlmProvider {
   readonly id = "mistral";
@@ -30,7 +44,19 @@ export class MistralProvider implements LlmProvider {
     private readonly apiKey: string,
     readonly model: string = "mistral-small-latest",
     private readonly fetchFn: FetchLike = fetch,
+    // Last, and defaulted, so that a call site which forgets it gets the
+    // endpoint we can stand behind rather than the one we cannot.
+    private readonly baseUrl: string = MISTRAL_EU_BASE_URL,
   ) {}
+
+  /** The host being called, for an error a person has to act on. */
+  private host(): string {
+    try {
+      return new URL(this.baseUrl).host;
+    } catch {
+      return this.baseUrl;
+    }
+  }
 
   private headers(): Record<string, string> {
     return {
@@ -58,7 +84,7 @@ export class MistralProvider implements LlmProvider {
     for (let attempt = 0; ; attempt++) {
       let response: Response;
       try {
-        response = await this.fetchFn(`${BASE_URL}/chat/completions`, {
+        response = await this.fetchFn(`${this.baseUrl}/chat/completions`, {
           method: "POST",
           headers: this.headers(),
           body,
@@ -115,12 +141,12 @@ export class MistralProvider implements LlmProvider {
   async healthCheck(): Promise<LlmHealth> {
     let response: Response;
     try {
-      response = await this.fetchFn(`${BASE_URL}/models`, {
+      response = await this.fetchFn(`${this.baseUrl}/models`, {
         headers: this.headers(),
         signal: AbortSignal.timeout(10_000),
       });
     } catch {
-      return { ok: false, reason: "unreachable", detail: "api.mistral.ai did not answer" };
+      return { ok: false, reason: "unreachable", detail: `${this.host()} did not answer` };
     }
     if (response.status === 401 || response.status === 403) {
       return { ok: false, reason: "auth", detail: "the API key was rejected" };
