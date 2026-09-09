@@ -116,15 +116,16 @@ export function ProjectView({
   };
 
   /** Dragging a milestone asks what should follow; nothing moves yet. */
-  const proposeReplan = (milestoneId: string, newDate: string) => {
+  const proposeReplan = (milestoneId: string, newDate: string, ripple = true) => {
     const milestone = milestones.find((m) => m.id === milestoneId);
     if (!milestone || newDate === milestone.date) return;
     setPending({
       milestone: { id: milestoneId, title: milestone.title, oldDate: milestone.date, newDate },
       proposal: null,
       loading: true,
+      ripple,
     });
-    void proposeReplanAction({ milestoneId, newDate }).then((result) => {
+    void proposeReplanAction({ milestoneId, newDate, ripple }).then((result) => {
       setPending((p) =>
         p && p.milestone.id === milestoneId
           ? { ...p, proposal: result.ok ? result.data.proposal : null, loading: false }
@@ -171,6 +172,9 @@ export function ProjectView({
       {pending && (
         <ReplanBanner
           pending={pending}
+          onRipple={(ripple) =>
+            proposeReplan(pending.milestone.id, pending.milestone.newDate, ripple)
+          }
           onApprove={approveReplan}
           onCancel={() => setPending(null)}
         />

@@ -28,6 +28,7 @@ export function MilestoneEditor({
     date: string;
     owner: string;
     criterion: string;
+    fixed: boolean;
     expectedUpdatedAt: string;
   }) => void;
   onClose: () => void;
@@ -39,6 +40,7 @@ export function MilestoneEditor({
     date: milestone.date,
     owner: milestone.ownerName,
     criterion: milestone.criterion,
+    fixed: milestone.fixed,
   });
   const ready = draft.title.trim().length > 0 && /^\d{4}-\d{2}-\d{2}$/.test(draft.date);
 
@@ -53,6 +55,7 @@ export function MilestoneEditor({
           date: draft.date,
           owner: draft.owner.trim(),
           criterion: draft.criterion.trim(),
+          fixed: draft.fixed,
           expectedUpdatedAt: milestone.updatedAt.toISOString(),
         });
       }}
@@ -88,6 +91,18 @@ export function MilestoneEditor({
         placeholder={t("criterionPlaceholder")}
         aria-label={t("criterionPlaceholder")}
       />
+      <label className="flex cursor-pointer items-start gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={draft.fixed}
+          onChange={(e) => setDraft((d) => ({ ...d, fixed: e.target.checked }))}
+          className="mt-1"
+        />
+        <span>
+          {t("fixed")}
+          <span className="text-meta block text-xs">{t("fixedHint")}</span>
+        </span>
+      </label>
       <div className="flex flex-wrap items-center gap-2">
         <Button type="submit" size="sm" disabled={!ready}>
           {t("save")}

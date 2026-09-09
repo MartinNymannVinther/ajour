@@ -65,6 +65,7 @@ export const MilestoneUpdateSchema = z.object({
   date: isoDate,
   owner: name,
   criterion: shortText(300),
+  fixed: z.boolean().optional(),
   expectedUpdatedAt: z.string().optional(),
 });
 

@@ -102,7 +102,12 @@ export async function createProjectAction(raw: unknown): Promise<Result<string>>
   }
 }
 
-const ReplanRequestSchema = z.object({ milestoneId: id, newDate: isoDate });
+const ReplanRequestSchema = z.object({
+  milestoneId: id,
+  newDate: isoDate,
+  /** Push later milestones along; off holds them and says so. */
+  ripple: z.boolean().default(true),
+});
 
 /**
  * Prepares a replan: what would move, and why. Deterministic on purpose —
@@ -126,6 +131,7 @@ export async function proposeReplanAction(
         parsed.data.newDate,
         locale,
         (title, from, to) => replan("reason", { title, from, to }),
+        parsed.data.ripple,
       ),
     );
     if (!prepared) return fail("notFound");
@@ -158,6 +164,23 @@ const ApplyReplanSchema = z.object({
         }),
       )
       .max(200),
+    kept: z
+      .array(
+        z.object({
+          kind: z.enum(["task", "milestone"]),
+          id,
+          title: z.string().max(100),
+          reason: z.enum(["done", "fixed", "earlier", "noRipple"]),
+        }),
+      )
+      .max(250)
+      .default([]),
+    overloads: z
+      .array(
+        z.object({ name: z.string().max(40), count: z.number().int(), from: isoDate, to: isoDate }),
+      )
+      .max(50)
+      .default([]),
   }),
 });
 

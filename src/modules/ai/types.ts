@@ -44,6 +44,8 @@ export type StatusDraft = {
   suggestedAsks: Array<{ text: string; dueDate: string | null }>;
 };
 
+export type ReplanKeptReason = "done" | "fixed" | "earlier" | "noRipple";
+
 export type ReplanProposal = {
   summary: string;
   milestoneMoves: { id: string; title: string; oldDate: string; newDate: string }[];
@@ -55,6 +57,10 @@ export type ReplanProposal = {
     newStart: string;
     newEnd: string;
   }[];
+  /** What the proposal leaves where it is, and why; shown so nobody has to guess. */
+  kept: { kind: "task" | "milestone"; id: string; title: string; reason: ReplanKeptReason }[];
+  /** A person with more than two open tasks on one day after the move. */
+  overloads: { name: string; count: number; from: string; to: string }[];
 };
 
 export type PlanInput = { description: string; today: string; locale: Locale };
@@ -113,14 +119,36 @@ export type TaskProposal = {
   endDate: string;
 };
 
+export type ReplanTask = {
+  id: string;
+  title: string;
+  startDate: string;
+  endDate: string;
+  state: string;
+  owner: string;
+  milestoneId: string | null;
+};
+
 export type ReplanInput = {
   locale: Locale;
   today: string;
   reason: string;
   deltaDays: number;
   movedMilestone: { id: string; title: string; oldDate: string; newDate: string } | null;
-  affectedTasks: { id: string; title: string; startDate: string; endDate: string; state: string }[];
-  laterMilestones: { id: string; title: string; date: string }[];
+  /** The tasks of the moved milestone, before and after it. */
+  affectedTasks: ReplanTask[];
+  /** Milestones after the moved one, with their tasks; `fixed` ones stay put. */
+  laterMilestones: {
+    id: string;
+    title: string;
+    date: string;
+    fixed: boolean;
+    tasks: ReplanTask[];
+  }[];
+  /** Push the later milestones along (the default when moving later), or hold them. */
+  ripple: boolean;
+  /** Every other open task with an owner, for the overload check. */
+  otherTasks: ReplanTask[];
 };
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };

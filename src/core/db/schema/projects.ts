@@ -112,6 +112,8 @@ export const milestones = pgTable(
     ownerPersonId: text("owner_person_id").references(() => people.id, { onDelete: "set null" }),
     /** "True when …": the one acceptance criterion. */
     criterion: text("criterion").notNull().default(""),
+    /** A date that does not move: the conference is on the 15th whatever the plan says. A replan works around it. */
+    fixed: boolean("fixed").notNull().default(false),
     sort: integer("sort").notNull().default(0),
     ...timestamps,
   },

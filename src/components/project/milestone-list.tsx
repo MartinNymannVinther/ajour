@@ -37,6 +37,7 @@ export function MilestoneList({
     date: string;
     owner: string;
     criterion: string;
+    fixed: boolean;
     expectedUpdatedAt: string;
   }) => void;
   onToggleDone: (id: string, done: boolean) => void;
@@ -92,6 +93,14 @@ export function MilestoneList({
                 <span className="text-meta ml-auto shrink-0 text-xs">
                   {m.ownerName && <span className="mr-2">{m.ownerName}</span>}
                   {formatDateDa(m.date)}
+                  {m.fixed && (
+                    <span
+                      className="border-border ml-1.5 rounded-full border px-1.5 py-px text-[10px]"
+                      title={t("fixedHint")}
+                    >
+                      {t("fixedBadge")}
+                    </span>
+                  )}
                 </span>
                 {!done && (
                   <button

@@ -71,6 +71,7 @@ export async function restoreSnapshot(
       doneAt: asDate(m.doneAt),
       ownerPersonId: m.ownerPersonId,
       criterion: m.criterion,
+      fixed: m.fixed ?? false,
       sort: m.sort,
     };
     if (currentMs.has(m.id)) await tx.update(milestones).set(values).where(eq(milestones.id, m.id));

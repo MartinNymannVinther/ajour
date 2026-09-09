@@ -505,7 +505,10 @@
       "add": "Add",
       "suggestTasks": "Suggest tasks",
       "suggestOnCreate": "and suggest tasks",
-      "needsTitleAndDate": "A milestone needs a name and a date."
+      "needsTitleAndDate": "A milestone needs a name and a date.",
+      "fixed": "Fixed date",
+      "fixedHint": "The date does not move when an earlier milestone slips; a replan works around it.",
+      "fixedBadge": "fixed"
     },
     "tasks": {
       "title": "Tasks",
@@ -645,7 +648,17 @@
       "taskMove": "“{title}”: {oldFrom}–{oldTo} → {newFrom}–{newTo}",
       "milestoneMove": "The milestone “{title}”: {from} → {to}",
       "approve": "Approve the replan",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "ripple": "Push later milestones too",
+      "keptTitle": "Stays where it is",
+      "kept": {
+        "done": "“{title}” is done",
+        "fixed": "The milestone “{title}” has a fixed date",
+        "earlier": "The milestone “{title}” comes later and is not touched by a move forward",
+        "noRipple": "The milestone “{title}” is held because later milestones are not pushed"
+      },
+      "overloadTitle": "Watch out",
+      "overload": "{name} ends up with {count} tasks at once {from}–{to}"
     },
     "share": {
       "open": "Share",

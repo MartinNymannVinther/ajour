@@ -1,3 +1,4 @@
+import { computeReplan } from "./replan";
 import { addDaysIso, diffDays } from "@/core/dates";
 import { PHRASES, formatDay, formatMoney } from "./phrases";
 import { ruleBreakdown } from "./breakdown-rules";
@@ -222,30 +223,15 @@ export const rulesEngine: AiEngine = {
   async proposeReplan(input: ReplanInput): Promise<ReplanProposal> {
     const p = PHRASES[input.locale];
     const d = input.deltaDays;
-    const taskMoves = input.affectedTasks
-      .filter((t) => t.state !== "done")
-      .map((t) => ({
-        id: t.id,
-        title: t.title,
-        oldStart: t.startDate,
-        oldEnd: t.endDate,
-        newStart: addDaysIso(t.startDate, d),
-        newEnd: addDaysIso(t.endDate, d),
-      }));
-    const milestoneMoves = input.laterMilestones.map((m) => ({
-      id: m.id,
-      title: m.title,
-      oldDate: m.date,
-      newDate: addDaysIso(m.date, d),
-    }));
+    const computed = computeReplan(input);
     const summary = p.replanSummary(
       input.reason,
-      taskMoves.length,
+      computed.taskMoves.length,
       Math.abs(d),
-      milestoneMoves.length > 0,
-      milestoneMoves.length,
+      computed.milestoneMoves.length > 0,
+      computed.milestoneMoves.length,
       d > 0 ? p.laterDir : p.earlierDir,
     );
-    return { summary, milestoneMoves, taskMoves };
+    return { summary, ...computed };
   },
 };

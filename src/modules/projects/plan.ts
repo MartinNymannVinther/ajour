@@ -1,9 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { milestones, projects, tasks } from "@/core/db/schema";
 import { withOrgContext, type AppTransaction, type OrgContext } from "@/core/db/tenant";
-import type { PlanProposal, ReplanInput, ReplanProposal } from "@/modules/ai/types";
+import type { PlanProposal, ReplanInput, ReplanProposal, ReplanTask } from "@/modules/ai/types";
 import { diffDays, todayInCopenhagen } from "@/core/dates";
 import { recordEvent } from "./events";
+import { loadPlan } from "./read";
 import { personIdForName } from "./people";
 import { takeSnapshot } from "./snapshots";
 import { addDecision } from "./write-misc";
@@ -67,17 +68,23 @@ export async function buildReplanInput(
   newDate: string,
   locale: "da" | "en",
   reason: (title: string, from: string, to: string) => string,
+  ripple = true,
 ): Promise<{ input: ReplanInput; projectId: string } | null> {
   const [m] = await tx.select().from(milestones).where(eq(milestones.id, milestoneId)).limit(1);
   if (!m) return null;
   const delta = diffDays(m.date, newDate);
-  const affected = await tx
-    .select()
-    .from(tasks)
-    .where(and(eq(tasks.projectId, m.projectId), eq(tasks.milestoneId, m.id)));
-  const later = (
-    await tx.select().from(milestones).where(eq(milestones.projectId, m.projectId))
-  ).filter((x) => x.id !== m.id && x.date > m.date && !x.doneAt);
+  const plan = await loadPlan(tx, m.projectId);
+  const asReplanTask = (t: (typeof plan.tasks)[number]): ReplanTask => ({
+    id: t.id,
+    title: t.title,
+    startDate: t.startDate,
+    endDate: t.endDate,
+    state: t.state,
+    owner: t.ownerName,
+    milestoneId: t.milestoneId,
+  });
+  const later = plan.milestones.filter((x) => x.id !== m.id && x.date > m.date && !x.doneAt);
+  const laterIds = new Set(later.map((x) => x.id));
   return {
     projectId: m.projectId,
     input: {
@@ -86,15 +93,18 @@ export async function buildReplanInput(
       reason: reason(m.title, m.date, newDate),
       deltaDays: delta,
       movedMilestone: { id: m.id, title: m.title, oldDate: m.date, newDate },
-      affectedTasks: affected.map((t) => ({
-        id: t.id,
-        title: t.title,
-        startDate: t.startDate,
-        endDate: t.endDate,
-        state: t.state,
+      affectedTasks: plan.tasks.filter((t) => t.milestoneId === m.id).map(asReplanTask),
+      laterMilestones: later.map((x) => ({
+        id: x.id,
+        title: x.title,
+        date: x.date,
+        fixed: x.fixed,
+        tasks: plan.tasks.filter((t) => t.milestoneId === x.id).map(asReplanTask),
       })),
-      laterMilestones:
-        delta > 0 ? later.map((x) => ({ id: x.id, title: x.title, date: x.date })) : [],
+      ripple,
+      otherTasks: plan.tasks
+        .filter((t) => t.milestoneId !== m.id && !(t.milestoneId && laterIds.has(t.milestoneId)))
+        .map(asReplanTask),
     },
   };
 }

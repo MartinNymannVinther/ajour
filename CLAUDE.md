@@ -172,4 +172,6 @@ codebase to:
 - Wave 9 (done): mail — the approved status to the recipients on the
   project when the manager says so, and a weekly reminder from a
   scheduler; plain SMTP, nothing without `SMTP_URL` (ADR 0013).
-- After v1: fixed-date milestones and replanning alternatives.
+- Wave 10 (done): replanning, second version — pushed milestones take
+  their tasks, fixed dates hold and say so, the ripple is a choice, what
+  is kept is listed, and overloads per person are named (ADR 0014).

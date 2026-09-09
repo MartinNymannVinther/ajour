@@ -1,0 +1,1 @@
+ALTER TABLE "milestones" ADD COLUMN "fixed" boolean DEFAULT false NOT NULL;

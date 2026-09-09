@@ -505,7 +505,10 @@
       "add": "Tilføj",
       "suggestTasks": "Foreslå opgaver",
       "suggestOnCreate": "og foreslå opgaver",
-      "needsTitleAndDate": "En milepæl skal have et navn og en dato."
+      "needsTitleAndDate": "En milepæl skal have et navn og en dato.",
+      "fixed": "Fast dato",
+      "fixedHint": "Datoen flytter sig ikke, når en tidligere milepæl skrider; en replanlægning arbejder udenom den.",
+      "fixedBadge": "fast"
     },
     "tasks": {
       "title": "Opgaver",
@@ -645,7 +648,17 @@
       "taskMove": "„{title}“: {oldFrom}–{oldTo} → {newFrom}–{newTo}",
       "milestoneMove": "Milepælen „{title}“: {from} → {to}",
       "approve": "Godkend replanlægning",
-      "cancel": "Fortryd"
+      "cancel": "Fortryd",
+      "ripple": "Skub også senere milepæle",
+      "keptTitle": "Bliver hvor det er",
+      "kept": {
+        "done": "„{title}“ er færdig",
+        "fixed": "Milepælen „{title}“ har fast dato",
+        "earlier": "Milepælen „{title}“ ligger senere og røres ikke ved en flytning frem",
+        "noRipple": "Milepælen „{title}“ holdes, fordi senere milepæle ikke skubbes"
+      },
+      "overloadTitle": "Pas på",
+      "overload": "{name} får {count} opgaver på én gang {from}–{to}"
     },
     "share": {
       "open": "Del",

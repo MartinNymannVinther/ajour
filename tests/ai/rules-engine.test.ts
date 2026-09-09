@@ -66,6 +66,8 @@ describe("a replan", () => {
           startDate: "2026-09-10",
           endDate: "2026-09-20",
           state: "todo",
+          owner: "Mette",
+          milestoneId: "m1",
         },
         {
           id: "t2",
@@ -73,11 +75,33 @@ describe("a replan", () => {
           startDate: "2026-09-01",
           endDate: "2026-09-05",
           state: "done",
+          owner: "Mette",
+          milestoneId: "m1",
         },
       ],
-      laterMilestones: [{ id: "m2", title: "I mål", date: "2026-11-01" }],
+      laterMilestones: [
+        {
+          id: "m2",
+          title: "I mål",
+          date: "2026-11-01",
+          fixed: false,
+          tasks: [
+            {
+              id: "t3",
+              title: "Senere opgave",
+              startDate: "2026-10-10",
+              endDate: "2026-10-20",
+              state: "todo",
+              owner: "",
+              milestoneId: "m2",
+            },
+          ],
+        },
+      ],
+      ripple: true,
+      otherTasks: [],
     });
-    expect(res.taskMoves).toHaveLength(1);
+    expect(res.taskMoves).toHaveLength(2);
     expect(res.taskMoves[0]).toMatchObject({
       id: "t1",
       newStart: "2026-09-17",
@@ -86,6 +110,14 @@ describe("a replan", () => {
     expect(res.milestoneMoves).toEqual([
       { id: "m2", title: "I mål", oldDate: "2026-11-01", newDate: "2026-11-08" },
     ]);
+    // The pushed milestone's own task goes with it.
+    expect(res.taskMoves.map((m) => m.id)).toContain("t3");
+    expect(res.kept).toContainEqual({
+      kind: "task",
+      id: "t2",
+      title: "Færdig opgave",
+      reason: "done",
+    });
     expect(res.summary.length).toBeGreaterThan(10);
   });
 
@@ -108,12 +140,75 @@ describe("a replan", () => {
           startDate: "2026-09-10",
           endDate: "2026-09-20",
           state: "doing",
+          owner: "",
+          milestoneId: "m1",
         },
       ],
       laterMilestones: [],
+      ripple: true,
+      otherTasks: [],
     });
     expect(res.taskMoves[0]!.newStart).toBe("2026-09-07");
     expect(res.milestoneMoves).toHaveLength(0);
+  });
+
+  const task = (id: string, owner: string, start: string, end: string, milestoneId: string) => ({
+    id,
+    title: id,
+    startDate: start,
+    endDate: end,
+    state: "todo",
+    owner,
+    milestoneId,
+  });
+
+  it("holds a fixed milestone and says so, and holds all of them without the ripple", async () => {
+    const base = {
+      locale: "da" as const,
+      today: "2026-09-01",
+      reason: "Flyttet.",
+      deltaDays: 7,
+      movedMilestone: { id: "m1", title: "Program", oldDate: "2026-10-01", newDate: "2026-10-08" },
+      affectedTasks: [task("t1", "Mette", "2026-09-10", "2026-09-20", "m1")],
+      laterMilestones: [
+        { id: "m2", title: "Konferencen", date: "2026-11-15", fixed: true, tasks: [] },
+        { id: "m3", title: "Evaluering", date: "2026-11-30", fixed: false, tasks: [] },
+      ],
+      otherTasks: [],
+    };
+    const withRipple = await rulesEngine.proposeReplan({ ...base, ripple: true });
+    expect(withRipple.milestoneMoves.map((m) => m.id)).toEqual(["m3"]);
+    expect(withRipple.kept).toContainEqual({
+      kind: "milestone",
+      id: "m2",
+      title: "Konferencen",
+      reason: "fixed",
+    });
+    const held = await rulesEngine.proposeReplan({ ...base, ripple: false });
+    expect(held.milestoneMoves).toEqual([]);
+    expect(held.kept.filter((k) => k.reason === "noRipple")).toHaveLength(2);
+  });
+
+  it("warns when a person ends up with three open tasks on the same days", async () => {
+    const res = await rulesEngine.proposeReplan({
+      locale: "da",
+      today: "2026-09-01",
+      reason: "Flyttet.",
+      deltaDays: 10,
+      movedMilestone: { id: "m1", title: "Program", oldDate: "2026-10-01", newDate: "2026-10-11" },
+      affectedTasks: [task("t1", "Mette", "2026-09-10", "2026-09-14", "m1")],
+      laterMilestones: [],
+      ripple: true,
+      otherTasks: [
+        task("t2", "Mette", "2026-09-20", "2026-09-25", "m2"),
+        task("t3", "Mette", "2026-09-22", "2026-09-28", "m2"),
+        task("t4", "Jonas", "2026-09-20", "2026-09-25", "m2"),
+      ],
+    });
+    // t1 lands on 20.–24.9., on top of t2 and t3: three at once for Mette.
+    expect(res.overloads).toEqual([
+      { name: "Mette", count: 3, from: "2026-09-22", to: "2026-09-24" },
+    ]);
   });
 });
 

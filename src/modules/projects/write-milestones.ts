@@ -57,6 +57,7 @@ export async function updateMilestone(
     date?: string;
     owner?: string;
     criterion?: string;
+    fixed?: boolean;
     expectedUpdatedAt?: string;
   },
   actor: ActorKind = "user",
@@ -78,6 +79,7 @@ export async function updateMilestone(
   }
   if (input.owner !== undefined) patch.ownerPersonId = await personIdForName(tx, ctx, input.owner);
   if (input.criterion !== undefined) patch.criterion = input.criterion;
+  if (input.fixed !== undefined && input.fixed !== m.fixed) patch.fixed = input.fixed;
   if (Object.keys(patch).length === 0) return m;
   await tx.update(milestones).set(patch).where(eq(milestones.id, m.id));
   await recordEvent(tx, ctx, m.projectId, "milestone.updated", payload, actor);

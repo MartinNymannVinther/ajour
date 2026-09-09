@@ -14,19 +14,24 @@ export type PendingReplan = {
   milestone: { id: string; title: string; oldDate: string; newDate: string };
   proposal: ReplanProposal | null;
   loading: boolean;
+  /** Push later milestones along; the person can switch it off and see the difference. */
+  ripple: boolean;
 };
 
 export function ReplanBanner({
   pending,
   onApprove,
   onCancel,
+  onRipple,
 }: {
   pending: PendingReplan;
   onApprove: () => void;
   onCancel: () => void;
+  onRipple: (ripple: boolean) => void;
 }) {
   const t = useTranslations("projects.replan");
-  const { milestone, proposal, loading } = pending;
+  const { milestone, proposal, loading, ripple } = pending;
+  const later = milestone.newDate > milestone.oldDate;
   const nothingToMove =
     proposal && proposal.taskMoves.length === 0 && proposal.milestoneMoves.length === 0;
 
@@ -72,6 +77,48 @@ export function ReplanBanner({
                   </li>
                 ))}
               </ul>
+            )}
+            {proposal.overloads.length > 0 && (
+              <div className="border-destructive/40 bg-card rounded-lg border p-2 text-[13px]">
+                <p className="text-destructive font-semibold">{t("overloadTitle")}</p>
+                <ul>
+                  {proposal.overloads.map((o, i) => (
+                    <li key={i}>
+                      ·{" "}
+                      {t("overload", {
+                        name: o.name,
+                        count: o.count,
+                        from: formatDateDa(o.from),
+                        to: formatDateDa(o.to),
+                      })}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {proposal.kept.length > 0 && (
+              <details className="text-[13px]">
+                <summary className="text-meta cursor-pointer">
+                  {t("keptTitle")} ({proposal.kept.length})
+                </summary>
+                <ul className="mt-1 space-y-0.5">
+                  {proposal.kept.map((k) => (
+                    <li key={`${k.kind}-${k.id}`} className="text-meta">
+                      · {t(`kept.${k.reason}`, { title: k.title })}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            {later && (
+              <label className="flex cursor-pointer items-center gap-2 text-[13px]">
+                <input
+                  type="checkbox"
+                  checked={ripple}
+                  onChange={(e) => onRipple(e.target.checked)}
+                />
+                {t("ripple")}
+              </label>
             )}
             <div className="flex flex-wrap gap-2 pt-1">
               <Button type="button" size="sm" onClick={onApprove}>

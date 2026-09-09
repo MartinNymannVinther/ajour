@@ -37,6 +37,7 @@ export type SnapshotData = {
     doneAt: string | null;
     ownerPersonId: string | null;
     criterion: string;
+    fixed?: boolean;
     sort: number;
   }>;
   tasks: Array<{
@@ -119,6 +120,7 @@ export async function collectSnapshot(
       doneAt: m.doneAt ? m.doneAt.toISOString() : null,
       ownerPersonId: m.ownerPersonId,
       criterion: m.criterion,
+      fixed: m.fixed,
       sort: m.sort,
     })),
     tasks: ts.map((t) => ({
