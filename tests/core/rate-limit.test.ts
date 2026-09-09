@@ -31,9 +31,31 @@ describe("rateLimit", () => {
 });
 
 describe("callerKey", () => {
-  it("reads the first address the proxy reports", () => {
-    const headers = new Headers({ "x-forwarded-for": "203.0.113.7, 10.0.0.1" });
+  /**
+   * Read from the right, not the left. X-Forwarded-For is a list a proxy
+   * appends to, so the leftmost entry is whatever the caller sent. This
+   * test used to assert the opposite, and while it did, one header on
+   * one curl bought a fresh bucket on every request and every limit in
+   * the app was decoration.
+   */
+  it("reads the address our own proxy appended, not the one the caller sent", () => {
+    const headers = new Headers({ "x-forwarded-for": "1.2.3.4, 203.0.113.7" });
     expect(callerKey(headers, "share")).toBe("share:203.0.113.7");
+  });
+
+  it("is not fooled by a caller who supplies a whole chain of their own", () => {
+    const forged = new Headers({
+      "x-forwarded-for": "9.9.9.9, 8.8.8.8, 7.7.7.7, 203.0.113.7",
+    });
+    // The last entry is the one Traefik wrote; everything before it is
+    // the caller's fiction, and changing it must not change the bucket.
+    expect(callerKey(forged, "share")).toBe("share:203.0.113.7");
+  });
+
+  it("takes a single entry as the proxy's own", () => {
+    expect(callerKey(new Headers({ "x-forwarded-for": "203.0.113.7" }), "share")).toBe(
+      "share:203.0.113.7",
+    );
   });
 
   it("falls back to x-real-ip, and then to one shared bucket", () => {

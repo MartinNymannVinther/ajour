@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { getSession } from "@/core/auth/session";
+import { clientAddress } from "@/core/rate-limit";
 import {
   approveAccessRequest,
   createInvitation,
@@ -13,16 +14,6 @@ import {
 } from "./service";
 
 export type { AccessRequestResult };
-
-/**
- * Where the request came from, as the proxy reports it. Traefik sets
- * X-Forwarded-For; the first address is the client, the rest are hops.
- */
-function clientAddress(h: Headers): string | null {
-  const forwarded = h.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim() || null;
-  return h.get("x-real-ip");
-}
 
 /** Public: anyone may ask for access. */
 export async function requestAccessAction(input: unknown): Promise<AccessRequestResult> {

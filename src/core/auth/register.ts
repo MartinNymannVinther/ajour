@@ -3,7 +3,7 @@ import { z } from "zod";
 import { consumeInvitation, findValidInvitation } from "@/core/access/service";
 import { organizationSlug } from "@/lib/slug";
 import { auth } from "./auth";
-import { INVITATION_HEADER, signupAllowed } from "./signup";
+import { DEMO_HEADER, INVITATION_HEADER, signupAllowed } from "./signup";
 
 export const RegisterSchema = z.object({
   name: z.string().trim().min(1).max(200),
@@ -68,6 +68,10 @@ export async function registerUserWithOrganization(
   // The key reaches the gate inside Better Auth as a request header: the
   // sign-up body is Better Auth's, and a header is what its hook can read.
   const signUpHeaders = new Headers(requestHeaders);
+  // Whatever the caller sent under the names this flow gives meaning to is
+  // dropped first: only what this function decides may reach the gate.
+  signUpHeaders.delete(INVITATION_HEADER);
+  signUpHeaders.delete(DEMO_HEADER);
   if (invitationToken) signUpHeaders.set(INVITATION_HEADER, invitationToken);
 
   let sessionHeaders: Headers;

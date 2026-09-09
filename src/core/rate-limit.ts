@@ -1,3 +1,5 @@
+import { env } from "@/core/env";
+
 /**
  * A small in-process rate limiter for public endpoints — the ones with no
  * session to count against, where the only handle is the caller's address.
@@ -44,14 +46,30 @@ export function rateLimit(key: string, limit: number, windowMs: number): RateLim
 }
 
 /**
- * The caller's address as the proxy reports it. Trusting a header is only
- * sound behind a proxy that sets it, which is how Ajour is deployed; with
- * no header the whole installation shares one bucket, which fails closed
- * rather than open.
+ * The caller's address, read from the right.
+ *
+ * X-Forwarded-For is a list a proxy *appends* to, so the leftmost entry is
+ * whatever the caller sent - which is to say, whatever the caller felt
+ * like sending. `curl -H "X-Forwarded-For: $RANDOM"` would otherwise buy a
+ * fresh bucket on every request and every limit here would be decoration.
+ *
+ * The entry our own proxy wrote is TRUSTED_PROXY_HOPS from the end: one
+ * for the usual Coolify/Traefik deployment. With no header at all the
+ * whole installation shares one bucket, which fails closed rather than
+ * open, and that is the right way round for a public endpoint.
  */
+export function clientAddress(headers: Headers): string {
+  const list = (headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const hops = Math.max(1, env.TRUSTED_PROXY_HOPS);
+  const trusted = list.length >= hops ? list[list.length - hops] : undefined;
+  return trusted || headers.get("x-real-ip")?.trim() || "unknown";
+}
+
 export function callerKey(headers: Headers, prefix: string): string {
-  const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return `${prefix}:${forwarded || headers.get("x-real-ip") || "unknown"}`;
+  return `${prefix}:${clientAddress(headers)}`;
 }
 
 /** Only for tests: forget every bucket. */

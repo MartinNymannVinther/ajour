@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+/** The value shipped in .env.example. Refused in production, by name. */
+const PLACEHOLDER_SECRET = "dev-only-secret-change-me-in-production";
+
 /**
  * Server-side environment variables, validated at the boundary.
  * Import this instead of reading process.env directly.
@@ -40,8 +43,43 @@ export const EnvSchema = z
     // sent as a bearer token by the scheduler. Unset: those endpoints
     // answer 404 and the scripts are the only way to run them.
     CRON_SECRET: z.string().min(16).optional(),
+    // How many proxies in front of Ajour append to X-Forwarded-For. The
+    // rightmost entries are the ones your own infrastructure wrote and are
+    // therefore the only ones worth trusting; everything to the left of
+    // them was supplied by the caller. Coolify/Traefik is one hop, which
+    // is the default. See src/core/rate-limit.ts.
+    TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(8).default(1),
   })
   .superRefine((value, ctx) => {
+    // `next build` runs with NODE_ENV=production and placeholder values
+    // for everything it must import, because a build has no database and
+    // no secrets. It is not an installation, so it is not held to an
+    // installation's standards; the checks below are for a process that
+    // is about to serve requests.
+    const building = process.env.NEXT_PHASE === "phase-production-build";
+    // The placeholder is published in .env.example, and this secret does
+    // not only sign sessions: it derives the key that encrypts every
+    // workspace's model API key (src/core/crypto/secret-box.ts). An
+    // installation that went live on the example value would be handing
+    // both away. Documentation is not a control, so this is one.
+    if (value.NODE_ENV === "production" && !building) {
+      if (value.BETTER_AUTH_SECRET === PLACEHOLDER_SECRET || value.BETTER_AUTH_SECRET.length < 32) {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "BETTER_AUTH_SECRET must be at least 32 characters and not the value from .env.example in production. Generate one with: openssl rand -base64 32",
+          path: ["BETTER_AUTH_SECRET"],
+        });
+      }
+      if (!value.BETTER_AUTH_URL.startsWith("https://")) {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "BETTER_AUTH_URL must be an https:// address in production; passkeys and secure cookies are bound to it",
+          path: ["BETTER_AUTH_URL"],
+        });
+      }
+    }
     if (value.LLM_PROVIDER === "mistral" && !value.MISTRAL_API_KEY) {
       ctx.addIssue({
         code: "custom",

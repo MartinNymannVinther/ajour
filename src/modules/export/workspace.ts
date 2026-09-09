@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { auth } from "@/core/auth/auth";
 import { memberships, users } from "@/core/db/schema";
 import { withOrgContext, type OrgContext } from "@/core/db/tenant";
@@ -30,12 +30,19 @@ export async function listMembers(ctx: OrgContext): Promise<Member[]> {
   });
 }
 
+/**
+ * The caller's role in the *active* workspace. Both halves of the where
+ * clause matter: RLS on memberships lets a user see their own rows in
+ * every workspace they belong to, so filtering on the user alone would
+ * return an arbitrary one — and a member of this workspace who owns
+ * another would read as an owner here.
+ */
 export async function currentRole(ctx: OrgContext): Promise<string | null> {
   return withOrgContext(ctx, async (tx) => {
     const [row] = await tx
       .select({ role: memberships.role })
       .from(memberships)
-      .where(eq(memberships.userId, ctx.userId))
+      .where(and(eq(memberships.userId, ctx.userId), eq(memberships.organizationId, ctx.orgId)))
       .limit(1);
     return row?.role ?? null;
   });

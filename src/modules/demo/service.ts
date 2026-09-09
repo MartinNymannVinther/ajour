@@ -4,7 +4,7 @@ import { auth } from "@/core/auth/auth";
 import { authDb } from "@/core/db/client";
 import { demoWorkspaces } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
-import { DEMO_HEADER } from "@/core/auth/signup";
+import { DEMO_HEADER, demoSignupHeaderValue } from "@/core/auth/signup";
 import { env } from "@/core/env";
 import { organizationSlug } from "@/lib/slug";
 import { seedDemoProject } from "./seed";
@@ -94,7 +94,7 @@ export async function createDemoWorkspace(locale: "da" | "en"): Promise<DemoSess
       body: { name, email, password },
       // The demo bypasses the admission gate on purpose: this account is
       // not a person asking to be let in, it is a session that expires.
-      headers: new Headers({ [DEMO_HEADER]: "1" }),
+      headers: new Headers({ [DEMO_HEADER]: demoSignupHeaderValue() }),
       returnHeaders: true,
     });
     sessionHeaders = cookieHeaderFrom(responseHeaders);

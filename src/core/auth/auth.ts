@@ -10,7 +10,7 @@ import { recordAuthEvent } from "@/core/audit/events";
 import { authDb } from "@/core/db/client";
 import * as schema from "@/core/db/schema";
 import { env } from "@/core/env";
-import { countUsers, DEMO_HEADER, INVITATION_HEADER, signupAllowed } from "./signup";
+import { countUsers, DEMO_HEADER, INVITATION_HEADER, isDemoSignup, signupAllowed } from "./signup";
 
 const baseUrl = new URL(env.BETTER_AUTH_URL);
 
@@ -112,7 +112,7 @@ export const auth = betterAuth({
         const attempt = {
           email: typeof body.email === "string" ? body.email : null,
           invitationToken: ctx.headers?.get(INVITATION_HEADER) ?? null,
-          demo: ctx.headers?.get(DEMO_HEADER) === "1",
+          demo: isDemoSignup(ctx.headers?.get(DEMO_HEADER)),
         };
         if (!(await signupAllowed(attempt))) {
           throw new APIError("FORBIDDEN", { code: "SIGNUP_CLOSED", message: "Sign-up is closed" });
