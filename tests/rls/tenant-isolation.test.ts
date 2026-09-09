@@ -218,4 +218,107 @@ describe("rls coverage (guards future tables)", () => {
     );
     expect(rows.rows).toEqual([]);
   });
+
+  /**
+   * Forced RLS with no policy denies everything, which is safe but is not
+   * what a new table is meant to do — it is what a new table does when
+   * somebody forgot the policy, and the failure shows up as an empty page
+   * rather than as an error. The check above passes either way, so it
+   * cannot tell the two apart. This one can.
+   */
+  it("every table has at least one policy", async () => {
+    const rows = await admin.query(
+      `select c.relname from pg_class c
+       where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
+         and not exists (select 1 from pg_policy p where p.polrelid = c.oid)`,
+    );
+    expect(rows.rows.map((r) => r.relname)).toEqual([]);
+  });
+
+  /**
+   * A policy granted TO PUBLIC applies to every role there is. Ajour's
+   * policies name ajour_app or ajour_auth on purpose; one written without
+   * a TO clause would quietly widen the whole model.
+   */
+  it("no policy is granted to public", async () => {
+    const rows = await admin.query(
+      `select c.relname, p.polname from pg_policy p
+       join pg_class c on c.oid = p.polrelid
+       where c.relnamespace = 'public'::regnamespace and p.polroles = '{0}'`,
+    );
+    expect(rows.rows.map((r) => `${r.relname}.${r.polname}`)).toEqual([]);
+  });
+
+  /**
+   * Dogma 6 says every change lands in an audit log that cannot be
+   * edited. That is a per-table trigger, so a table added without one is
+   * a hole in the claim rather than in a feature.
+   *
+   * Some tables carry no trigger on purpose, and they are named here
+   * rather than guessed at, so that a new table cannot quietly join them:
+   * auditing a log is a copy, not a record (docs/adr/0003, 0005), and a
+   * counter or a cache holds nothing anybody owns. Adding a name to this
+   * list should be an argument somebody has to make in a pull request.
+   */
+  const NO_AUDIT_TRIGGER = [
+    // Carries the append-only guard instead; proven below.
+    "audit_log",
+    // Logs and derived state, not things a workspace owns.
+    "events",
+    "chat_messages",
+    "tips",
+    "ai_calls",
+    // Auth machinery Better Auth owns and rotates; sessions are recorded
+    // as auth events by the hooks in src/core/auth/auth.ts instead.
+    "sessions",
+    "verifications",
+    "rate_limits",
+    // Admission, which happens before a workspace exists to own it.
+    "access_requests",
+    "access_invitations",
+    // Throwaway by definition, deleted whole when it expires.
+    "demo_workspaces",
+  ];
+
+  it("every domain table has an audit trigger", async () => {
+    const rows = await admin.query(
+      `select c.relname from pg_class c
+       where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
+         and not (c.relname = any($1))
+         and not exists (
+           select 1 from pg_trigger t
+           where t.tgrelid = c.oid and not t.tgisinternal
+             and t.tgname like 'audit\\_%'
+         )`,
+      [NO_AUDIT_TRIGGER],
+    );
+    expect(rows.rows.map((r) => r.relname)).toEqual([]);
+  });
+
+  it("the tables excused from auditing are all still there", async () => {
+    // A name left behind after its table is gone is a hole the list above
+    // would hide rather than show.
+    const rows = await admin.query(
+      `select c.relname from pg_class c
+       where c.relnamespace = 'public'::regnamespace and c.relkind = 'r'
+         and c.relname = any($1)`,
+      [NO_AUDIT_TRIGGER],
+    );
+    expect(rows.rows.map((r) => r.relname).sort()).toEqual([...NO_AUDIT_TRIGGER].sort());
+  });
+
+  it("the audit log cannot be updated or deleted, not even by the superuser", async () => {
+    await admin.query(
+      `insert into audit_log (org_id, actor_type, action, entity_type)
+       values (null, 'system', 'test.append-only', 'test')`,
+    );
+    expect(
+      await expectSqlError(
+        admin.query("update audit_log set action = 'tampered' where action = 'test.append-only'"),
+      ),
+    ).toBeTruthy();
+    expect(
+      await expectSqlError(admin.query("delete from audit_log where action = 'test.append-only'")),
+    ).toBeTruthy();
+  });
 });
