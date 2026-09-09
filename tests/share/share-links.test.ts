@@ -4,7 +4,12 @@ import { withOrgContext } from "@/core/db/tenant";
 import { createProjectFromProposal } from "@/modules/projects/plan";
 import { getProjectFull } from "@/modules/projects/read";
 import { setBudget } from "@/modules/projects/write-misc";
-import { approveStatus, plainAuthored } from "@/modules/reports/status-report";
+import {
+  approveStatus,
+  getStatus,
+  parseStatusReport,
+  plainAuthored,
+} from "@/modules/reports/status-report";
 import { buildTemplate, PROJECT_TEMPLATES } from "@/modules/projects/templates";
 import { createShareLink, readSharedProject, revokeShareLink } from "@/modules/share/service";
 import { adminPool } from "../helpers/db";
@@ -70,6 +75,71 @@ describe("a share link", () => {
     // The frozen report is cut down on the way out: no money, no obstacles.
     expect(shared!.statuses[0]!.report?.economy).toBeNull();
     expect(shared!.statuses[0]!.report?.obstacles).toEqual([]);
+  });
+
+  /**
+   * The version of this test that only checked `economy` and `obstacles`
+   * is the reason three later fields reached the public PDF unnoticed:
+   * it enumerated what to withhold, which is the same mistake the code
+   * was making. This one enumerates what may leave, so a field added to
+   * StatusReport and forgotten in publicReport() fails here rather than
+   * on somebody's shared link.
+   */
+  it("lets exactly the agreed fields out of the frozen report", async () => {
+    const link = await createShareLink(ctx, projectId, "Nøglesæt", null);
+    const shared = await readSharedProject(link!.token, "2026-09-03");
+    const report = shared!.statuses[0]!.report!;
+
+    const carriesContent = [
+      "version",
+      "today",
+      "weekKey",
+      "projectName",
+      "goal",
+      "ownerName",
+      "managerName",
+      "approvedByName",
+      "rag",
+      "text",
+      "managerComment",
+      "nextWeek",
+      "trend",
+      "progress",
+      "milestones",
+      "tasks",
+      "engine",
+      // Not content: the marker that says this copy is a cut-down one, so
+      // the template can keep quiet instead of claiming nothing changed.
+      "redacted",
+    ].sort();
+    const emptied = {
+      ragSuggested: null,
+      ragReason: "",
+      sinceLast: [],
+      economy: null,
+      expenses: [],
+      obstacles: [],
+      managementAsks: [],
+      decisions: [],
+      decisionsSince: null,
+    };
+
+    // Every key of StatusReport is accounted for: either it may carry
+    // content, or it is listed above with the value it is emptied to.
+    expect(Object.keys(report).sort()).toEqual([...carriesContent, ...Object.keys(emptied)].sort());
+    for (const [key, value] of Object.entries(emptied)) {
+      expect({ [key]: report[key as keyof typeof report] }).toEqual({ [key]: value });
+    }
+
+    // And the workspace's own copy of the same status does carry the money,
+    // so the test above is proving a cut and not an empty fixture.
+    const row = await withOrgContext(ctx, (tx) => getStatus(tx, shared!.statuses[0]!.id));
+    const own = parseStatusReport(row!.details)!;
+    expect(own.economy?.budget).toBe(60000);
+    // And the workspace's own copy is not marked as cut down, so the
+    // template still tells it what it knows.
+    expect(own.redacted).toBeUndefined();
+    expect(report.redacted).toBe(true);
   });
 
   it("gives nothing for a revoked token", async () => {

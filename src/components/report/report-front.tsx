@@ -131,22 +131,31 @@ export function ReportFront({
 
           {(sections.economy || report.progress.total > 0) && (
             <ReportCard>
-              <SectionTitle>{words.economy}</SectionTitle>
+              {/* Without the money this card is progress and nothing
+                  else, so it says so rather than heading a bar chart of
+                  tasks with the word "economy". */}
+              <SectionTitle>{sections.economy ? words.economy : words.progressOnly}</SectionTitle>
               <FigureSvg
                 figure={economyFigure(report, 320, words.economyChart)}
-                title={words.economy}
+                title={sections.economy ? words.economy : words.progressOnly}
               />
             </ReportCard>
           )}
 
-          <ReportCard>
-            <SectionTitle>{words.sinceLast}</SectionTitle>
-            {sections.sinceLast ? (
-              <Bullets lines={report.sinceLast} />
-            ) : (
-              <p className="text-meta text-[13px]">{words.nothingSince}</p>
-            )}
-          </ReportCard>
+          {/* "Nothing changed since last week" is a claim, and on a
+              shared copy it would be the wrong one: what changed was cut
+              out, not absent. So the card only appears when it has
+              something true to say. */}
+          {(sections.sinceLast || !report.redacted) && (
+            <ReportCard>
+              <SectionTitle>{words.sinceLast}</SectionTitle>
+              {sections.sinceLast ? (
+                <Bullets lines={report.sinceLast} />
+              ) : (
+                <p className="text-meta text-[13px]">{words.nothingSince}</p>
+              )}
+            </ReportCard>
+          )}
 
           {sections.obstacles && (
             <ReportCard>

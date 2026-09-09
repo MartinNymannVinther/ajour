@@ -79,6 +79,13 @@ export type StatusReport = {
   decisionsSince: string | null;
   /** Which engine drafted the text, for the foot of the document. */
   engine: string;
+  /**
+   * Set only on the cut-down copy a share link sees (publicReport in
+   * modules/share/service.ts). Nothing is stored with it; it exists so
+   * the template can tell "there was nothing to report" apart from "you
+   * are not being told", and keep quiet rather than say the wrong one.
+   */
+  redacted?: true;
 };
 
 /** The parts a person decides; everything else the report reads off the plan. */

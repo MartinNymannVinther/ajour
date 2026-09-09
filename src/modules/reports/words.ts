@@ -34,6 +34,8 @@ export type ReportWords = {
   planAll: string;
   milestones: string;
   economy: string;
+  /** Heading for the same card when the money is not being shown. */
+  progressOnly: string;
   sinceLast: string;
   nothingSince: string;
   obstacles: string;
@@ -104,6 +106,7 @@ export function reportWords(
     planAll: t("planAll"),
     milestones: t("milestones"),
     economy: t("economy"),
+    progressOnly: t("progressOnly"),
     sinceLast: t("sinceLast"),
     nothingSince: t("nothingSince"),
     obstacles: t("obstacles"),

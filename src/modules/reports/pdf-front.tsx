@@ -183,21 +183,28 @@ export function PdfFront({
           )}
           {(sections.economy || report.progress.total > 0) && (
             <View style={[styles.card, styles.section]} wrap={false}>
-              <Text style={styles.h2}>{words.economy}</Text>
+              {/* Without the money this card is progress and nothing
+                  else. Same call as the on-screen report. */}
+              <Text style={styles.h2}>{sections.economy ? words.economy : words.progressOnly}</Text>
               <PdfFigure
                 figure={economyFigure(report, CARD_INNER, words.economyChart)}
                 width={CARD_INNER}
               />
             </View>
           )}
-          <View style={[styles.card, styles.section]}>
-            <Text style={styles.h2}>{words.sinceLast}</Text>
-            {sections.sinceLast ? (
-              <Bullets lines={report.sinceLast} />
-            ) : (
-              <Text style={[styles.small, { color: INK.meta }]}>{words.nothingSince}</Text>
-            )}
-          </View>
+          {/* "Nothing changed since last week" is a claim, and on a shared
+              copy it would be the wrong one: what changed was cut out,
+              not absent. */}
+          {(sections.sinceLast || !report.redacted) && (
+            <View style={[styles.card, styles.section]}>
+              <Text style={styles.h2}>{words.sinceLast}</Text>
+              {sections.sinceLast ? (
+                <Bullets lines={report.sinceLast} />
+              ) : (
+                <Text style={[styles.small, { color: INK.meta }]}>{words.nothingSince}</Text>
+              )}
+            </View>
+          )}
           {sections.obstacles && (
             <View style={[styles.card, styles.section]}>
               <Text style={styles.h2}>{words.obstacles}</Text>

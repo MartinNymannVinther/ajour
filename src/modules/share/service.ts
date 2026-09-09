@@ -25,6 +25,9 @@ export { SHARE_TTL_OPTIONS } from "./constants";
  * no chat.
  */
 
+/** How coarse "last used" is allowed to be. See resolveShareLink. */
+const LAST_USED_RESOLUTION_MS = 5 * 60 * 1000;
+
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -78,17 +81,68 @@ export async function revokeShareLink(ctx: OrgContext, linkId: string): Promise<
 }
 
 /**
- * What a shared report may say. The frozen report holds the money and the
- * obstacles too, because the workspace's own PDF needs them; the public
- * page must not, so they are cut here rather than at the template.
+ * What a shared report may say.
+ *
+ * The frozen report holds the money, the obstacles and the management
+ * conversation too, because the workspace's own PDF needs them. The
+ * public page must not, so they are cut here rather than at the template.
+ *
+ * This is written as an allow-list, and that is the whole point of it. It
+ * used to be a deny-list — spread the report, blank four fields — and the
+ * report schema then grew three fields it did not know about: `ragReason`
+ * quotes the budget, `sinceLast` prints sentences like "the budget was
+ * set to 400,000 kr.", and `decisions` carries the notes behind them. All
+ * three walked straight onto the public PDF. A deny-list is a list you
+ * have to remember to update; an allow-list fails the other way, and a
+ * new field stays private until somebody decides otherwise.
+ *
+ * Deliberately withheld, and why:
+ * - economy, expenses: the budget. The first reason share links exist.
+ * - obstacles: named problems, often about people.
+ * - managementAsks: what the manager is asking the steering group for.
+ * - ragReason, sinceLast: free text written about the money.
+ * - decisions, decisionsSince: the reasoning behind choices, which is
+ *   internal even when the choice itself is visible in the plan.
+ * - ragSuggested: that the manager overruled the engine is a workspace
+ *   matter; the assessment in force is what a reader needs.
+ *
+ * Proven in tests/share/share-links.test.ts, which asserts on the exact
+ * key set rather than on the four fields somebody happened to think of.
  */
 function publicReport(raw: unknown): StatusReport | null {
   const report = parseStatusReport(raw);
   if (!report) return null;
-  // Money, obstacles, what management is asked for and the money lines
-  // are for the workspace; a participant with a link gets the plan and
-  // the words.
-  return { ...report, economy: null, expenses: [], obstacles: [], managementAsks: [] };
+  return {
+    version: 2,
+    today: report.today,
+    weekKey: report.weekKey,
+    projectName: report.projectName,
+    goal: report.goal,
+    ownerName: report.ownerName,
+    managerName: report.managerName,
+    approvedByName: report.approvedByName,
+    rag: report.rag,
+    text: report.text,
+    managerComment: report.managerComment,
+    nextWeek: report.nextWeek,
+    trend: report.trend,
+    progress: report.progress,
+    milestones: report.milestones,
+    tasks: report.tasks,
+    engine: report.engine,
+    // Withheld. Written out rather than omitted so the type checker
+    // fails a new field into view instead of letting it default.
+    ragSuggested: null,
+    ragReason: "",
+    sinceLast: [],
+    economy: null,
+    expenses: [],
+    obstacles: [],
+    managementAsks: [],
+    decisions: [],
+    decisionsSince: null,
+    redacted: true,
+  };
 }
 
 export type SharedReply = {
@@ -161,7 +215,17 @@ export async function resolveShareLink(
   if (!link) return null;
   if (link.expiresAt && link.expiresAt.getTime() < Date.now()) return null;
   await tx.execute(sql`select set_config('app.org_id', ${link.orgId}, true)`);
-  await tx.update(shareLinks).set({ lastUsedAt: new Date() }).where(eq(shareLinks.id, link.id));
+  // "Last used" to the minute is plenty, and writing it on every read
+  // would mean an audit row per page view on a public URL: a link on a
+  // steering group's intranet would fill the audit log with the fact that
+  // somebody looked at it. Written at most once per LAST_USED_RESOLUTION_MS.
+  const now = Date.now();
+  if (!link.lastUsedAt || now - link.lastUsedAt.getTime() > LAST_USED_RESOLUTION_MS) {
+    await tx
+      .update(shareLinks)
+      .set({ lastUsedAt: new Date(now) })
+      .where(eq(shareLinks.id, link.id));
+  }
   return { id: link.id, orgId: link.orgId, projectId: link.projectId, canAnswer: link.canAnswer };
 }
 
