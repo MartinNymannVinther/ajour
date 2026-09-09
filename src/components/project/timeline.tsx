@@ -2,18 +2,13 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  addDaysIso,
-  diffDays,
-  formatDateDa,
-  maxIso,
-  minIso,
-  mondayOf,
-  weekNumber,
-} from "@/core/dates";
+import { addDaysIso, diffDays, maxIso, minIso, mondayOf, weekNumber } from "@/core/dates";
 import { ZOOM_LEVELS } from "@/modules/projects/constants";
 import { cn } from "@/lib/utils";
 import { milestoneKeyHandler, taskKeyHandler } from "./timeline-keys";
+import { MilestoneRow, TaskBar, type TimelineMilestone, type TimelineTask } from "./timeline-rows";
+
+export type { TimelineMilestone, TimelineTask } from "./timeline-rows";
 import { LOOSE, useTimelineDrag } from "./use-timeline-drag";
 
 /**
@@ -25,18 +20,6 @@ import { LOOSE, useTimelineDrag } from "./use-timeline-drag";
  * screen reader have no drag: a focused bar moves with the arrow keys,
  * resizes with shift, and changes milestone with alt.
  */
-
-export type TimelineMilestone = { id: string; title: string; date: string; doneAt: Date | null };
-export type TimelineTask = {
-  id: string;
-  title: string;
-  ownerName: string;
-  state: string;
-  startDate: string;
-  endDate: string;
-  milestoneId: string | null;
-  participants: string[];
-};
 
 type Props = {
   today: string;
@@ -51,8 +34,6 @@ type Props = {
   onTaskClick?: (id: string) => void;
   onMilestoneClick?: (id: string) => void;
 };
-
-const ROW_H = 36;
 
 export function Timeline({
   today,
@@ -149,13 +130,6 @@ export function Timeline({
     onMilestoneClick,
   });
 
-  const barClass = (task: TimelineTask) => {
-    if (task.state === "done") return "bg-success-tint border-success text-success";
-    if (effTask(task).end < today) return "bg-warning-tint border-destructive text-destructive";
-    if (task.state === "doing") return "bg-primary border-primary text-primary-foreground";
-    return "bg-muted border-input text-foreground";
-  };
-
   return (
     <div className="relative">
       <div className="border-border bg-card/90 absolute top-1 right-2 z-20 flex items-center gap-1 rounded-lg border px-1 py-0.5 shadow-[var(--surface-shadow)]">
@@ -244,146 +218,39 @@ export function Timeline({
                       "bg-accent outline-primary/50 outline-2 -outline-offset-2 outline-dashed",
                   )}
                 >
-                  <div className="border-border bg-card/60 relative flex h-9 items-center border-t">
-                    <div className="from-card via-card sticky left-0 z-20 flex max-w-[60%] items-center gap-2 bg-gradient-to-r to-transparent pr-6 pl-2 text-[13px] font-semibold">
-                      {milestone ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => onMilestoneClick?.(milestone.id)}
-                            className={cn(
-                              "hover:text-primary min-h-[24px] truncate text-left hover:underline",
-                              milestone.doneAt && "text-success",
-                            )}
-                          >
-                            {milestone.doneAt ? "✓ " : ""}
-                            {milestone.title}
-                          </button>
-                          <span className="text-label font-normal whitespace-nowrap">
-                            {formatDateDa(effMilestone(milestone))}
-                          </span>
-                        </>
-                      ) : (
-                        <span className="text-meta">{t("otherTasks")}</span>
-                      )}
-                      {isTarget && (
-                        <span className="bg-primary text-primary-foreground rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap">
-                          {t("dropHere")}
-                        </span>
-                      )}
-                    </div>
-                    {milestone && (
-                      <>
-                        {/* The diamond is 16px, its hit area 28: small enough
-                            to read as a marker, big enough to hit. */}
-                        <button
-                          type="button"
-                          data-slot="timeline-milestone"
-                          onPointerDown={(e) =>
-                            editable &&
-                            !milestone.doneAt &&
-                            startMilestoneDrag(e, milestone.id, effMilestone(milestone))
-                          }
-                          onKeyDown={(e) => onMilestoneKeyDown(e, milestone)}
-                          aria-label={t("milestoneHandle", {
-                            title: milestone.title,
-                            date: formatDateDa(effMilestone(milestone)),
-                          })}
-                          className={cn(
-                            "focus-visible:ring-ring absolute z-10 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded focus-visible:ring-2",
-                            editable &&
-                              !milestone.doneAt &&
-                              "cursor-grab touch-none active:cursor-grabbing",
-                          )}
-                          style={{ left: x(effMilestone(milestone)) + dayWidth / 2 }}
-                        >
-                          <span
-                            aria-hidden
-                            className={cn(
-                              "h-4 w-4 rotate-45 rounded-[3px] border-2",
-                              milestone.doneAt
-                                ? "border-success bg-success/60"
-                                : pendingMilestoneMove?.id === milestone.id
-                                  ? "border-chart-4 bg-chart-4"
-                                  : "border-foreground bg-foreground",
-                            )}
-                          />
-                        </button>
-                        <div
-                          className="border-border absolute top-0 bottom-0 w-px border-l border-dashed"
-                          style={{ left: x(effMilestone(milestone)) + dayWidth / 2 }}
-                          aria-hidden
-                        />
-                      </>
-                    )}
-                  </div>
+                  <MilestoneRow
+                    milestone={milestone}
+                    date={milestone ? effMilestone(milestone) : ""}
+                    x={milestone ? x(effMilestone(milestone)) : 0}
+                    dayWidth={dayWidth}
+                    editable={editable}
+                    isTarget={isTarget}
+                    pending={pendingMilestoneMove?.id === milestone?.id}
+                    onClick={onMilestoneClick}
+                    onPointerDown={(e, id, date) => startMilestoneDrag(e, id, date)}
+                    onKeyDown={onMilestoneKeyDown}
+                  />
 
                   {group.tasks.map((task) => {
                     const eff = effTask(task);
-                    const width = (diffDays(eff.start, eff.end) + 1) * dayWidth;
                     const known = Boolean(
                       task.milestoneId && sorted.some((m) => m.id === task.milestoneId),
                     );
                     return (
-                      <div
+                      <TaskBar
                         key={task.id}
-                        className="border-hairline relative border-t"
-                        style={{ height: ROW_H }}
-                      >
-                        <button
-                          type="button"
-                          data-slot="timeline-task"
-                          onPointerDown={(e) =>
-                            editable && startTaskDrag(e, task, "move", eff, known)
-                          }
-                          onKeyDown={(e) => onTaskKeyDown(e, task)}
-                          aria-label={t("taskHandle", {
-                            title: task.title,
-                            owner: task.ownerName || t("noOwner"),
-                            from: formatDateDa(eff.start),
-                            to: formatDateDa(eff.end),
-                          })}
-                          className={cn(
-                            "focus-visible:ring-ring absolute top-1.5 flex h-[24px] items-center rounded-md border px-2 text-[12px] focus-visible:ring-2",
-                            barClass(task),
-                            editable && "cursor-grab touch-none active:cursor-grabbing",
-                            drag?.kind === "task" &&
-                              drag.id === task.id &&
-                              "ring-primary/30 z-20 shadow-md ring-2",
-                          )}
-                          style={{
-                            left: x(eff.start),
-                            width: Math.max(width, dayWidth),
-                            transform:
-                              drag?.kind === "task" &&
-                              drag.id === task.id &&
-                              drag.mode === "move" &&
-                              drag.moved
-                                ? `translateY(${drag.dy}px)`
-                                : undefined,
-                          }}
-                        >
-                          <span className="truncate">{task.title}</span>
-                          {/* Full opacity: at 10px on the green bar, the
-                              dimmed version fell under AA (3.5:1). */}
-                          {task.ownerName && !compact && width > 120 && (
-                            <span className="ml-auto pl-2 text-[10px] opacity-90">
-                              {task.ownerName}
-                              {task.participants.length > 0 ? ` +${task.participants.length}` : ""}
-                            </span>
-                          )}
-                          {editable && (
-                            <span
-                              onPointerDown={(e) => {
-                                e.stopPropagation();
-                                startTaskDrag(e, task, "resize", eff, known);
-                              }}
-                              className="absolute top-0 -right-1 h-full w-3 cursor-ew-resize touch-none"
-                              aria-hidden
-                            />
-                          )}
-                        </button>
-                      </div>
+                        task={task}
+                        start={eff.start}
+                        end={eff.end}
+                        today={today}
+                        x={x(eff.start)}
+                        dayWidth={dayWidth}
+                        editable={editable}
+                        compact={compact}
+                        drag={drag}
+                        onPointerDown={(e, mode) => startTaskDrag(e, task, mode, eff, known)}
+                        onKeyDown={onTaskKeyDown}
+                      />
                     );
                   })}
                 </div>

@@ -1,6 +1,9 @@
-import { addDaysIso, ISO_DATE } from "@/core/dates";
-import type { ChatContext, ChatReply, PlanProposal } from "./types";
+import type { ChatContext, ChatReply } from "./types";
 import { emptyChatReply } from "./types";
+import { asAmount, asBool, asIso, asNames, asString, list, present, rec } from "./sanitize-helpers";
+
+export { asIso, asString } from "./sanitize-helpers";
+export { sanitizePlan } from "./sanitize-plan";
 
 /**
  * The boundary between a model and the database. Raw model output goes in;
@@ -8,51 +11,6 @@ import { emptyChatReply } from "./types";
  * nothing that could delete. A model can be confused, or talked into
  * something by text in a task title; neither may reach a row.
  */
-
-type Rec = Record<string, unknown>;
-const rec = (v: unknown): Rec => (v ?? {}) as Rec;
-const list = (v: unknown): Rec[] => (Array.isArray(v) ? v.map(rec) : []);
-
-/** Strips control characters and caps length; text from a model is data. */
-export function asString(v: unknown, fallback = "", max = 2000): string {
-  if (typeof v !== "string") return fallback;
-  return v
-    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
-    .trim()
-    .slice(0, max);
-}
-
-export function asIso(v: unknown, fallback: string): string {
-  const s = asString(v, "", 10);
-  return ISO_DATE.test(s) ? s : fallback;
-}
-
-function asAmount(v: unknown): number | null {
-  // Danish number formats in text: "75.000 kr." and "1.250,50" read as whole kroner.
-  const n =
-    typeof v === "number"
-      ? v
-      : typeof v === "string"
-        ? Number(v.replace(/,\d+\s*(kr\.?)?$/i, "").replace(/\D/g, ""))
-        : NaN;
-  return Number.isFinite(n) && n > 0 ? Math.min(Math.round(n), 999_999_999) : null;
-}
-
-function asBool(v: unknown): boolean | null {
-  if (typeof v === "boolean") return v;
-  if (v === "true" || v === "ja" || v === "yes") return true;
-  if (v === "false" || v === "nej" || v === "no") return false;
-  return null;
-}
-
-function asNames(v: unknown, max: number): string[] | null {
-  if (!Array.isArray(v)) return null;
-  return [...new Set(v.map((x) => asString(x, "", 40)).filter(Boolean))].slice(0, max);
-}
-
-function present<T>(xs: (T | null)[]): T[] {
-  return xs.filter((x): x is T => x !== null);
-}
 
 export function sanitizeChatReply(raw: unknown, context: ChatContext): ChatReply | null {
   const r = rec(raw);
@@ -264,63 +222,4 @@ export function sanitizeChatReply(raw: unknown, context: ChatContext): ChatReply
   );
 
   return out;
-}
-
-/** A plan from a model, repaired where it is odd and refused where it is empty. */
-export function sanitizePlan(
-  raw: unknown,
-  today: string,
-  fallbackName: string,
-): PlanProposal | null {
-  if (typeof raw !== "object" || raw === null) return null;
-  let r = raw as Rec;
-  // Some models wrap the answer, e.g. {"plan": {...}}; dig one level down.
-  if (!Array.isArray(r.milestones)) {
-    const nested = Object.values(r).find(
-      (v) => typeof v === "object" && v !== null && Array.isArray((v as Rec).milestones),
-    );
-    if (nested) r = nested as Rec;
-  }
-  const msRaw = Array.isArray(r.milestones) ? r.milestones : [];
-  const tasksRaw = Array.isArray(r.tasks) ? r.tasks : [];
-  if (msRaw.length === 0 || tasksRaw.length === 0) return null;
-
-  const milestones = msRaw.slice(0, 6).map((m, i) => {
-    const mm = rec(m);
-    return {
-      title: asString(mm.title, `Milestone ${i + 1}`, 80),
-      date: asIso(mm.date, addDaysIso(today, (i + 1) * 21)),
-    };
-  });
-  const tasks = tasksRaw.slice(0, 20).map((t, i) => {
-    const tt = rec(t);
-    const idx =
-      typeof tt.milestoneIndex === "number" &&
-      tt.milestoneIndex >= 0 &&
-      tt.milestoneIndex < milestones.length
-        ? Math.floor(tt.milestoneIndex)
-        : null;
-    let start = asIso(tt.startDate, addDaysIso(today, 1 + i * 3));
-    let end = asIso(tt.endDate, addDaysIso(start, 6));
-    if (end < start) [start, end] = [end, start];
-    return {
-      title: asString(tt.title, `Task ${i + 1}`, 100),
-      milestoneIndex: idx,
-      owner: asString(tt.owner, "", 40),
-      startDate: start,
-      endDate: end,
-    };
-  });
-  const budgetRaw = r.budget;
-  const budget =
-    typeof budgetRaw === "number" && Number.isFinite(budgetRaw) && budgetRaw > 0
-      ? Math.min(Math.round(budgetRaw), 999_999_999)
-      : null;
-  return {
-    name: asString(r.name, fallbackName, 80),
-    goal: asString(r.goal, "", 300),
-    budget,
-    milestones,
-    tasks,
-  };
 }
