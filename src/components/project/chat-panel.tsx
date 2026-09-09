@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { renderEvent } from "@/modules/projects/events";
+import { Thinking } from "./thinking";
 import { sendChatAction, undoChatChangeAction } from "@/modules/ai/actions";
 import type { AppliedLine } from "@/modules/ai/apply";
 import type { CreatedRows } from "@/modules/projects/snapshots";
@@ -177,7 +178,7 @@ export function ChatPanel({
                 )}
               </div>
             ))}
-            {loading && <p className="text-label animate-pulse text-sm">{t("thinking")}</p>}
+            {loading && <Thinking label={t("thinking")} />}
           </div>
 
           {fallback && (

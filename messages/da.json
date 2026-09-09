@@ -10,7 +10,11 @@
     "edit": "Redigér",
     "delete": "Slet",
     "week": "Uge {number}",
-    "weekOf": "Uge {date}"
+    "weekOf": "Uge {date}",
+    "thinking": {
+      "seconds": "{seconds} s",
+      "slow": "En lokal model kan tage op mod et minut. Svarer den ikke, tager regelmotoren over, og siden siger det."
+    }
   },
   "landing": {
     "nav": {

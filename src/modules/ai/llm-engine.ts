@@ -1,6 +1,8 @@
 import type { LlmMessage, LlmProvider } from "@/core/llm";
 import { PHRASES } from "./phrases";
 import { rulesEngine } from "./rules-engine";
+import { contextFor, detectIntents, schemaFor } from "./intents";
+import { parseModelJson } from "./parse-json";
 import { asString, sanitizeChatReply, sanitizePlan } from "./sanitize";
 import type {
   BreakdownInput,
@@ -61,17 +63,12 @@ export function createLlmEngine(provider: LlmProvider, timeoutMs: number): AiEng
     } catch (error) {
       throw new EngineUnavailable(error instanceof Error ? error.message : String(error));
     }
-    const cleaned = content
-      .replace(/^```json\s*/i, "")
-      .replace(/```\s*$/i, "")
-      .trim();
-    try {
-      return JSON.parse(cleaned);
-    } catch {
+    const parsed = parseModelJson(content);
+    if (parsed === null)
       throw new EngineUnavailable(
-        `the model did not return valid JSON (starts with: ${cleaned.slice(0, 80)})`,
+        `the model did not return valid JSON (starts with: ${content.trim().slice(0, 80)})`,
       );
-    }
+    return parsed;
   }
 
   return {
@@ -142,30 +139,17 @@ Schema: {"text": string, "questions": [string], "nextWeek": [string], "suggested
     },
 
     async chat(context: ChatContext, history: ChatMessage[], message: string): Promise<ChatReply> {
+      // The schema is cut to what the message is about (modules/ai/intents):
+      // a small model handed sixteen action fields fills in fields nobody
+      // asked for; handed four, it does what was asked.
+      const intents = detectIntents(message, context.locale);
       const system = `You are an experienced, down-to-earth project advisor inside a project tool for small projects. The user maintains their project and talks with you about it.
 ${RULES(context.locale)}
 Leave out fields you do not use; empty lists are fine.
-{"reply": string,
- "taskMoves": [{"id": string, "newStart": "yyyy-mm-dd", "newEnd": "yyyy-mm-dd"}],
- "milestoneMoves": [{"id": string, "newDate": "yyyy-mm-dd"}],
- "newTasks": [{"title": string, "milestoneId": string | null, "owner": string, "startDate": "yyyy-mm-dd", "endDate": "yyyy-mm-dd"}],
- "newMilestones": [{"title": string, "date": "yyyy-mm-dd"}],
- "stateChanges": [{"id": string, "state": "todo" | "doing" | "done"}],
- "milestoneChanges": [{"id": string, "milestoneId": string | null}],  // move an existing task to another milestone; null = no milestone
- "newDecisions": [{"title": string, "note": string}],  // decisions taken in the conversation; note is the short reason
- "budgetChange": {"budget": number | null},  // total budget in whole kroner; null removes the budget
- "newExpenses": [{"title": string, "amount": number, "spent": number, "taskId": string | null}],  // amount: what the line is expected to cost; spent: paid so far, 0 if nothing yet
- "expenseChanges": [{"id": string, "amount": number, "spent": number}],  // change an existing line; omit the field that does not change. "spent" may be part of the amount: 5000 of a 20000 line
- "newObstacles": [{"title": string}],
- "resolvedObstacles": [{"id": string}],
- "subtaskChanges": [{"id": string, "subtasks": [{"title": string, "done": boolean}]}],  // the whole checklist of the task; repeat existing items you keep
- "peopleChanges": [{"id": string, "owner": string, "participants": [string]}],  // omit the field that does not change
- "milestoneUpdates": [{"id": string, "newTitle": string, "ownerName": string, "criterion": string, "done": boolean}],  // omit fields that do not change
- "roleChanges": {"ownerName": string, "managerName": string},  // project owner and project manager; omit what does not change
- "newResources": [string]}  // new names in the resource pool
+${schemaFor(intents)}
 "reply": your answer, short and concrete, with a clear recommendation where you have one. Amounts as e.g. 12.000 kr.
-Actions: you MAY change the plan, the money, the obstacles, the decision log, the tasks' checklists and people, the milestones' details and the project's roles. Changes take effect immediately; the system saves a snapshot first so the user can undo. You can never delete anything; obstacles are resolved, lines are corrected. Do ONLY what the user asked for or clearly agreed to in the conversation; when in doubt, ask a question in "reply" and leave the actions empty. Use the ids from the data (tasks, milestones, obstacles and expenses have ids). If the user mentions a decision, a problem or a cost, offer to log it, or log it if the user clearly wants that. IMPORTANT: never write in "reply" that you changed something unless you actually filled the action fields in the same answer.`;
-      const { locale, ...project } = context;
+Actions: you MAY change what the fields above cover. Changes take effect immediately; the system saves a snapshot first so the user can undo. You can never delete anything; obstacles are resolved, lines are corrected. Do ONLY what the user asked for or clearly agreed to in the conversation; when in doubt, ask a question in "reply" and leave the actions empty. Use the ids from the data (tasks, milestones, obstacles and expenses have ids). If the user asks for something the fields above do not cover, say so in "reply" and ask them to put it in one sentence of its own; do not improvise another field. IMPORTANT: never write in "reply" that you changed something unless you actually filled the action fields in the same answer.`;
+      const { locale, ...project } = contextFor(context, intents);
       const raw = await chatJson(
         system,
         { locale, data: { project, history: history.slice(-8), message } },

@@ -1,0 +1,10 @@
+{
+  "model": "mistral-small-latest",
+  "message": "Log beslutningen: vi holder konferencen på en lørdag",
+  "raw": "{\"result\": {\"reply\": \"Beslutningen er logget.\", \"newDecisions\": [{\"title\": \"Konferencen holdes på en lørdag\", \"note\": \"Flest kan om lørdagen.\"}]}}",
+  "expect": {
+    "newDecisions": [],
+    "changes": false,
+    "note": "A wrapped reply is not unwrapped by the chat sanitizer: no reply text, so the engine reports an empty reply and the rules engine takes over. Recorded so the shape is known."
+  }
+}

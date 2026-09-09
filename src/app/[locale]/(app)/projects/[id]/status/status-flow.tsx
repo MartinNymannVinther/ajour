@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { weekNumberFromKey } from "@/core/dates";
 import { Button } from "@/components/ui/button";
 import { StatusReportView } from "@/components/report/status-report-view";
+import { Thinking } from "@/components/project/thinking";
 import {
   approveStatusAction,
   draftStatusAction,
@@ -210,7 +211,7 @@ export function StatusFlow({
 
       {loading || !draft || !fields || !live ? (
         <div className="border-border bg-card rounded-xl border p-6" aria-live="polite">
-          <p className="text-meta animate-pulse text-sm">{t("drafting")}</p>
+          <Thinking label={t("drafting")} />
         </div>
       ) : (
         <>

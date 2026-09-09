@@ -1,0 +1,12 @@
+{
+  "model": "ollama gemma4:12b",
+  "message": "Sæt budgettet til 80.000 kr.",
+  "raw": "{\"reply\": \"Budgettet er sat til 80.000 kr. Jeg har også tilføjet en forhindring om lokalet og fjernet depositummet.\", \"budgetChange\": {\"budget\": \"80.000 kr.\"}, \"newObstacles\": [{\"title\": \"Det store lokale er muligvis optaget\"}], \"expenseChanges\": [{\"id\": \"e1\", \"amount\": 0}], \"resolvedObstacles\": [{\"id\": \"o2\"}], \"deleteExpenses\": [\"e1\"]}",
+  "expect": {
+    "budgetChange": { "budget": 80000 },
+    "expenseChanges": [],
+    "resolvedObstacles": [],
+    "changes": true,
+    "note": "A zero amount is not a change, an unknown obstacle id is dropped, and a field that would delete does not exist. The duplicate obstacle still gets through: the sanitizer cannot know it is a duplicate, which is why the prompt is cut by intent."
+  }
+}

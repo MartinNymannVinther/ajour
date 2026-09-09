@@ -1,0 +1,6 @@
+{
+  "model": "ollama gemma4:12b",
+  "message": "Markér tilbuddene som færdige",
+  "raw": "{\"reply\": \"Sat til færdig.\", \"stateChanges\": [{\"id\": \"task-1\", \"state\": \"done\"}, {\"id\": \"t1\", \"state\": \"done\"}], \"newTasks\": [{\"title\": \"\", \"milestoneId\": \"m9\", \"owner\": \"Mette\", \"startDate\": \"2026-09-10\", \"endDate\": \"2026-09-12\"}]}",
+  "expect": { "stateChanges": [{ "id": "t1", "state": "done" }], "newTasks": [], "changes": true }
+}

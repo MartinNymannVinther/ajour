@@ -1,0 +1,70 @@
+{
+  "locale": "da",
+  "today": "2026-09-09",
+  "projectName": "Forårskonference",
+  "goal": "100 tilmeldte",
+  "ownerName": "Lise",
+  "managerName": "Mette",
+  "resources": ["Mette", "Jonas", "Sofie"],
+  "milestones": [
+    {
+      "id": "m1",
+      "title": "Lokale og dato låst",
+      "date": "2026-09-20",
+      "done": false,
+      "ownerName": "Mette",
+      "criterion": ""
+    },
+    {
+      "id": "m2",
+      "title": "Program offentliggjort",
+      "date": "2026-10-18",
+      "done": false,
+      "ownerName": "Jonas",
+      "criterion": ""
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Indhent tilbud på tre lokaler",
+      "state": "doing",
+      "owner": "Mette",
+      "participants": [],
+      "startDate": "2026-09-02",
+      "endDate": "2026-09-10",
+      "milestoneId": "m1",
+      "subtasks": []
+    },
+    {
+      "id": "t2",
+      "title": "Byg tilmeldingsside",
+      "state": "todo",
+      "owner": "Sofie",
+      "participants": [],
+      "startDate": "2026-09-22",
+      "endDate": "2026-10-02",
+      "milestoneId": "m2",
+      "subtasks": []
+    }
+  ],
+  "openObstacles": [
+    { "id": "o1", "title": "Det store lokale er muligvis optaget", "status": "open" }
+  ],
+  "decisions": [],
+  "economy": {
+    "budget": 60000,
+    "plannedTotal": 45000,
+    "incurredTotal": 15000,
+    "expenses": [
+      {
+        "id": "e1",
+        "title": "Depositum til lokale",
+        "amount": 15000,
+        "spent": 15000,
+        "incurred": true,
+        "taskId": null
+      }
+    ]
+  }
+}

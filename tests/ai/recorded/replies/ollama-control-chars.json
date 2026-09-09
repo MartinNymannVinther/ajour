@@ -1,0 +1,17 @@
+{
+  "model": "ollama gemma4:12b",
+  "message": "Tilføj opgaven Trykke programmet under Program offentliggjort",
+  "raw": "{\"reply\": \"Oprettet.\", \"newTasks\": [{\"title\": \"Trykke\\u0007 programmet\\u0000\", \"milestoneId\": \"m2\", \"owner\": \"Karim\", \"startDate\": \"2026-10-12\", \"endDate\": \"2026-10-09\"}]}",
+  "expect": {
+    "newTasks": [
+      {
+        "title": "Trykke programmet",
+        "milestoneId": "m2",
+        "owner": "Karim",
+        "startDate": "2026-10-09",
+        "endDate": "2026-10-12"
+      }
+    ],
+    "changes": true
+  }
+}

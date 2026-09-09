@@ -162,5 +162,8 @@ codebase to:
 - Wave 6 (done): the share link as an answer channel — participants mark
   their own tasks, leave notes and answer the status's questions without
   a login, and the next status is written from what they said (ADR 0011).
+- Wave 7 (done): the AI surface, hardened further — the chat prompt is
+  cut to what the message is about, real model replies are recorded and
+  run as tests, and the wait for a model is shown (ADR 0012).
 - After v1: fixed-date milestones and replanning alternatives, mail
   through an EU provider.

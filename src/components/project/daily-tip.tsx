@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { dailyTipAction, dismissTipAction, sendChatAction } from "@/modules/ai/actions";
 import type { DailyTip as TipData } from "@/modules/ai/tips";
 import { renderEvent } from "@/modules/projects/events";
+import { Thinking } from "./thinking";
 import type { AppliedLine } from "@/modules/ai/apply";
 import { cn } from "@/lib/utils";
 
@@ -86,7 +87,7 @@ export function DailyTip({ projectId }: { projectId: string }) {
           {t("label")}
         </p>
         {tip === undefined ? (
-          <p className="text-meta mt-0.5 animate-pulse text-sm">{t("loading")}</p>
+          <Thinking label={t("loading")} className="mt-0.5" />
         ) : (
           <>
             <p className="mt-0.5 text-sm font-semibold">{tip.title}</p>

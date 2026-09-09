@@ -1,0 +1,6 @@
+{
+  "model": "ollama gemma4:12b",
+  "message": "Er planen realistisk?",
+  "raw": "{\"reply\": \"Planen hænger sammen, men \\\"Indhent tilbud på tre lokaler\\\" slutter i morgen og er stadig i gang. Tag fat i Mette i dag.\", \"taskMoves\": [], \"milestoneMoves\": [], \"newTasks\": [], \"newMilestones\": [], \"stateChanges\": [], \"newDecisions\": []}",
+  "expect": { "changes": false }
+}

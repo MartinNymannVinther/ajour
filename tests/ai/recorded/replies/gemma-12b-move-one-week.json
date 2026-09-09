@@ -1,0 +1,9 @@
+{
+  "model": "ollama gemma4:12b",
+  "message": "Skub Byg tilmeldingsside en uge",
+  "raw": "```json\n{\"reply\": \"Jeg har flyttet \\\"Byg tilmeldingsside\\\" en uge, så den nu ligger 29. september til 9. oktober.\", \"taskMoves\": [{\"id\": \"t2\", \"newStart\": \"2026-09-29\", \"newEnd\": \"2026-10-09\"}], \"milestoneMoves\": [], \"newTasks\": [], \"stateChanges\": []}\n```",
+  "expect": {
+    "taskMoves": [{ "id": "t2", "newStart": "2026-09-29", "newEnd": "2026-10-09" }],
+    "changes": true
+  }
+}

@@ -10,7 +10,11 @@
     "edit": "Edit",
     "delete": "Delete",
     "week": "Week {number}",
-    "weekOf": "Week of {date}"
+    "weekOf": "Week of {date}",
+    "thinking": {
+      "seconds": "{seconds} s",
+      "slow": "A local model can take up to a minute. If it does not answer, the rules engine takes over and the page says so."
+    }
   },
   "landing": {
     "nav": {
