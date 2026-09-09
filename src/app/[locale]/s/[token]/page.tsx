@@ -7,7 +7,9 @@ import { HaijMark, PRODUCT_NAME } from "@/components/wordmark";
 import { formatDateDa, todayInCopenhagen, weekNumberFromKey } from "@/core/dates";
 import { callerKey, rateLimit } from "@/core/rate-limit";
 import { RAG_COLOR } from "@/modules/reports/charts";
+import { whoAmI } from "@/modules/share/answer-actions";
 import { readSharedProject } from "@/modules/share/service";
+import { ParticipantPanel } from "@/components/share/participant-panel";
 
 type Params = { params: Promise<{ token: string }> };
 
@@ -29,6 +31,7 @@ export default async function SharedProjectPage({ params }: Params) {
   const today = todayInCopenhagen();
   const shared = await readSharedProject(token, today);
   if (!shared) notFound();
+  const personId = shared.canAnswer ? await whoAmI(token) : null;
   const t = await getTranslations("share");
   const common = await getTranslations("common");
   const report = await getTranslations("report");
@@ -55,6 +58,8 @@ export default async function SharedProjectPage({ params }: Params) {
             : ""}
         </p>
       </header>
+
+      {shared.canAnswer && <ParticipantPanel token={token} shared={shared} personId={personId} />}
 
       {latest ? (
         <section className="border-border bg-card rounded-xl border p-5">

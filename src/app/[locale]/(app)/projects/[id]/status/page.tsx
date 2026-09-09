@@ -21,12 +21,19 @@ export default async function StatusPage({ params }: Params) {
   if (!full) notFound();
   const common = await getTranslations("common");
   const week = weekKey(todayInCopenhagen());
+  // What the team said through the share link since the last approved
+  // status: shown to the person before the words, and read by the engine.
+  const since = full.statusUpdates.find((s) => s.approvedAt)?.approvedAt?.getTime() ?? 0;
+  const replies = full.replies
+    .filter((r) => r.createdAt.getTime() > since)
+    .map((r) => ({ id: r.id, name: r.personName, about: r.about, text: r.text }));
 
   return (
     <StatusFlow
       projectId={id}
       projectName={full.project.name}
       weekLabel={common("week", { number: weekNumberFromKey(week) })}
+      replies={replies}
     />
   );
 }

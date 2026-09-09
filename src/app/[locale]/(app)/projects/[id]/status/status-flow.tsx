@@ -28,10 +28,12 @@ export function StatusFlow({
   projectId,
   projectName,
   weekLabel,
+  replies,
 }: {
   projectId: string;
   projectName: string;
   weekLabel: string;
+  replies: Array<{ id: string; name: string; about: string; text: string }>;
 }) {
   const t = useTranslations("status");
   const common = useTranslations("common");
@@ -216,6 +218,24 @@ export function StatusFlow({
             <div className="border-chart-4 bg-warning-tint rounded-xl border p-3 text-sm">
               {t("fallbackNote")}
             </div>
+          )}
+
+          {replies.length > 0 && (
+            <section className="border-primary/40 bg-card rounded-xl border p-4">
+              <h2 className="text-label text-xs font-semibold tracking-wide uppercase">
+                {t("fromTeam.title", { count: replies.length })}
+              </h2>
+              <p className="text-meta mt-0.5 text-xs">{t("fromTeam.hint")}</p>
+              <ul className="mt-2 space-y-1.5 text-sm">
+                {replies.map((r) => (
+                  <li key={r.id}>
+                    <span className="font-medium">{r.name}</span>
+                    <span className="text-meta"> · {r.about}</span>
+                    <span className="block">{r.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           <div className="grid gap-6 xl:grid-cols-[minmax(320px,440px)_1fr]">

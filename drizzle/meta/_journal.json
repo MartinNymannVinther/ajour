@@ -71,6 +71,20 @@
       "when": 1788766854311,
       "tag": "0009_expense_spent",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788935015743,
+      "tag": "0010_share_answers",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1788935031946,
+      "tag": "0011_share_answers_rls",
+      "breakpoints": true
     }
   ]
 }

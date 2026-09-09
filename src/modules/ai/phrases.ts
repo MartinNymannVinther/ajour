@@ -62,6 +62,7 @@ type PhraseSet = {
   inProgress: (list: string) => string;
   overdue: (n: number) => string;
   obstaclesOpen: (list: string) => string;
+  fromTeam: (items: Array<{ name: string; about: string; text: string }>) => string;
   nextMilestone: (title: string, date: string, days: number) => string;
   economyWithBudget: (planned: string, budget: string, incurred: string) => string;
   overBudget: string;
@@ -118,6 +119,8 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     overdue: (n) =>
       `${n === 1 ? "Én opgave er" : `${n} opgaver er`} over deadline og kræver en beslutning.`,
     obstaclesOpen: (list) => `Åbne forhindringer: ${list}.`,
+    fromTeam: (items) =>
+      `Fra holdet siden sidst: ${items.map((r) => `${r.name} om "${r.about}": ${r.text.replace(/\.$/, "")}`).join("; ")}.`,
     nextMilestone: (title, date, days) =>
       `Næste milepæl er "${title}" den ${date}${days >= 0 ? ` (om ${days} dage)` : " (overskredet)"}.`,
     economyWithBudget: (planned, budget, incurred) =>
@@ -178,6 +181,8 @@ export const PHRASES: Record<Locale, PhraseSet> = {
     inProgress: (list) => `In progress right now: ${list}.`,
     overdue: (n) => `${n === 1 ? "One task is" : `${n} tasks are`} overdue and need a decision.`,
     obstaclesOpen: (list) => `Open obstacles: ${list}.`,
+    fromTeam: (items) =>
+      `From the team since last time: ${items.map((r) => `${r.name} on "${r.about}": ${r.text.replace(/\.$/, "")}`).join("; ")}.`,
     nextMilestone: (title, date, days) =>
       `The next milestone is "${title}" on ${date}${days >= 0 ? ` (in ${days} days)` : " (passed)"}.`,
     economyWithBudget: (planned, budget, incurred) =>

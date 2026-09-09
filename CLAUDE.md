@@ -159,6 +159,8 @@ codebase to:
   `LLM_PROVIDER=mistral`, and then dogma seven — run a real project on it
   before the tool card goes up on haij.dk. `docs/launch.md` is the
   ordered checklist.
-- After v1: the share link as an answer channel (participants update their
-  own tasks and answer the AI's questions without a login), fixed-date
-  milestones and replanning alternatives, mail through an EU provider.
+- Wave 6 (done): the share link as an answer channel — participants mark
+  their own tasks, leave notes and answer the status's questions without
+  a login, and the next status is written from what they said (ADR 0011).
+- After v1: fixed-date milestones and replanning alternatives, mail
+  through an EU provider.

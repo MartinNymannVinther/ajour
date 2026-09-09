@@ -68,6 +68,16 @@ const TABLES: Array<{
     row: (o, s) => ({ project_id: `proj_${s}`, token_hash: `hash_${s}` }),
   },
   {
+    table: "participant_replies",
+    row: (o, s) => ({
+      project_id: `proj_${s}`,
+      person_id: `person_${s}`,
+      kind: "note",
+      task_id: `task_${s}`,
+      text: `Svar ${s}`,
+    }),
+  },
+  {
     table: "workspace_llm_settings",
     row: (o, s) => ({ provider: "ollama", model: `model-${s}` }),
   },

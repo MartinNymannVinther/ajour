@@ -645,7 +645,11 @@
       "expires": "Udløber {date}",
       "revoke": "Træk tilbage",
       "revoked": "Linket er trukket tilbage.",
-      "revokeFailed": "Linket blev ikke trukket tilbage. Prøv igen."
+      "revokeFailed": "Linket blev ikke trukket tilbage. Prøv igen.",
+      "canAnswer": "Deltagere kan svare via linket",
+      "canAnswerHint": "Den, der har linket, vælger sit navn og kan markere sine egne opgaver, skrive en bemærkning og svare på spørgsmålene i seneste status. Alt lander i projektet med navn på.",
+      "kindAnswer": "kan svare",
+      "kindRead": "kun læse"
     },
     "start": {
       "title": "Nyt projekt",
@@ -805,17 +809,49 @@
     "revise": "Indarbejd svar",
     "revising": "Indarbejder …",
     "reviseFailed": "Svarene kunne ikke indarbejdes. Prøv igen.",
-    "reviseFallback": "Modellen svarede ikke, så svarene er sat ind som sætninger til sidst."
+    "reviseFallback": "Modellen svarede ikke, så svarene er sat ind som sætninger til sidst.",
+    "fromTeam": {
+      "title": "Fra holdet siden sidst ({count})",
+      "hint": "Svar og bemærkninger sendt gennem delelinket. AI'en har læst dem, og de er med i udkastet."
+    }
   },
   "share": {
-    "kicker": "Projektstatus · læsevisning",
+    "kicker": "Projektstatus · delt link",
     "progress": "{done} af {total} opgaver færdige",
     "nextMilestone": "næste milepæl: {title} ({date})",
     "noStatus": "Der er ikke delt en status endnu.",
     "planNow": "Planen lige nu",
     "earlier": "Tidligere statusser",
     "madeWith": "Lavet med {product}",
-    "openPdf": "Hent som PDF"
+    "openPdf": "Hent som PDF",
+    "answer": {
+      "whoTitle": "Hvem er du?",
+      "whoText": "Vælg dit navn, så kan du markere dine opgaver og svare på spørgsmålene. Linket gemmer valget på denne enhed.",
+      "nobodyYet": "Der er endnu ingen personer på projektets opgaver.",
+      "youAre": "Du er {name}",
+      "notMe": "Det er ikke mig",
+      "yourTasks": "Dine opgaver",
+      "noTasks": "Du står ikke på nogen opgaver lige nu.",
+      "writeNote": "Skriv en bemærkning",
+      "notePlaceholder": "Kort besked til projektlederen om denne opgave …",
+      "sendNote": "Send",
+      "cancel": "Fortryd",
+      "noteSent": "Bemærkningen er sendt til projektlederen.",
+      "questionsTitle": "Spørgsmål fra seneste status",
+      "answerPlaceholder": "Dit svar …",
+      "sendAnswer": "Svar",
+      "answerSent": "Tak, svaret er sendt.",
+      "errors": {
+        "generic": "Det gik ikke. Prøv igen.",
+        "noLink": "Linket virker ikke længere.",
+        "readOnly": "Dette link er kun til at læse med.",
+        "unknownPerson": "Vælg først dit navn.",
+        "notYourTask": "Du kan kun ændre opgaver, du selv står på.",
+        "invalid": "Der mangler noget i det, du sendte.",
+        "noSuchQuestion": "Det spørgsmål findes ikke længere.",
+        "rateLimited": "For mange ændringer på kort tid. Vent lidt og prøv igen."
+      }
+    }
   },
   "help": {
     "title": "Hjælp",
@@ -848,7 +884,7 @@
       },
       "share": {
         "title": "Del med andre",
-        "body": "Hver godkendt status kan hentes som en PDF på to sider: forsiden med vurdering, ledelsespunkter, din kommentar, økonomi og den del af planen der bærer de næste milepæle, og et bilag med hele tidslinjen, alle opgaver, beslutningerne og økonomiposterne. Med et delelink kan projektet læses uden login, med plan, milepæle og godkendte statusser, og PDF'en kan hentes derfra. Økonomi, forhindringer og ledelsespunkter kommer aldrig med på det åbne link. Under Indstillinger → Data henter du hele arbejdsrummet som regneark eller JSON, og sletter det igen."
+        "body": "Hver godkendt status kan hentes som en PDF på to sider: forsiden med vurdering, ledelsespunkter, din kommentar, økonomi og den del af planen der bærer de næste milepæle, og et bilag med hele tidslinjen, alle opgaver, beslutningerne og økonomiposterne. Med et delelink kan projektet læses uden login, med plan, milepæle og godkendte statusser, og PDF'en kan hentes derfra. Økonomi, forhindringer og ledelsespunkter kommer aldrig med på det åbne link. Under Indstillinger → Data henter du hele arbejdsrummet som regneark eller JSON, og sletter det igen. Sæt kryds ved „Deltagere kan svare via linket“, og linket bliver en svarkanal: den, der åbner det, vælger sit navn og kan markere sine egne opgaver, skrive en bemærkning og svare på spørgsmålene i seneste status, uden login. Svarene lander i projektet med navn på, og AI'en skriver næste status ud fra dem."
       },
       "model": {
         "title": "Sprogmodellen",
@@ -954,6 +990,11 @@
     },
     "ai": {
       "applied": "AI'en udførte {count} ændringer"
+    },
+    "reply": {
+      "state": "{by} satte „{title}“ til {state} via delelinket",
+      "note": "{by} om „{task}“: {text}",
+      "answer": "{by} svarede på „{question}“: {text}"
     }
   },
   "demo": {

@@ -28,6 +28,7 @@ export function ShareDialog({ projectId, links }: { projectId: string; links: Sh
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState("");
   const [ttl, setTtl] = useState<number | null>(90);
+  const [canAnswer, setCanAnswer] = useState(false);
   const [fresh, setFresh] = useState<{ id: string; url: string } | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -35,7 +36,7 @@ export function ShareDialog({ projectId, links }: { projectId: string; links: Sh
 
   const create = () => {
     startTransition(async () => {
-      const result = await createShareLinkAction({ projectId, label, ttlDays: ttl });
+      const result = await createShareLinkAction({ projectId, label, ttlDays: ttl, canAnswer });
       if (!result.ok) {
         toast.error(t("createFailed"));
         return;
@@ -100,6 +101,18 @@ export function ShareDialog({ projectId, links }: { projectId: string; links: Sh
               {t("create")}
             </Button>
           </div>
+          <label className="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={canAnswer}
+              onChange={(e) => setCanAnswer(e.target.checked)}
+              className="mt-1"
+            />
+            <span>
+              <span className="font-medium">{t("canAnswer")}</span>
+              <span className="text-meta block text-xs">{t("canAnswerHint")}</span>
+            </span>
+          </label>
         </div>
 
         <ul className="space-y-1.5">
@@ -107,6 +120,9 @@ export function ShareDialog({ projectId, links }: { projectId: string; links: Sh
           {live.map((link) => (
             <li key={link.id} className="flex items-center gap-2 text-sm">
               <span className="min-w-0 truncate">{link.label || t("unnamed")}</span>
+              <span className="text-meta shrink-0 text-xs">
+                · {link.canAnswer ? t("kindAnswer") : t("kindRead")}
+              </span>
               <span className="text-meta ml-auto shrink-0 text-xs">
                 {link.expiresAt
                   ? t("expires", { date: formatDateDa(link.expiresAt.toISOString().slice(0, 10)) })

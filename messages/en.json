@@ -645,7 +645,11 @@
       "expires": "Expires {date}",
       "revoke": "Revoke",
       "revoked": "The link has been revoked.",
-      "revokeFailed": "The link was not revoked. Try again."
+      "revokeFailed": "The link was not revoked. Try again.",
+      "canAnswer": "Participants can answer through the link",
+      "canAnswerHint": "Whoever holds the link picks their name and can mark their own tasks, leave a note and answer the questions in the latest status. Everything lands in the project with a name on it.",
+      "kindAnswer": "can answer",
+      "kindRead": "read only"
     },
     "start": {
       "title": "New project",
@@ -805,17 +809,49 @@
     "revise": "Work the answers in",
     "revising": "Working in …",
     "reviseFailed": "The answers could not be worked in. Try again.",
-    "reviseFallback": "The model did not answer, so the answers were added as sentences at the end."
+    "reviseFallback": "The model did not answer, so the answers were added as sentences at the end.",
+    "fromTeam": {
+      "title": "From the team since last time ({count})",
+      "hint": "Answers and notes sent through the share link. The engine has read them and they are in the draft."
+    }
   },
   "share": {
-    "kicker": "Project status · read-only",
+    "kicker": "Project status · shared link",
     "progress": "{done} of {total} tasks finished",
     "nextMilestone": "next milestone: {title} ({date})",
     "noStatus": "No status has been shared yet.",
     "planNow": "The plan right now",
     "earlier": "Earlier statuses",
     "madeWith": "Made with {product}",
-    "openPdf": "Download as PDF"
+    "openPdf": "Download as PDF",
+    "answer": {
+      "whoTitle": "Who are you?",
+      "whoText": "Pick your name to mark your tasks and answer the questions. The link remembers the choice on this device.",
+      "nobodyYet": "Nobody is on the project's tasks yet.",
+      "youAre": "You are {name}",
+      "notMe": "That is not me",
+      "yourTasks": "Your tasks",
+      "noTasks": "You are not on any task right now.",
+      "writeNote": "Write a note",
+      "notePlaceholder": "A short message to the project manager about this task …",
+      "sendNote": "Send",
+      "cancel": "Cancel",
+      "noteSent": "The note went to the project manager.",
+      "questionsTitle": "Questions from the latest status",
+      "answerPlaceholder": "Your answer …",
+      "sendAnswer": "Answer",
+      "answerSent": "Thanks, the answer is in.",
+      "errors": {
+        "generic": "That did not work. Try again.",
+        "noLink": "This link no longer works.",
+        "readOnly": "This link is for reading only.",
+        "unknownPerson": "Pick your name first.",
+        "notYourTask": "You can only change tasks you are on.",
+        "invalid": "Something is missing in what you sent.",
+        "noSuchQuestion": "That question no longer exists.",
+        "rateLimited": "Too many changes in a short time. Wait a moment and try again."
+      }
+    }
   },
   "help": {
     "title": "Help",
@@ -848,7 +884,7 @@
       },
       "share": {
         "title": "Share with others",
-        "body": "Every approved status can be downloaded as a two-page PDF: a front page with the assessment, what management is asked for, your comment, the money and the part of the plan that carries the next milestones, and an appendix with the whole timeline, every task, the decisions and the money lines. A share link lets the project be read without a login, with the plan, the milestones and the approved statuses, and the PDF can be downloaded from there. Money, obstacles and the management items never appear on the public link. Under Settings → Data you can export the whole workspace as a spreadsheet or JSON, and delete it again."
+        "body": "Every approved status can be downloaded as a two-page PDF: a front page with the assessment, what management is asked for, your comment, the money and the part of the plan that carries the next milestones, and an appendix with the whole timeline, every task, the decisions and the money lines. A share link lets the project be read without a login, with the plan, the milestones and the approved statuses, and the PDF can be downloaded from there. Money, obstacles and the management items never appear on the public link. Under Settings → Data you can export the whole workspace as a spreadsheet or JSON, and delete it again. Tick “Participants can answer through the link” and the link becomes an answer channel: whoever opens it picks their name and can mark their own tasks, leave a note and answer the questions in the latest status, without a login. The answers land in the project with a name on them, and the engine writes the next status from them."
       },
       "model": {
         "title": "The language model",
@@ -954,6 +990,11 @@
     },
     "ai": {
       "applied": "The AI made {count} changes"
+    },
+    "reply": {
+      "state": "{by} set “{title}” to {state} through the share link",
+      "note": "{by} on “{task}”: {text}",
+      "answer": "{by} answered “{question}”: {text}"
     }
   },
   "demo": {

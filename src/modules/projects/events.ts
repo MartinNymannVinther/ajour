@@ -35,9 +35,13 @@ export type EventType =
   | "replan.applied"
   | "snapshot.created"
   | "snapshot.restored"
-  | "ai.applied";
+  | "ai.applied"
+  | "reply.state"
+  | "reply.answer"
+  | "reply.note";
 
-export type ActorKind = "user" | "ai" | "system";
+/** participant: a person answering through a share link, named in the payload. */
+export type ActorKind = "user" | "ai" | "system" | "participant";
 
 export async function recordEvent(
   tx: AppTransaction,

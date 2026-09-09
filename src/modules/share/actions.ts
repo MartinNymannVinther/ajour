@@ -17,6 +17,7 @@ const CreateSchema = z.object({
   projectId: z.string().min(1).max(64),
   label: z.string().trim().max(80).default(""),
   ttlDays: z.union([z.literal(30), z.literal(90), z.null()]).default(null),
+  canAnswer: z.boolean().default(false),
 });
 
 export async function createShareLinkAction(
@@ -33,6 +34,7 @@ export async function createShareLinkAction(
       parsed.data.projectId,
       parsed.data.label,
       parsed.data.ttlDays,
+      parsed.data.canAnswer,
     );
     if (!link) return fail("notFound");
     revalidatePath(`/projects/${parsed.data.projectId}`);

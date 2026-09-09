@@ -5,6 +5,7 @@ import {
   expenses,
   milestones,
   obstacles,
+  participantReplies,
   people,
   projects,
   shareLinks,
@@ -14,7 +15,7 @@ import {
   tasks,
 } from "@/core/db/schema";
 import { withOrgContext, type AppTransaction, type OrgContext } from "@/core/db/tenant";
-import type { MilestoneView, ProjectFull, ProjectSummary, TaskView } from "./types";
+import type { MilestoneView, ProjectFull, ProjectSummary, ReplyView, TaskView } from "./types";
 
 /**
  * Reads. Everything goes through the tenant-scoped transaction; the ids in
@@ -118,12 +119,28 @@ export async function readProjectFull(
     .where(eq(events.projectId, projectId))
     .orderBy(desc(events.createdAt))
     .limit(30);
+  const replyRows = await tx
+    .select()
+    .from(participantReplies)
+    .where(eq(participantReplies.projectId, projectId))
+    .orderBy(desc(participantReplies.createdAt))
+    .limit(50);
+  const taskTitles = new Map(plan.tasks.map((t) => [t.id, t.title]));
+  const replies: ReplyView[] = replyRows.map((r) => ({
+    id: r.id,
+    kind: r.kind === "answer" ? "answer" : "note",
+    personName: plan.names.get(r.personId) ?? "",
+    about: r.kind === "answer" ? r.question : ((r.taskId && taskTitles.get(r.taskId)) ?? ""),
+    text: r.text,
+    createdAt: r.createdAt,
+  }));
   const linkRows = await tx
     .select({
       id: shareLinks.id,
       orgId: shareLinks.orgId,
       projectId: shareLinks.projectId,
       label: shareLinks.label,
+      canAnswer: shareLinks.canAnswer,
       createdBy: shareLinks.createdBy,
       expiresAt: shareLinks.expiresAt,
       revokedAt: shareLinks.revokedAt,
@@ -149,6 +166,7 @@ export async function readProjectFull(
     snapshots: snapshotRows,
     events: eventRows,
     shareLinks: linkRows,
+    replies,
   };
 }
 

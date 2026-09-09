@@ -84,6 +84,13 @@ export type StatusInput = {
   progress: { done: number; total: number };
   /** Asks to management still open from the previous status. */
   openAsks: string[];
+  /**
+   * What the team said through the share link since the last status:
+   * answers to its questions and notes on their own tasks. Facts, with a
+   * name on each, that the words are written from and that settle
+   * questions before they are asked again.
+   */
+  participantReplies: Array<{ name: string; kind: "answer" | "note"; about: string; text: string }>;
 };
 
 /** What the engine needs to break a milestone into tasks. */

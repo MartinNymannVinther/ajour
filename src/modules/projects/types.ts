@@ -42,6 +42,18 @@ export type ProjectFull = {
   snapshots: Array<Pick<Snapshot, "id" | "label" | "reason" | "createdAt">>;
   events: ProjectEvent[];
   shareLinks: ShareLinkView[];
+  /** What the team said through a share link, newest first; see modules/share/answers. */
+  replies: ReplyView[];
+};
+
+export type ReplyView = {
+  id: string;
+  kind: "answer" | "note";
+  personName: string;
+  /** The question answered, or the task the note is on. */
+  about: string;
+  text: string;
+  createdAt: Date;
 };
 
 export type ProjectSummary = {

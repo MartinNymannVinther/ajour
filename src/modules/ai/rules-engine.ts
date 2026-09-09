@@ -86,6 +86,8 @@ export const rulesEngine: AiEngine = {
     if (input.overdueTasks.length > 0) parts.push(p.overdue(input.overdueTasks.length));
     if (input.openObstacles.length > 0)
       parts.push(p.obstaclesOpen(input.openObstacles.map((o) => o.title).join("; ")));
+    if (input.participantReplies.length > 0)
+      parts.push(p.fromTeam(input.participantReplies.slice(0, 4)));
     if (input.nextMilestone) {
       parts.push(
         p.nextMilestone(
@@ -105,10 +107,16 @@ export const rulesEngine: AiEngine = {
         parts.push(p.economyNoBudget(kr(e.plannedTotal), kr(e.incurredTotal)));
       }
     }
+    // A question the team has already answered through the link is not
+    // asked again; the answer is in the words above.
+    const answered = new Set(
+      input.participantReplies.filter((r) => r.kind === "answer").map((r) => r.about),
+    );
     const questions: string[] = [];
     for (const t of input.overdueTasks.slice(0, 2))
       questions.push(p.questionOverdue(t.title, day(t.endDate), t.owner));
     for (const o of input.openObstacles.slice(0, 1)) questions.push(p.questionObstacle(o.title));
+    const open = questions.filter((q) => !answered.has(q));
 
     // Next week is what is in motion and what is late, by name.
     const nextWeek = [
@@ -142,7 +150,7 @@ export const rulesEngine: AiEngine = {
 
     return {
       text: parts.join(" "),
-      questions: questions.slice(0, 3),
+      questions: open.slice(0, 3),
       nextWeek,
       suggestedAsks: suggestedAsks.slice(0, 3),
     };

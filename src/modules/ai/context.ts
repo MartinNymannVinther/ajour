@@ -79,9 +79,14 @@ export function buildStatusInput(
   },
   today = todayInCopenhagen(),
 ): StatusInput {
-  const { project, tasks, milestones, obstacles, expenses, statusUpdates } = full;
+  const { project, tasks, milestones, obstacles, expenses, statusUpdates, replies } = full;
   const previous = statusUpdates.find((s) => s.approvedAt) ?? null;
+  const since = previous?.approvedAt?.getTime() ?? 0;
   return {
+    participantReplies: replies
+      .filter((r) => r.createdAt.getTime() > since)
+      .slice(0, 12)
+      .map((r) => ({ name: r.personName, kind: r.kind, about: r.about, text: r.text })),
     assessment: extra.assessment,
     sinceLast: extra.sinceLast,
     progress: { done: tasks.filter((t) => t.state === "done").length, total: tasks.length },

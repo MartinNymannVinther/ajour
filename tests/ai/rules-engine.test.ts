@@ -157,6 +157,7 @@ describe("the plan and the status draft", () => {
       sinceLast: [],
       progress: { done: 0, total: 4 },
       openAsks: [],
+      participantReplies: [],
     });
     expect(res.text).toContain("overstiger budgettet");
     // An overrun is something management has to decide about.
@@ -185,6 +186,7 @@ describe("the plan and the status draft", () => {
       sinceLast: [],
       progress: { done: 1, total: 4 },
       openAsks: [],
+      participantReplies: [],
     });
     expect(res.nextWeek[0]).toContain("Byg side");
     expect(res.nextWeek[0]).toContain("Sofie");
@@ -214,5 +216,37 @@ describe("reviseStatus without a model", () => {
       'Alt går efter planen. Om "Lokalet er optaget": Mette ejer den, bekræftes fredag. Andreas.',
     );
     expect(res.nextWeek).toEqual(["Mette booker lokalet"]);
+  });
+
+  it("works what the team said through the link into the words", async () => {
+    const res = await rulesEngine.draftStatus({
+      locale: "da",
+      today: "2026-09-10",
+      weekLabel: "Uge 37",
+      projectName: "Test",
+      goal: "",
+      nextMilestone: null,
+      doneTasks: [],
+      doingTasks: [],
+      overdueTasks: [],
+      openObstacles: [{ title: "Lokalet er optaget", status: "open" }],
+      recentActivity: [],
+      previousStatus: null,
+      economy: null,
+      assessment: { rag: "green", reason: "" },
+      sinceLast: [],
+      progress: { done: 1, total: 4 },
+      openAsks: [],
+      participantReplies: [
+        {
+          name: "Mette",
+          kind: "answer",
+          about: "Holder datoen?",
+          text: "Ja, lokalet er bekræftet.",
+        },
+      ],
+    });
+    expect(res.text).toContain("Fra holdet siden sidst");
+    expect(res.text).toContain('Mette om "Holder datoen?": Ja, lokalet er bekræftet.');
   });
 });
