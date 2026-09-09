@@ -8,6 +8,12 @@ on:
 permissions:
   contents: read
 
+# One run per branch. Six jobs, two of them Docker builds; pushing three
+# times in a minute should not queue three full pipelines.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # Test-only credentials for the ephemeral CI database.
   MIGRATION_DATABASE_URL: postgres://postgres:postgres@localhost:5432/ajour
@@ -97,7 +103,12 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level high
+      # --prod, because this gate is about what ships. The dev tree pulls
+      # in eslint's and drizzle-kit's own transitive advisories, which
+      # never reach a running Ajour, and a required check that is red for
+      # reasons nobody can act on is a check people learn to ignore.
+      # `pnpm audit` without the flag is still worth running by hand.
+      - run: pnpm audit --prod --audit-level high
 
   secrets:
     name: Secrets scan (gitleaks)
@@ -108,7 +119,14 @@ jobs:
           fetch-depth: 0
       - name: Run gitleaks
         run: |
+          set -euo pipefail
           GITLEAKS_VERSION=8.24.3
-          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
-            | tar -xz gitleaks
+          GITLEAKS_SHA256=9991e0b2903da4c8f6122b5c3186448b927a5da4deef1fe45271c3793f4ee29c
+          curl -sSfL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          # The scan runs on every pull request, from every fork. A tarball
+          # fetched over the network and executed unchecked is a way in;
+          # the published checksum closes it.
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
           ./gitleaks git --no-banner --redact .
