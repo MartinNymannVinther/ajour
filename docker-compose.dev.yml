@@ -14,10 +14,16 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ajour
       # Runtime role passwords, consumed by docker/postgres-init/01-roles.sh.
+      # Dev-only, and they match the URLs in .env.example. The init script
+      # requires them rather than defaulting to the role name as its own
+      # password; a default that works is how one reaches production.
       AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:-ajour_app}
       AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:-ajour_auth}
+    # Loopback only: this database's password is "postgres" and a laptop
+    # is often on a network somebody else is also on. `pnpm dev` runs on
+    # the host and connects over loopback, so nothing is lost.
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - ajour-dev-pgdata:/var/lib/postgresql/data
       - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro

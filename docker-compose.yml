@@ -53,8 +53,13 @@ services:
       AUTH_DATABASE_URL: postgres://ajour_auth:${AJOUR_AUTH_PASSWORD:?}@db:5432/ajour
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?set BETTER_AUTH_URL, e.g. https://ajour.haij.dk}
-    ports:
-      - "${APP_PORT:-3000}:3000"
+    # No published port. Coolify's proxy reaches the app over the compose
+    # network and terminates TLS in front of it; binding 0.0.0.0:3000 as
+    # well would put the same app on the VPS's public address in cleartext,
+    # outside the proxy, its TLS and its HSTS. Anyone running this without
+    # a proxy should bind loopback explicitly and put one in front.
+    expose:
+      - "3000"
     depends_on:
       db:
         condition: service_healthy

@@ -42,16 +42,91 @@ const builtAt = process.env.AJOUR_BUILT_AT?.trim() || new Date().toISOString();
 const migration = journal.entries.at(-1)?.tag ?? "unknown";
 
 /**
+ * The content policy.
+ *
+ * Ajour is in a good position to have a strict one: nothing in the app
+ * renders HTML it did not write (`dangerouslySetInnerHTML` appears
+ * nowhere), no script, style, image or font is loaded from another host,
+ * and next/font copies its files into the build. So everything is 'self',
+ * and the two exceptions are named rather than assumed:
+ *
+ * - script-src keeps 'unsafe-inline' because Next.js writes its own
+ *   bootstrap script inline and next-themes writes the one that sets the
+ *   theme before the first paint. Removing it means a per-request nonce,
+ *   which in turn means every page renders dynamically — a real trade
+ *   with a real cost, and one that deserves its own change rather than a
+ *   line in a hardening pass. What is here already stops a script being
+ *   loaded from anywhere else, which is the vector that matters.
+ * - style-src keeps it because next/font and Base UI both inject style
+ *   elements. An inline style is a far smaller thing than an inline script.
+ *
+ * img-src allows data: for the TOTP enrolment QR code, which is drawn to
+ * a data URL, and blob: for PDFs opened in a tab.
+ */
+// React in development rebuilds stack traces with eval(); the production
+// bundle does not. Allowed for `next dev` only, so a developer's console
+// is not a wall of policy violations and production still refuses it.
+const scriptSrc =
+  process.env.NODE_ENV === "production"
+    ? "script-src 'self' 'unsafe-inline'"
+    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  scriptSrc,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
+/**
  * Hardening on every response. X-Frame-Options is DENY across the board:
  * nothing Ajour serves is meant to be framed by anyone, itself included. A
  * document rendered for reading inside its own pages would get SAMEORIGIN
  * on its own path, and only that.
+ *
+ * Permissions-Policy names the two WebAuthn permissions as `self` on
+ * purpose. Passkeys are how people sign in here, and a later blanket deny
+ * added to that list would switch off the login without saying so.
+ *
+ * HSTS is production-only. A browser that is told localhost speaks HTTPS
+ * believes it for two years, and no developer should have to find that
+ * out by having their machine break.
  */
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  {
+    key: "Permissions-Policy",
+    value: [
+      "camera=()",
+      "microphone=()",
+      "geolocation=()",
+      "payment=()",
+      "usb=()",
+      "interest-cohort=()",
+      "publickey-credentials-get=(self)",
+      "publickey-credentials-create=(self)",
+    ].join(", "),
+  },
   { key: "X-Frame-Options", value: "DENY" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  ...(process.env.NODE_ENV === "production"
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains",
+        },
+      ]
+    : []),
 ];
 
 const nextConfig: NextConfig = {

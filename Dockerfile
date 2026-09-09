@@ -13,6 +13,17 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
+# The migrator's dependencies, separately. It holds the superuser
+# connection string, so it is the one image where "what else is in here"
+# is worth asking about: the full install brings eslint, vitest, prettier
+# and the shadcn CLI along for the ride, and none of them has any business
+# sitting next to that credential. --prod plus tsx, which the migration
+# script is run with.
+FROM base AS deps-migrator
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts \
+    && pnpm add --prod --ignore-scripts tsx
+
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -31,7 +42,7 @@ ENV APP_DATABASE_URL=postgres://build:build@localhost:5432/build \
 RUN pnpm build
 
 FROM base AS migrator
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps-migrator /app/node_modules ./node_modules
 COPY package.json drizzle.config.ts ./
 COPY drizzle ./drizzle
 COPY src/core/db/schema ./src/core/db/schema
