@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { testLlmAction, type LlmTestResult } from "./actions";
 
 /**
- * The button that turns "configured" into "working". The failure detail
- * is shown verbatim rather than translated into a category, because the
- * useful sentence is the specific one: which model the environment asked
- * for, and which models the machine actually has.
+ * The button that turns "configured" into "working".
+ *
+ * The failure is shown as a category, not as the provider's own sentence.
+ * That sentence is more useful, and it also names the installation's
+ * Ollama address and the models sitting on it — which is the operator's
+ * business and not a workspace's. It goes to the server log instead.
  */
 export function TestConnection() {
   const t = useTranslations("settings.ai");
@@ -72,11 +74,14 @@ export function TestConnection() {
                         ? t("failRateLimited")
                         : t("failGeneric")}
               </p>
-              <p className="text-meta mt-1 font-mono text-xs break-words">{result.detail}</p>
+              <p className="text-meta mt-1 text-xs">{t("failWhereToLook")}</p>
             </div>
           </div>
         )}
 
+        {result?.status === "unauthorized" && (
+          <p className="text-meta text-sm">{t("testNotAllowed")}</p>
+        )}
         {result?.status === "none" && <p className="text-meta text-sm">{t("noModel")}</p>}
       </div>
     </div>

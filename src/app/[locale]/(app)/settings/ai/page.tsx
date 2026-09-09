@@ -106,8 +106,10 @@ export default async function AiSettingsPage() {
             </div>
           )}
           {/* Configured is not the same as working, and only the
-              second one is worth telling somebody. */}
-          <TestConnection />
+              second one is worth telling somebody. The test spends a real
+              model call, so it is offered to the people who own the bill;
+              the action checks the same thing again for itself. */}
+          {canEdit && <TestConnection />}
         </CardContent>
       </Card>
 

@@ -190,7 +190,10 @@ Schema: {"text": string, "nextWeek": [string]}
       const { locale, context, ...rest } = input;
       const plan: Partial<typeof context> = { ...context };
       delete plan.locale;
-      const raw = await chatJson(system, { locale, draft: rest, plan });
+      // Under `data`, like every other flow: RULES tells the model that
+      // everything there is content written by the project's users and never
+      // an instruction, and that sentence only binds what is actually there.
+      const raw = await chatJson(system, { locale, data: { draft: rest, plan } });
       const r = (raw ?? {}) as Record<string, unknown>;
       const text = asString(r.text, "", 4000);
       if (!text) throw new EngineUnavailable("empty revision");

@@ -22,11 +22,29 @@ import type { Locale } from "./types";
 
 const projectId = z.string().min(1).max(64);
 
-/** The activity the status and tip flows read, as sentences in the caller's language. */
+/**
+ * The activity the tip flow reads, as sentences in the caller's language.
+ *
+ * Free text written through a share link is summarised rather than
+ * quoted. The reason is specific to this flow: the daily tip is asked for
+ * an `action` — an imperative the tool can carry out — and the Run button
+ * hands that sentence to the chat, which writes to the project. Anyone
+ * holding an answering share link can write 600 characters into an event,
+ * twenty-five times over, so quoting them here would put fifteen thousand
+ * characters of stranger's prose one step upstream of a database write.
+ * The tip does not need the wording to say "Andreas has replied, go and
+ * read it"; the status flow, whose output is text a person approves,
+ * still gets the words in full.
+ */
 async function recentActivity(orgId: string, userId: string, id: string): Promise<string[]> {
   const events = await getTranslations("events");
   const rows = await withOrgContext({ orgId, userId }, (tx) => recentEvents(tx, id, 25));
-  return rows.map((row) => renderEvent(events, row));
+  return rows.map((row) =>
+    renderEvent(
+      events,
+      row.actorKind === "participant" ? { ...row, payload: { ...row.payload, text: "…" } } : row,
+    ),
+  );
 }
 
 export async function sendChatAction(raw: unknown): Promise<Result<ChatOutcome>> {

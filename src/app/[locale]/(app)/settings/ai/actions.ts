@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOrgContext } from "@/core/auth/guard";
+import { withOrgContext } from "@/core/db/tenant";
 import { LlmError } from "@/core/llm";
+import { RateLimited, reserveAiCall } from "@/modules/ai/limits";
 import {
   getModelSettings,
   saveModelSettings,
@@ -14,11 +16,11 @@ import { currentRole } from "@/modules/export/workspace";
 
 export type LlmTestResult =
   | { status: "none" }
+  | { status: "unauthorized" }
   | { status: "ok"; model: string; sample: string; ms: number }
   | {
       status: "failed";
       reason: "auth" | "unreachable" | "config" | "rate_limit" | "generic";
-      detail: string;
     };
 
 /**
@@ -32,16 +34,35 @@ export type LlmTestResult =
  * configured while every call quietly failed and the rules engine
  * answered. "Configured" and "working" are different claims, and only
  * one of them is worth making.
+ *
+ * Owners and admins only, and counted like any other model call. It
+ * spends the workspace's money, and the provider's own error text names
+ * the installation's Ollama address and the models on it — neither is a
+ * member's business, so what comes back is the category and nothing more.
+ * The detail is logged where an operator can read it.
  */
 export async function testLlmAction(): Promise<LlmTestResult> {
   const ctx = await requireOrgContext();
-  if (!ctx) return { status: "failed", reason: "generic", detail: "unauthorized" };
+  if (!ctx) return { status: "unauthorized" };
+  const role = await currentRole(ctx);
+  if (role !== "owner" && role !== "admin") return { status: "unauthorized" };
 
   const provider = await workspaceLlmProvider(ctx);
   if (!provider) return { status: "none" };
 
+  try {
+    await withOrgContext(ctx, (tx) => reserveAiCall(tx, ctx, "test", "test"));
+  } catch (error) {
+    if (error instanceof RateLimited) return { status: "failed", reason: "rate_limit" };
+    console.error("llm: could not count the test call", error);
+    return { status: "failed", reason: "generic" };
+  }
+
   const health = await provider.healthCheck();
-  if (!health.ok) return { status: "failed", reason: health.reason, detail: health.detail };
+  if (!health.ok) {
+    console.error("llm: health check failed", health.reason, health.detail);
+    return { status: "failed", reason: health.reason };
+  }
 
   const started = Date.now();
   try {
@@ -67,10 +88,11 @@ export async function testLlmAction(): Promise<LlmTestResult> {
             : error.reason === "rate_limit"
               ? "rate_limit"
               : "generic";
-      return { status: "failed", reason, detail: error.message };
+      console.error("llm: test failed", error.message);
+      return { status: "failed", reason };
     }
     console.error("llm: test failed", error);
-    return { status: "failed", reason: "generic", detail: "unexpected error" };
+    return { status: "failed", reason: "generic" };
   }
 }
 

@@ -78,7 +78,7 @@ export async function resolveLlmConfig(ctx: OrgContext): Promise<LlmConfig> {
   if (!row) return installation;
 
   const provider = row.provider as LlmProviderId;
-  const ownKey = openSecret(row.apiKeyCipher);
+  const ownKey = openSecret(row.apiKeyCipher, ctx.orgId);
   return {
     provider,
     model: row.model ?? (provider === installation.provider ? installation.model : null),
@@ -95,7 +95,7 @@ export async function getModelSettings(ctx: OrgContext): Promise<ModelSettingsVi
   const installation = installationLlmConfig();
   const row = await readRow(ctx);
   const effectiveConfig = await resolveLlmConfig(ctx);
-  const hasOwnKey = Boolean(row && openSecret(row.apiKeyCipher));
+  const hasOwnKey = Boolean(row && openSecret(row.apiKeyCipher, ctx.orgId));
 
   return {
     choice: row ? (row.provider as ProviderChoice) : "inherit",
@@ -143,7 +143,7 @@ export async function saveModelSettings(
       ? (existing?.apiKeyCipher ?? null)
       : input.apiKey === "clear"
         ? null
-        : sealSecret(input.apiKey);
+        : sealSecret(input.apiKey, ctx.orgId);
   // Ollama has no key to hold; storing one would be a secret kept for
   // nothing, and a surprise the day somebody switches provider back.
   const apiKeyCipher = input.provider === "mistral" ? cipher : null;

@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { createTranslator } from "next-intl";
 import { todayInCopenhagen, weekKey, weekNumberFromKey } from "@/core/dates";
@@ -131,9 +132,18 @@ export async function sendStatusReminders(
   return outcome;
 }
 
-/** For the endpoint: a bearer token that matches CRON_SECRET, and nothing else. */
+/**
+ * For the endpoint: a bearer token that matches CRON_SECRET, and nothing
+ * else. Both sides are hashed first so the comparison is over two equal
+ * lengths whatever was sent, and then compared in constant time — the
+ * timing is not a practical attack over HTTP, but a comparison that
+ * leaks and one that does not cost the same to write.
+ */
 export function schedulerAllowed(authorization: string | null): boolean {
   if (!env.CRON_SECRET) return false;
   const token = authorization?.replace(/^Bearer\s+/i, "").trim() ?? "";
-  return token.length > 0 && token === env.CRON_SECRET;
+  if (token.length === 0) return false;
+  const given = createHash("sha256").update(token).digest();
+  const expected = createHash("sha256").update(env.CRON_SECRET).digest();
+  return timingSafeEqual(given, expected);
 }

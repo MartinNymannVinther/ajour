@@ -13,7 +13,7 @@ export const MAX_CHAT_CHARS = 2000;
 export const MAX_CALLS_PER_USER_PER_HOUR = 60;
 export const MAX_CALLS_PER_WORKSPACE_PER_DAY = 600;
 
-export type AiKind = "plan" | "status" | "replan" | "chat" | "tip";
+export type AiKind = "plan" | "status" | "replan" | "chat" | "tip" | "test";
 
 export class RateLimited extends Error {
   constructor() {

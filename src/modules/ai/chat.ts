@@ -73,10 +73,19 @@ export async function sendChat(
   return withOrgContext(ctx, async (tx) => {
     let applied: ChatOutcome["applied"] = null;
     if (chatReplyHasChanges(reply)) {
+      // No snapshot, no change. The undo is not a nicety on top of an AI
+      // write, it is the condition for allowing one at all (dogma 5), and
+      // applying without one would have written silently: no undo record,
+      // and no "the AI changed this" box either, because that box is
+      // built from the snapshot.
       const snapshotId = await takeSnapshot(tx, ctx, projectId, snapshotLabel, "ai");
-      const done = await applyChatReply(tx, ctx, projectId, reply);
-      if (snapshotId) applied = { lines: done.lines, snapshotId, created: done.created };
-      await recordEvent(tx, ctx, projectId, "ai.applied", { count: done.lines.length }, "ai");
+      if (snapshotId) {
+        const done = await applyChatReply(tx, ctx, projectId, reply);
+        applied = { lines: done.lines, snapshotId, created: done.created };
+        await recordEvent(tx, ctx, projectId, "ai.applied", { count: done.lines.length }, "ai");
+      } else {
+        console.error("chat: no snapshot could be taken, changes not applied", projectId);
+      }
     }
     const [row] = await tx
       .insert(chatMessages)
