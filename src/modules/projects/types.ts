@@ -1,3 +1,4 @@
+import type { ProjectHealth } from "./health";
 import type {
   Decision,
   Expense,
@@ -67,6 +68,7 @@ export type ProjectSummary = {
   doneCount: number;
   nextMilestone: { title: string; date: string } | null;
   latestStatusAt: Date | null;
+  health: ProjectHealth;
 };
 
 /** Every mutation answers with one of these; the UI never sees a stack. */

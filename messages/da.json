@@ -182,7 +182,23 @@
       "new": "Nyt projekt",
       "progress": "{done} af {total} opgaver færdige",
       "nextMilestone": "Næste milepæl: {title} ({date})",
-      "noOpenMilestones": "Ingen åbne milepæle"
+      "noOpenMilestones": "Ingen åbne milepæle",
+      "health": {
+        "level": {
+          "red": "Kræver handling",
+          "yellow": "Kræver opmærksomhed",
+          "green": "På sporet",
+          "new": "Nyt · for tidligt at vurdere"
+        },
+        "overdueTasks": "{count, plural, one {# opgave over deadline} other {# opgaver over deadline}}",
+        "passedMilestones": "{count, plural, one {# milepæl er passeret} other {# milepæle er passeret}}",
+        "milestoneSoon": "„{title}“ om {days, plural, =0 {i dag} one {# dag} other {# dage}} med {open} åbne",
+        "openObstacles": "{count, plural, one {# åben forhindring} other {# åbne forhindringer}}",
+        "overBudget": "Over budget",
+        "noStatus": "Ingen status i {days} dage",
+        "noStatusYet": "Ingen status endnu",
+        "noOwner": "{count, plural, one {# opgave uden ansvarlig} other {# opgaver uden ansvarlig}}"
+      }
     },
     "security": {
       "title": "Sikkerhed",

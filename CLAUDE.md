@@ -165,5 +165,8 @@ codebase to:
 - Wave 7 (done): the AI surface, hardened further — the chat prompt is
   cut to what the message is about, real model replies are recorded and
   run as tests, and the wait for a model is shown (ADR 0012).
+- Wave 8 (done): the front page as the weekly round — every project
+  carries a colour worked out from the plan today and the reasons behind
+  it, and the ones that need attention come first (modules/projects/health).
 - After v1: fixed-date milestones and replanning alternatives, mail
   through an EU provider.

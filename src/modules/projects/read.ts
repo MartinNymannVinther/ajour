@@ -15,6 +15,8 @@ import {
   tasks,
 } from "@/core/db/schema";
 import { withOrgContext, type AppTransaction, type OrgContext } from "@/core/db/tenant";
+import { todayInCopenhagen } from "@/core/dates";
+import { projectHealth } from "./health";
 import type { MilestoneView, ProjectFull, ProjectSummary, ReplyView, TaskView } from "./types";
 
 /**
@@ -174,17 +176,27 @@ export async function getProjectFull(ctx: OrgContext, projectId: string) {
   return withOrgContext(ctx, (tx) => readProjectFull(tx, projectId));
 }
 
-export async function listProjects(ctx: OrgContext): Promise<ProjectSummary[]> {
+export async function listProjects(
+  ctx: OrgContext,
+  today = todayInCopenhagen(),
+): Promise<ProjectSummary[]> {
   return withOrgContext(ctx, async (tx) => {
     const rows = await tx.select().from(projects).orderBy(desc(projects.createdAt));
     if (rows.length === 0) return [];
     const ids = rows.map((p) => p.id);
     const taskRows = await tx
-      .select({ projectId: tasks.projectId, state: tasks.state })
+      .select({
+        projectId: tasks.projectId,
+        state: tasks.state,
+        endDate: tasks.endDate,
+        milestoneId: tasks.milestoneId,
+        ownerPersonId: tasks.ownerPersonId,
+      })
       .from(tasks)
       .where(inArray(tasks.projectId, ids));
     const milestoneRows = await tx
       .select({
+        id: milestones.id,
         projectId: milestones.projectId,
         title: milestones.title,
         date: milestones.date,
@@ -197,13 +209,45 @@ export async function listProjects(ctx: OrgContext): Promise<ProjectSummary[]> {
       .select({ projectId: statusUpdates.projectId, approvedAt: statusUpdates.approvedAt })
       .from(statusUpdates)
       .where(inArray(statusUpdates.projectId, ids));
+    const obstacleRows = await tx
+      .select({ projectId: obstacles.projectId, status: obstacles.status })
+      .from(obstacles)
+      .where(inArray(obstacles.projectId, ids));
+    const expenseRows = await tx
+      .select({ projectId: expenses.projectId, amount: expenses.amount })
+      .from(expenses)
+      .where(inArray(expenses.projectId, ids));
     return rows.map((p) => {
       const own = taskRows.filter((t) => t.projectId === p.id);
-      const next = milestoneRows.find((m) => m.projectId === p.id && !m.doneAt) ?? null;
+      const ownMilestones = milestoneRows.filter((m) => m.projectId === p.id);
+      const next = ownMilestones.find((m) => !m.doneAt) ?? null;
       const latest = statusRows
         .filter((s) => s.projectId === p.id && s.approvedAt)
         .map((s) => s.approvedAt!)
         .sort((a, b) => b.getTime() - a.getTime())[0];
+      const health = projectHealth({
+        today,
+        tasks: own.map((t) => ({
+          state: t.state,
+          endDate: t.endDate,
+          milestoneId: t.milestoneId,
+          hasOwner: Boolean(t.ownerPersonId),
+        })),
+        milestones: ownMilestones.map((m) => ({
+          id: m.id,
+          title: m.title,
+          date: m.date,
+          done: Boolean(m.doneAt),
+        })),
+        openObstacles: obstacleRows.filter((o) => o.projectId === p.id && o.status !== "resolved")
+          .length,
+        budget: p.budget,
+        plannedTotal: expenseRows
+          .filter((e) => e.projectId === p.id)
+          .reduce((sum, e) => sum + e.amount, 0),
+        latestStatusAt: latest ?? null,
+        createdAt: p.createdAt,
+      });
       return {
         id: p.id,
         name: p.name,
@@ -215,6 +259,7 @@ export async function listProjects(ctx: OrgContext): Promise<ProjectSummary[]> {
         doneCount: own.filter((t) => t.state === "done").length,
         nextMilestone: next ? { title: next.title, date: next.date } : null,
         latestStatusAt: latest ?? null,
+        health,
       };
     });
   });

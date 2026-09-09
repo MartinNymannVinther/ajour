@@ -9,8 +9,11 @@ import { requireOrgContext } from "@/core/auth/guard";
 import { formatDateDa } from "@/core/dates";
 import { organizations } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
+import { HEALTH_ORDER } from "@/modules/projects/health";
 import { listProjects } from "@/modules/projects/read";
+import { RAG_COLOR } from "@/modules/reports/charts";
 import { PasskeyPrompt } from "./passkey-prompt";
+import { healthLine } from "./health-line";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app.projects");
@@ -18,10 +21,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /**
- * The home of the app: every project in the active workspace, with the
- * two numbers that say whether it needs attention — how far the tasks
- * have come, and when the next milestone falls.
+ * The home of the app: every project in the active workspace, the ones
+ * that need attention first. Each card carries a colour worked out from
+ * the plan today (health.ts) and the reasons behind it, then how far the
+ * tasks have come and when the next milestone falls — the weekly round
+ * for somebody with ten projects, without opening any of them.
  */
+const toRag = (level: "red" | "yellow" | "green" | "new") => (level === "new" ? "early" : level);
+
 export default async function ProjectsPage() {
   const t = await getTranslations("app.projects");
   const context = await requireOrgContext();
@@ -34,7 +41,10 @@ export default async function ProjectsPage() {
           .limit(1),
       )
     : [];
-  const projects = context ? await listProjects(context) : [];
+  const projects = (context ? await listProjects(context) : []).sort(
+    (a, b) => HEALTH_ORDER[a.health.level] - HEALTH_ORDER[b.health.level],
+  );
+  const health = await getTranslations("app.projects.health");
 
   return (
     <div className="flex flex-col gap-[26px]">
@@ -63,7 +73,26 @@ export default async function ProjectsPage() {
                   href={`/projects/${project.id}`}
                   className="border-border bg-card hover:border-primary/40 focus-visible:ring-ring block h-full rounded-xl border p-4 shadow-[var(--surface-shadow)] transition focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  <h2 className="font-heading truncate text-base font-semibold">{project.name}</h2>
+                  <div className="flex items-start gap-2">
+                    <span
+                      className="mt-1.5 inline-block size-3 shrink-0 rounded-full"
+                      style={{ background: RAG_COLOR[toRag(project.health.level)].dot }}
+                      role="img"
+                      aria-label={health(`level.${project.health.level}`)}
+                    />
+                    <h2 className="font-heading min-w-0 flex-1 truncate text-base font-semibold">
+                      {project.name}
+                    </h2>
+                  </div>
+                  <p
+                    className={
+                      project.health.level === "red"
+                        ? "text-destructive mt-1 text-xs font-medium"
+                        : "text-meta mt-1 text-xs"
+                    }
+                  >
+                    {healthLine(project.health, health)}
+                  </p>
                   {project.goal && (
                     <p className="text-meta mt-1 line-clamp-2 text-sm">{project.goal}</p>
                   )}

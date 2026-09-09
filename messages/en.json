@@ -182,7 +182,23 @@
       "new": "New project",
       "progress": "{done} of {total} tasks finished",
       "nextMilestone": "Next milestone: {title} ({date})",
-      "noOpenMilestones": "No open milestones"
+      "noOpenMilestones": "No open milestones",
+      "health": {
+        "level": {
+          "red": "Needs action",
+          "yellow": "Needs attention",
+          "green": "On track",
+          "new": "New · too early to judge"
+        },
+        "overdueTasks": "{count, plural, one {# task overdue} other {# tasks overdue}}",
+        "passedMilestones": "{count, plural, one {# milestone passed} other {# milestones passed}}",
+        "milestoneSoon": "“{title}” in {days, plural, =0 {today} one {# day} other {# days}} with {open} open",
+        "openObstacles": "{count, plural, one {# open obstacle} other {# open obstacles}}",
+        "overBudget": "Over budget",
+        "noStatus": "No status for {days} days",
+        "noStatusYet": "No status yet",
+        "noOwner": "{count, plural, one {# task without an owner} other {# tasks without an owner}}"
+      }
     },
     "security": {
       "title": "Security",
