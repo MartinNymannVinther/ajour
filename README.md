@@ -144,8 +144,13 @@ nothing leaves the server at all.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) explains how changes are made here:
 plan first, vertical slices, tests where they matter, an ADR for every
-decision worth arguing about later. Found a security problem? Please
-report it privately as described in [SECURITY.md](SECURITY.md) rather
-than in a public issue.
+decision worth arguing about later.
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) covers how we talk to each
+other. Found a security problem? Please report it privately as described
+in [SECURITY.md](SECURITY.md) rather than in a public issue.
+
+What we know is not right yet is written down rather than hoped away:
+[TECH-DEBT.md](TECH-DEBT.md) lists it, with the reason it is still there
+and what fixing it would take.
 
 License: [AGPL-3.0](LICENSE). The Archivo typeface in `public/fonts` is by the Archivo Project Authors under the [SIL Open Font License 1.1](public/fonts/OFL.txt).

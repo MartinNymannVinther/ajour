@@ -14,7 +14,7 @@ Coolify deploys from a Git repository, and dogma one is not satisfied by
 code in a folder, so this comes first.
 
 ```bash
-cd ~/udvikling/ajour
+cd path/to/ajour
 gh repo create MartinNymannVinther/ajour --public \
   --description "Holder små projekter opdaterede. AI'en samler op, du bestemmer." \
   --source . --remote origin --push
@@ -34,8 +34,16 @@ second line rather than the first.
 Then, on the repository page: set the description and the website to
 `https://ajour.haij.dk`, add the topics `project-management`, `nextjs`,
 `postgresql`, `open-source`, `danish`, and turn on issues. Check that the
-CI run on the first push is green — five jobs: quality, tests, build,
-audit, gitleaks.
+CI run on the first push is green — six jobs: quality, tests, build,
+image, audit, gitleaks. The audit job runs `pnpm audit --prod`, which is
+clean as of the pre-release review; `pnpm audit` on the whole tree still
+reports three advisories reached only through the `shadcn` CLI, which is
+a development dependency and never ships.
+
+`.github/dependabot.yml` starts opening pull requests as soon as the
+repository is public: one grouped patch PR a week for npm, plus GitHub
+Actions and Docker base images. Expect a small batch in the first days
+and read them rather than merging them blind.
 
 ## 2. The Mistral key
 

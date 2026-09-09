@@ -1,0 +1,25 @@
+name: Idea
+description: Something Ajour could do that it does not do yet.
+labels: [idea]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Ajour keeps its concept count deliberately low — project,
+        milestone, task, decision, obstacle, status, budget line — and the
+        omissions are part of the product. An idea that earns a new
+        concept has to be worth it, so say what problem it solves before
+        what it should look like.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem
+      description: What are you trying to do today, and what makes it hard?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What could Ajour do about it
+    validations:
+      required: true
