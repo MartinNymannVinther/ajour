@@ -35,6 +35,8 @@ export function TaskEditor({
     milestoneRelation: "before" | "after";
     milestoneId: string | null;
     expectedUpdatedAt: string;
+    /** Typed dates: the phone's way to move a task. Applied after the people, so the lock holds. */
+    dates: { startDate: string; endDate: string } | null;
   }) => void;
   onSaveSubtasks: (subtasks: Subtask[]) => void;
   onClose: () => void;
@@ -46,6 +48,8 @@ export function TaskEditor({
     participants: task.participants.join(", "),
     relation: task.milestoneRelation === "after" ? ("after" as const) : ("before" as const),
     milestoneId: task.milestoneId ?? "",
+    startDate: task.startDate,
+    endDate: task.endDate,
   });
   const [subtaskDraft, setSubtaskDraft] = useState("");
   const subtasks = task.subtasks ?? [];
@@ -56,7 +60,13 @@ export function TaskEditor({
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          const moved = draft.startDate !== task.startDate || draft.endDate !== task.endDate;
+          const [startDate, endDate] =
+            draft.endDate < draft.startDate
+              ? [draft.endDate, draft.startDate]
+              : [draft.startDate, draft.endDate];
           onSavePeople({
+            dates: moved && startDate && endDate ? { startDate, endDate } : null,
             owner: draft.owner.trim(),
             participants: draft.participants
               .split(",")
@@ -98,6 +108,25 @@ export function TaskEditor({
             </option>
           ))}
         </select>
+        <label className="flex items-center gap-1.5 text-xs">
+          <span className="sr-only">{t("startDate")}</span>
+          <Input
+            type="date"
+            value={draft.startDate}
+            onChange={(e) => setDraft((d) => ({ ...d, startDate: e.target.value }))}
+            aria-label={t("startDate")}
+            className="w-auto"
+          />
+          <span className="text-meta">–</span>
+          <span className="sr-only">{t("endDate")}</span>
+          <Input
+            type="date"
+            value={draft.endDate}
+            onChange={(e) => setDraft((d) => ({ ...d, endDate: e.target.value }))}
+            aria-label={t("endDate")}
+            className="w-auto"
+          />
+        </label>
         <div className="border-input flex overflow-hidden rounded-lg border">
           {(["before", "after"] as const).map((relation) => (
             <button

@@ -207,7 +207,7 @@ export function ProjectView({
       <ChatPanel projectId={projectId} history={chatHistory} />
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+        <div className="min-w-0 space-y-6 lg:col-span-2">
           <MilestoneList
             milestones={milestones}
             editingId={editingMilestoneId}
@@ -244,10 +244,15 @@ export function ProjectView({
             formatMoney={formatMoney}
             onEdit={openTask}
             onStateChange={changeState}
-            onSavePeople={(taskId, input) =>
+            onSavePeople={(taskId, { dates, ...input }) =>
               run(
                 () => updateTaskPeopleAction({ taskId, ...input }),
-                () => setEditingTaskId(null),
+                () => {
+                  setEditingTaskId(null);
+                  // Typed dates go after the people, so the optimistic
+                  // lock on the row is not tripped by our own first write.
+                  if (dates) run(() => moveTaskAction({ taskId, ...dates }));
+                },
               )
             }
             onSaveSubtasks={(taskId, subtasks: Subtask[]) =>
@@ -263,7 +268,7 @@ export function ProjectView({
           />
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <EconomyCard
             budget={project.budget}
             expenses={expenses}

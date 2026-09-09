@@ -530,7 +530,9 @@
       "removeItem": "Remove {title}",
       "add": "Add",
       "expenses": "Money on this task: {list}",
-      "delete": "Delete the task"
+      "delete": "Delete the task",
+      "startDate": "Start date",
+      "endDate": "End date"
     },
     "economy": {
       "title": "Money",
@@ -944,7 +946,7 @@
     "task": {
       "created": "The task “{title}” was created",
       "state": "“{title}” became {state}",
-      "moved": "“{title}” moved to {from}–{to}",
+      "moved": "“{title}” moved to {start}–{end}",
       "relinked": "“{title}” now belongs to {milestone}",
       "people": "“{title}”: owner {owner}, participants {participants}",
       "subtasks": "The checklist on “{title}” now has {count} items",

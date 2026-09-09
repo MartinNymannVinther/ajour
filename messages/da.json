@@ -530,7 +530,9 @@
       "removeItem": "Fjern punktet {title}",
       "add": "Tilføj",
       "expenses": "Økonomiposter på opgaven: {list}",
-      "delete": "Slet opgaven"
+      "delete": "Slet opgaven",
+      "startDate": "Startdato",
+      "endDate": "Slutdato"
     },
     "economy": {
       "title": "Økonomi",
@@ -944,7 +946,7 @@
     "task": {
       "created": "Opgaven „{title}“ blev oprettet",
       "state": "„{title}“ fik status {state}",
-      "moved": "„{title}“ blev flyttet til {from}–{to}",
+      "moved": "„{title}“ blev flyttet til {start}–{end}",
       "relinked": "„{title}“ hører nu til {milestone}",
       "people": "„{title}“: ansvarlig {owner}, deltagere {participants}",
       "subtasks": "Tjeklisten på „{title}“ har nu {count} punkter",
