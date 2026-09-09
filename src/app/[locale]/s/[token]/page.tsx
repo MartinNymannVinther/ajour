@@ -43,7 +43,7 @@ export default async function SharedProjectPage({ params }: Params) {
   const [latest, ...earlier] = shared.statuses;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-10">
+    <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-10">
       <header>
         <p className="text-label text-xs tracking-wide uppercase">{t("kicker")}</p>
         <h1 className="font-heading mt-1 text-2xl font-semibold">{shared.name}</h1>
