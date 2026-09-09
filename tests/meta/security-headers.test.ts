@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
-import config from "../../next.config";
+import { describe, expect, it } from "vitest";
+import config, { contentSecurityPolicy, securityHeaders } from "../../next.config";
 
 /**
  * Every response carries the hardening headers, and nothing Ajour serves
@@ -8,29 +8,55 @@ import config from "../../next.config";
  * be shown inside one of our own pages, that path gets SAMEORIGIN and this
  * test learns its name; until then DENY is the only answer.
  *
- * The set is asserted exactly rather than by presence, so a header
- * quietly dropped fails here. HSTS is the one exception: it is
- * production-only, because a browser told that localhost speaks HTTPS
- * believes it for two years.
+ * The set is asserted exactly rather than by presence, so a header quietly
+ * dropped fails here. Both halves are asserted: the policy is built from a
+ * flag rather than read from the environment, so the production one is
+ * something this file can check instead of infer.
  */
 
 type Rule = { source: string; headers: Array<{ key: string; value: string }> };
 
-async function headerMap(): Promise<Record<string, string>> {
-  const rules = (await config.headers!()) as Rule[];
-  expect(rules).toHaveLength(1);
-  expect(rules[0]?.source).toBe("/(.*)");
-  return Object.fromEntries(rules[0]!.headers.map((h) => [h.key, h.value]));
+const DEV_CSP =
+  "default-src 'self'; " +
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+  "style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self' data: blob:; " +
+  "font-src 'self'; " +
+  "connect-src 'self' ws: wss:; " +
+  "object-src 'none'; " +
+  "base-uri 'none'; " +
+  "form-action 'self'; " +
+  "frame-ancestors 'none'";
+
+const PROD_CSP =
+  "default-src 'self'; " +
+  "script-src 'self' 'unsafe-inline'; " +
+  "style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self' data: blob:; " +
+  "font-src 'self'; " +
+  "connect-src 'self'; " +
+  "object-src 'none'; " +
+  "base-uri 'none'; " +
+  "form-action 'self'; " +
+  "frame-ancestors 'none'; " +
+  "upgrade-insecure-requests";
+
+function map(headers: Array<{ key: string; value: string }>): Record<string, string> {
+  return Object.fromEntries(headers.map((h) => [h.key, h.value]));
 }
 
-// The test runs with NODE_ENV=test, which is not production, so the dev
-// allowance applies here too. Production is asserted separately below.
-const scriptSrc = "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
-
 describe("security headers", () => {
-  it("applies the full set to every path", async () => {
-    expect(await headerMap()).toEqual({
-      "Content-Security-Policy": `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
+  it("applies one rule to every path", async () => {
+    const rules = (await config.headers!()) as Rule[];
+    expect(rules).toHaveLength(1);
+    expect(rules[0]?.source).toBe("/(.*)");
+    // The suite runs outside production, so this is the development set.
+    expect(map(rules[0]!.headers)["Content-Security-Policy"]).toBe(DEV_CSP);
+  });
+
+  it("sends the full set in production", () => {
+    expect(map(securityHeaders(true))).toEqual({
+      "Content-Security-Policy": PROD_CSP,
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "strict-origin-when-cross-origin",
       "Permissions-Policy":
@@ -38,39 +64,70 @@ describe("security headers", () => {
       "X-Frame-Options": "DENY",
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Resource-Policy": "same-origin",
+      "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
     });
   });
 
-  it("does not let a script or a style come from anywhere but us", async () => {
-    const csp = (await headerMap())["Content-Security-Policy"]!;
-    expect(csp).toContain("default-src 'self'");
-    expect(csp).toContain("frame-ancestors 'none'");
-    expect(csp).toContain("base-uri 'none'");
-    expect(csp).toContain("object-src 'none'");
-    // 'unsafe-inline' is still there for Next's own bootstrap script, and
-    // 'strict-dynamic' would silently void it. See TECH-DEBT.md.
-    expect(csp).not.toContain("strict-dynamic");
-    expect(csp).not.toMatch(/script-src[^;]*https?:/);
+  it("keeps HSTS out of development", () => {
+    // A browser told that localhost speaks HTTPS believes it for two years.
+    expect(map(securityHeaders(false))["Strict-Transport-Security"]).toBeUndefined();
+    expect(map(securityHeaders(true))["Strict-Transport-Security"]).toBeTruthy();
   });
 
-  it("allows eval only outside production", async () => {
+  /**
+   * This one is here because it already went wrong once, and it cost
+   * somebody an afternoon of looking at an unstyled page.
+   *
+   * The policy carried upgrade-insecure-requests unconditionally. The
+   * spec says a browser should not apply it to loopback; WebKit applies
+   * it anyway, so in Safari on http://localhost every stylesheet and
+   * every script was rewritten to https, nothing answered, and the app
+   * rendered as bare HTML. Chrome does exempt loopback, which is exactly
+   * why checking in one browser proved nothing.
+   */
+  it("does not upgrade requests outside production, which is where localhost lives", () => {
+    expect(contentSecurityPolicy(false)).not.toContain("upgrade-insecure-requests");
+    expect(contentSecurityPolicy(true)).toContain("upgrade-insecure-requests");
+  });
+
+  it("lets the hot-reload socket through outside production", () => {
+    // 'self' is an origin, and ws://localhost is a different scheme from
+    // http://localhost, so it does not match. Chrome allows it anyway;
+    // Safari does not, and the socket is how the page reloads itself.
+    expect(contentSecurityPolicy(false)).toContain("connect-src 'self' ws: wss:");
+    expect(contentSecurityPolicy(true)).toContain("connect-src 'self';");
+  });
+
+  it("allows eval only outside production", () => {
     // React's development build needs it to rebuild stack traces; the
     // production bundle does not, and letting it through there would hand
-    // an injected string a way to become code. The suite runs outside
-    // production, so what is asserted here is the shape of the rule: the
-    // allowance is present, and it is conditional on NODE_ENV rather than
-    // written into the policy unconditionally.
-    expect(process.env.NODE_ENV).not.toBe("production");
-    expect((await headerMap())["Content-Security-Policy"]).toContain("'unsafe-eval'");
-    const source = await readFile(new URL("../../next.config.ts", import.meta.url), "utf8");
-    expect(source).toMatch(/NODE_ENV === "production"[\s\S]{0,120}unsafe-eval/);
+    // an injected string a way to become code.
+    expect(contentSecurityPolicy(false)).toContain("'unsafe-eval'");
+    expect(contentSecurityPolicy(true)).not.toContain("'unsafe-eval'");
   });
 
-  it("still names the two permissions passkeys need", async () => {
+  it("does not let a script or a style come from anywhere but us", () => {
+    for (const csp of [contentSecurityPolicy(false), contentSecurityPolicy(true)]) {
+      expect(csp).toContain("default-src 'self'");
+      expect(csp).toContain("frame-ancestors 'none'");
+      expect(csp).toContain("base-uri 'none'");
+      expect(csp).toContain("object-src 'none'");
+      // 'strict-dynamic' would silently void 'unsafe-inline'. See TECH-DEBT.md.
+      expect(csp).not.toContain("strict-dynamic");
+      expect(csp).not.toMatch(/script-src[^;]*https?:/);
+    }
+  });
+
+  it("still names the two permissions passkeys need", () => {
     // A blanket deny added to this list later would switch off the login
     // without saying so, which is why they are written out.
-    const policy = (await headerMap())["Permissions-Policy"]!;
+    const policy = map(securityHeaders(true))["Permissions-Policy"]!;
     expect(policy).toContain("publickey-credentials-get=(self)");
     expect(policy).toContain("publickey-credentials-create=(self)");
+  });
+
+  it("has not drifted from the file the deployment reads", async () => {
+    const source = await readFile(new URL("../../next.config.ts", import.meta.url), "utf8");
+    expect(source).toContain('securityHeaders(process.env.NODE_ENV === "production")');
   });
 });

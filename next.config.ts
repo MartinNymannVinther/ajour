@@ -62,28 +62,45 @@ const migration = journal.entries.at(-1)?.tag ?? "unknown";
  *
  * img-src allows data: for the TOTP enrolment QR code, which is drawn to
  * a data URL, and blob: for PDFs opened in a tab.
+ *
+ * Three directives are relaxed outside production, and all three are
+ * about `next dev` on http://localhost rather than about the policy:
+ *
+ * - 'unsafe-eval', because React's development build rebuilds stack
+ *   traces with eval(). The production bundle does not.
+ * - ws: on connect-src, for the hot-reload socket. 'self' is an origin,
+ *   and ws://localhost is a different scheme from http://localhost, so
+ *   it does not match — Chrome allows it anyway, Safari does not.
+ * - upgrade-insecure-requests is left out entirely. The spec exempts
+ *   loopback; WebKit does not implement that exemption, so in Safari on
+ *   http://localhost every stylesheet and script is rewritten to https,
+ *   nothing answers, and the page renders as bare HTML. Chrome does
+ *   exempt it, which is exactly why testing in one browser was not
+ *   enough. In production everything is https already and HSTS is doing
+ *   this job properly.
  */
-// React in development rebuilds stack traces with eval(); the production
-// bundle does not. Allowed for `next dev` only, so a developer's console
-// is not a wall of policy violations and production still refuses it.
-const scriptSrc =
-  process.env.NODE_ENV === "production"
-    ? "script-src 'self' 'unsafe-inline'"
-    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
-
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  scriptSrc,
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'none'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+/**
+ * Built as a function of one flag rather than read from the environment,
+ * so the production policy is something a test can assert instead of
+ * infer. The relaxations above are all it differs by.
+ */
+export function contentSecurityPolicy(production: boolean): string {
+  return [
+    "default-src 'self'",
+    production
+      ? "script-src 'self' 'unsafe-inline'"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    production ? "connect-src 'self'" : "connect-src 'self' ws: wss:",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    ...(production ? ["upgrade-insecure-requests"] : []),
+  ].join("; ");
+}
 
 /**
  * Hardening on every response. X-Frame-Options is DENY across the board:
@@ -99,35 +116,32 @@ const contentSecurityPolicy = [
  * believes it for two years, and no developer should have to find that
  * out by having their machine break.
  */
-const securityHeaders = [
-  { key: "Content-Security-Policy", value: contentSecurityPolicy },
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  {
-    key: "Permissions-Policy",
-    value: [
-      "camera=()",
-      "microphone=()",
-      "geolocation=()",
-      "payment=()",
-      "usb=()",
-      "interest-cohort=()",
-      "publickey-credentials-get=(self)",
-      "publickey-credentials-create=(self)",
-    ].join(", "),
-  },
-  { key: "X-Frame-Options", value: "DENY" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
-  ...(process.env.NODE_ENV === "production"
-    ? [
-        {
-          key: "Strict-Transport-Security",
-          value: "max-age=63072000; includeSubDomains",
-        },
-      ]
-    : []),
-];
+export function securityHeaders(production: boolean): Array<{ key: string; value: string }> {
+  return [
+    { key: "Content-Security-Policy", value: contentSecurityPolicy(production) },
+    { key: "X-Content-Type-Options", value: "nosniff" },
+    { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+    {
+      key: "Permissions-Policy",
+      value: [
+        "camera=()",
+        "microphone=()",
+        "geolocation=()",
+        "payment=()",
+        "usb=()",
+        "interest-cohort=()",
+        "publickey-credentials-get=(self)",
+        "publickey-credentials-create=(self)",
+      ].join(", "),
+    },
+    { key: "X-Frame-Options", value: "DENY" },
+    { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+    { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+    ...(production
+      ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }]
+      : []),
+  ];
+}
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -141,7 +155,7 @@ const nextConfig: NextConfig = {
     AJOUR_MIGRATION_COUNT: String(journal.entries.length),
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [{ source: "/(.*)", headers: securityHeaders(process.env.NODE_ENV === "production") }];
   },
 };
 
