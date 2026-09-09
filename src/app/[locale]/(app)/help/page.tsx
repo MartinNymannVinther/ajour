@@ -10,12 +10,16 @@ export async function generateMetadata(): Promise<Metadata> {
 const ABC_COUNT = 10;
 const HOW_TO = [
   "start",
+  "front",
   "plan",
+  "replan",
   "breakdown",
   "tip",
   "economy",
   "status",
   "share",
+  "team",
+  "mail",
   "model",
 ] as const;
 
