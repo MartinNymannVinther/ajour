@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 
@@ -31,6 +32,7 @@ function SheetContent({
   side = "left",
   ...props
 }: DialogPrimitive.Popup.Props & { side?: "left" | "right" }) {
+  const t = useTranslations("common");
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Backdrop
@@ -54,7 +56,7 @@ function SheetContent({
           render={<Button variant="ghost" className="absolute top-3 right-3" size="icon-sm" />}
         >
           <XIcon />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{t("close")}</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Popup>
     </DialogPrimitive.Portal>

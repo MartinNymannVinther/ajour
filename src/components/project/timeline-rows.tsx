@@ -66,7 +66,7 @@ export function MilestoneRow({
                 milestone.doneAt && "text-success",
               )}
             >
-              {milestone.doneAt ? "✓ " : ""}
+              {milestone.doneAt && <span aria-hidden>✓ </span>}
               {milestone.title}
             </button>
             <span className="text-label font-normal whitespace-nowrap">{formatDateDa(date)}</span>

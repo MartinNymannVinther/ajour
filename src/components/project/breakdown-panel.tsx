@@ -40,18 +40,23 @@ export function BreakdownPanel({
 
   useEffect(() => {
     let cancelled = false;
-    void proposeMilestoneTasksAction({ milestoneId }).then((result) => {
-      if (cancelled) return;
-      if (!result.ok) {
-        toast.error(result.error === "conflict" ? t("rateLimited") : t("failed"));
-        onClose();
-        return;
-      }
-      setProposal({
-        rows: result.data.tasks.map((task) => ({ ...task, keep: true })),
-        fallback: result.data.fallback,
+    void proposeMilestoneTasksAction({ milestoneId })
+      .catch((error) => {
+        console.error("breakdown proposal failed", error);
+        return { ok: false, error: "generic" } as const;
+      })
+      .then((result) => {
+        if (cancelled) return;
+        if (!result.ok) {
+          toast.error(result.error === "conflict" ? t("rateLimited") : t("failed"));
+          onClose();
+          return;
+        }
+        setProposal({
+          rows: result.data.tasks.map((task) => ({ ...task, keep: true })),
+          fallback: result.data.fallback,
+        });
       });
-    });
     return () => {
       cancelled = true;
     };

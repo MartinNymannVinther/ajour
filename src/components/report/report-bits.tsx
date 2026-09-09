@@ -67,19 +67,29 @@ export function Trend({ report, words }: { report: StatusReport; words: ReportWo
   if (report.trend.length < 2) return null;
   const first = report.trend[0]!;
   const last = report.trend[report.trend.length - 1]!;
+  // A row of coloured dots and nothing else is a row of nothing to
+  // somebody who cannot see it: `title` on a plain span is not reliably
+  // read aloud and does not exist at all on a touch screen. The same
+  // widget in statuses-card.tsx has always named each dot; this one
+  // matches it now, and the list roles keep the sequence audible as a
+  // sequence rather than as loose words.
   return (
     <div className="mt-2 flex items-center gap-1.5">
-      {report.trend.map((point, i) => (
-        <span
-          key={point.weekKey + i}
-          title={`${words.week(point.weekKey)}: ${words.rag(point.rag)}`}
-          className={cn(
-            "inline-block size-2.5 rounded-full",
-            i === report.trend.length - 1 && "ring-foreground ring-1 ring-offset-1",
-          )}
-          style={{ background: RAG_COLOR[point.rag ?? "early"].dot }}
-        />
-      ))}
+      <span role="list" className="flex items-center gap-1.5">
+        {report.trend.map((point, i) => (
+          <span
+            key={point.weekKey + i}
+            role="listitem"
+            aria-label={`${words.week(point.weekKey)}: ${words.rag(point.rag)}`}
+            title={`${words.week(point.weekKey)}: ${words.rag(point.rag)}`}
+            className={cn(
+              "inline-block size-2.5 rounded-full",
+              i === report.trend.length - 1 && "ring-foreground ring-1 ring-offset-1",
+            )}
+            style={{ background: RAG_COLOR[point.rag ?? "early"].dot }}
+          />
+        ))}
+      </span>
       <span className="text-meta ml-1 text-[11px]">
         {words.trend(words.week(first.weekKey), words.week(last.weekKey))}
       </span>

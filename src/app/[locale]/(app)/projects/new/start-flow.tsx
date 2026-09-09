@@ -35,33 +35,43 @@ export function StartFlow({ today, locale }: { today: string; locale: "da" | "en
   const [creating, startCreate] = useTransition();
 
   const applyTemplate = (id: string) => {
-    void proposeTemplateAction(id).then((result) => {
-      if (!result.ok) {
-        toast.error(t("templateFailed"));
-        return;
-      }
-      const template = PROJECT_TEMPLATES.find((x) => x.id === id);
-      setTemplateKey(id);
-      setProposal(result.data);
-      setDescription(template ? template.description[locale] : "");
-      setFallback(false);
-    });
+    void proposeTemplateAction(id)
+      .catch((error) => {
+        console.error("template proposal failed", error);
+        return { ok: false, error: "generic" } as const;
+      })
+      .then((result) => {
+        if (!result.ok) {
+          toast.error(t("templateFailed"));
+          return;
+        }
+        const template = PROJECT_TEMPLATES.find((x) => x.id === id);
+        setTemplateKey(id);
+        setProposal(result.data);
+        setDescription(template ? template.description[locale] : "");
+        setFallback(false);
+      });
   };
 
   const generate = () => {
     if (description.trim().length < 10) return;
     setLoading(true);
     setProposal(null);
-    void proposePlanAction(description).then((result) => {
-      if (!result.ok) {
-        toast.error(result.error === "conflict" ? t("rateLimited") : t("proposalFailed"));
-      } else {
-        setProposal(result.data.proposal);
-        setFallback(result.data.fallback);
-        setTemplateKey(null);
-      }
-      setLoading(false);
-    });
+    void proposePlanAction(description)
+      .catch((error) => {
+        console.error("plan proposal failed", error);
+        return { ok: false, error: "generic" } as const;
+      })
+      .then((result) => {
+        if (!result.ok) {
+          toast.error(result.error === "conflict" ? t("rateLimited") : t("proposalFailed"));
+        } else {
+          setProposal(result.data.proposal);
+          setFallback(result.data.fallback);
+          setTemplateKey(null);
+        }
+        setLoading(false);
+      });
   };
 
   const create = () => {

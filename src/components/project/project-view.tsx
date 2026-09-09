@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { weekNumberFromKey } from "@/core/dates";
 import type { Subtask } from "@/core/db/schema";
+import type { ReplanProposal } from "@/modules/ai/types";
 import type { ProjectFull } from "@/modules/projects/types";
 import { PEOPLE_LIST_ID } from "@/modules/projects/constants";
 import {
@@ -125,13 +126,18 @@ export function ProjectView({
       loading: true,
       ripple,
     });
-    void proposeReplanAction({ milestoneId, newDate, ripple }).then((result) => {
+    const settle = (proposal: ReplanProposal | null) =>
       setPending((p) =>
-        p && p.milestone.id === milestoneId
-          ? { ...p, proposal: result.ok ? result.data.proposal : null, loading: false }
-          : p,
+        p && p.milestone.id === milestoneId ? { ...p, proposal, loading: false } : p,
       );
-    });
+    // .catch as well as .then: a rejected action would otherwise leave
+    // the banner spinning with no way back except a page reload.
+    void proposeReplanAction({ milestoneId, newDate, ripple })
+      .then((result) => settle(result.ok ? result.data.proposal : null))
+      .catch((error) => {
+        console.error("replan proposal failed", error);
+        settle(null);
+      });
   };
 
   const approveReplan = () => {

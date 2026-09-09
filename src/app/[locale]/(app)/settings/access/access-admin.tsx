@@ -65,22 +65,36 @@ export function AccessAdmin({
   const pending = requests.filter((r) => r.status === "pending");
   const decided = requests.filter((r) => r.status !== "pending").slice(0, 10);
 
+  // try/finally on both: an action that rejects rather than returns would
+  // otherwise leave the row disabled for good, with nothing said about why.
   async function approve(id: string) {
     setBusy(id);
-    const result = await approveAccessRequestAction(id);
-    setBusy(null);
-    if (!result.ok) return void toast.error(tCommon("error"));
-    setFresh(result.data);
-    router.refresh();
+    try {
+      const result = await approveAccessRequestAction(id);
+      if (!result.ok) return void toast.error(tCommon("error"));
+      setFresh(result.data);
+      router.refresh();
+    } catch (error) {
+      console.error("access: approve failed", error);
+      toast.error(tCommon("error"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function decline(id: string) {
     setBusy(id);
-    const result = await declineAccessRequestAction(id);
-    setBusy(null);
-    if (!result.ok) return void toast.error(tCommon("error"));
-    toast.success(t("declinedToast"));
-    router.refresh();
+    try {
+      const result = await declineAccessRequestAction(id);
+      if (!result.ok) return void toast.error(tCommon("error"));
+      toast.success(t("declinedToast"));
+      router.refresh();
+    } catch (error) {
+      console.error("access: decline failed", error);
+      toast.error(tCommon("error"));
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function invite(email: string, organizationName: string) {

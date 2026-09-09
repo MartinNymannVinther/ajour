@@ -78,13 +78,11 @@ export function ExpenseRow({
         aria-label={t("spend.editLabel", { title })}
         className="hover:bg-muted/60 focus-visible:ring-ring -mx-1 mt-1 flex w-[calc(100%+0.5rem)] items-center gap-2 rounded-md px-1 py-0.5 text-left focus-visible:ring-2 focus-visible:outline-none"
       >
-        <span
-          className="bg-muted h-1.5 w-20 shrink-0 overflow-hidden rounded-full"
-          role="progressbar"
-          aria-valuenow={share}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
+        {/* Decoration, and marked as such. The sentence to its right says
+            the same thing in words, and the button around both already
+            carries the name; a progressbar role here only added a second,
+            nameless thing for a screen reader to stop at. */}
+        <span className="bg-muted h-1.5 w-20 shrink-0 overflow-hidden rounded-full" aria-hidden>
           <span
             className={cn(
               "block h-full rounded-full",

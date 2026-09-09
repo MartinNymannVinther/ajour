@@ -96,7 +96,7 @@ export function TotpManager({ initialEnabled }: { initialEnabled: boolean }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={step.qrDataUrl}
-                alt="TOTP QR"
+                alt={t("totpQrAlt")}
                 width={220}
                 height={220}
                 className="self-start rounded-md border"

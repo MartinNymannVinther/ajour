@@ -28,7 +28,19 @@ export function useProjectActions(): { run: Run; pending: boolean } {
   const [pending, startTransition] = useTransition();
 
   const run: Run = async (action, onDone) => {
-    const result = await action();
+    // A server action can reject rather than return: the network blinked,
+    // the container restarted mid-deploy. Without this the promise
+    // rejects into nothing — callers use `run` fire-and-forget — and the
+    // person gets no toast at all, which is the exact failure the note
+    // above says this file exists to prevent.
+    let result: Awaited<ReturnType<typeof action>>;
+    try {
+      result = await action();
+    } catch (error) {
+      console.error("project action failed", error);
+      toast.error(t("generic"));
+      return false;
+    }
     if (result.ok) {
       onDone?.(result.data);
       startTransition(() => router.refresh());

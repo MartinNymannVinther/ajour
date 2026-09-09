@@ -2,7 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { addDaysIso, diffDays, maxIso, minIso, mondayOf, weekNumber } from "@/core/dates";
+import {
+  addDaysIso,
+  diffDays,
+  formatDateDa,
+  maxIso,
+  minIso,
+  mondayOf,
+  weekNumber,
+} from "@/core/dates";
 import { ZOOM_LEVELS } from "@/modules/projects/constants";
 import { cn } from "@/lib/utils";
 import { milestoneKeyHandler, taskKeyHandler } from "./timeline-keys";
@@ -51,6 +59,7 @@ export function Timeline({
   const t = useTranslations("projects.timeline");
   const scrollRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1);
+  const [announcement, setAnnouncement] = useState("");
   const dayWidth = ZOOM_LEVELS[zoom]!;
   const {
     drag,
@@ -114,6 +123,8 @@ export function Timeline({
   if (loose.length > 0 || (drag?.kind === "task" && drag.moved && onTaskRelink))
     groups.push({ milestone: null, tasks: loose });
 
+  const titleOf = (id: string) => tasks.find((task) => task.id === id)?.title ?? "";
+
   const onTaskKeyDown = taskKeyHandler({
     editable,
     milestoneIds: sorted.map((m) => m.id),
@@ -121,6 +132,21 @@ export function Timeline({
     onTaskMove,
     onTaskRelink,
     onTaskClick,
+    announceMove: (id, start, end) =>
+      setAnnouncement(
+        t("movedTask", {
+          title: titleOf(id),
+          from: formatDateDa(start),
+          to: formatDateDa(end),
+        }),
+      ),
+    announceRelink: (id, milestoneId) =>
+      setAnnouncement(
+        t("relinkedTask", {
+          title: titleOf(id),
+          milestone: sorted.find((m) => m.id === milestoneId)?.title ?? t("looseGroup"),
+        }),
+      ),
   });
 
   const onMilestoneKeyDown = milestoneKeyHandler({
@@ -128,10 +154,23 @@ export function Timeline({
     effectiveDate: (m) => effMilestone(m as TimelineMilestone),
     onMilestoneMove,
     onMilestoneClick,
+    announceMove: (id, date) =>
+      setAnnouncement(
+        t("movedMilestone", {
+          title: sorted.find((m) => m.id === id)?.title ?? "",
+          date: formatDateDa(date),
+        }),
+      ),
   });
 
   return (
     <div className="relative">
+      {/* Where the bar went, in words. An arrow key changes the bar's own
+          aria-label, but a label that changes under a focus that has not
+          moved is not announced; this is. */}
+      <p className="sr-only" role="status" aria-live="polite">
+        {announcement}
+      </p>
       <div className="border-border bg-card/90 absolute top-1 right-2 z-20 flex items-center gap-1 rounded-lg border px-1 py-0.5 shadow-[var(--surface-shadow)]">
         <button
           type="button"

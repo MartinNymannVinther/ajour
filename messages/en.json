@@ -232,7 +232,8 @@
         "verifyError": "Wrong code. Please try again.",
         "enabledToast": "Two-factor authentication enabled",
         "disabledToast": "Two-factor authentication disabled",
-        "error": "The action failed. Check the password and try again."
+        "error": "The action failed. Check the password and try again.",
+        "totpQrAlt": "QR code to scan in your authenticator app to add Ajour"
       }
     },
     "about": {
@@ -414,7 +415,9 @@
       "failUnreachable": "Nothing is listening at that address. Is Ollama running? Check OLLAMA_BASE_URL.",
       "failConfig": "The model is set up wrong. Correct the model name below, or LLM_MODEL in .env.",
       "failGeneric": "The call failed. The details are below and in the server log.",
-      "failRateLimited": "Mistral refused the call as too many (429). The key works, but the account or plan sets the ceiling: on the free Experiment plan this happens often when the model is busy, and a key under a workspace with no active plan gets the same answer. Check Billing and Limits on console.mistral.ai for the organisation the key belongs to."
+      "failRateLimited": "Mistral refused the call as too many (429). The key works, but the account or plan sets the ceiling: on the free Experiment plan this happens often when the model is busy, and a key under a workspace with no active plan gets the same answer. Check Billing and Limits on console.mistral.ai for the organisation the key belongs to.",
+      "failWhereToLook": "The details are in the server log.",
+      "testNotAllowed": "Only the owner or an administrator can test the connection."
     }
   },
   "projects": {
@@ -476,7 +479,11 @@
       "noOwner": "no owner",
       "taskHandle": "{title}, {owner}, {from} to {to}. Arrow keys move the task, shift and arrows change its length, alt and arrows move it to another milestone.",
       "milestoneHandle": "Milestone {title}, {date}. Arrow keys move the milestone and propose a replan.",
-      "regionLabel": "Timeline, scrolls sideways"
+      "regionLabel": "Timeline, scrolls sideways",
+      "movedTask": "{title} moved to {from} – {to}",
+      "movedMilestone": "Milestone {title} moved to {date}",
+      "relinkedTask": "{title} moved to {milestone}",
+      "looseGroup": "Other tasks"
     },
     "board": {
       "empty": "No tasks here. Drag a card in, or use the state select on the card.",
@@ -663,7 +670,7 @@
     "share": {
       "open": "Share",
       "title": "Share links",
-      "description": "A link opens the project's status page for anyone who has it. No login. Money, obstacles, drafts and the chat are never included.",
+      "description": "A link opens the project's status page for anyone who has it. No login. Budget figures, the obstacle list, what management is asked for, the decision log, drafts and chat never come along.",
       "freshTitle": "The link is ready",
       "copy": "Copy the link",
       "copied": "Link copied.",
@@ -684,7 +691,8 @@
       "canAnswer": "Participants can answer through the link",
       "canAnswerHint": "Whoever holds the link picks their name and can mark their own tasks, leave a note and answer the questions in the latest status. Everything lands in the project with a name on it.",
       "kindAnswer": "can answer",
-      "kindRead": "read only"
+      "kindRead": "read only",
+      "textTravels": "The summary itself does come along, word for word as it was approved. Read it before you share the link."
     },
     "start": {
       "title": "New project",
@@ -873,7 +881,12 @@
       "notConfigured": "Mail is not set up on this installation (SMTP_URL). Download the PDF and send it yourself, or ask whoever runs Ajour to set up mail.",
       "sent": "{count, plural, one {Sent to one recipient.} other {Sent to # recipients.}}",
       "failed": "The status is approved, but the mail did not go out: {reason}. Download the PDF and send it yourself."
-    }
+    },
+    "sharedTextTitle": "The summary travels with the share link",
+    "sharedTextBody": "The text itself is shared word for word. Right now it mentions {what}. Reword it here if it should not leave the house — the budget figures, the obstacle list and what management is asked for are not shared on their own.",
+    "sharedTextMoney": "amounts ({list})",
+    "sharedTextObstacles": "the obstacle “{list}”",
+    "sharedTextAnd": " and "
   },
   "share": {
     "kicker": "Project status · shared link",
@@ -1216,6 +1229,7 @@
       "ahead": "Money is running {points} points ahead of the work"
     },
     "nothingSince": "No changes to the plan since last time",
-    "ofAmount": "of {amount}"
+    "ofAmount": "of {amount}",
+    "progressOnly": "Progress"
   }
 }

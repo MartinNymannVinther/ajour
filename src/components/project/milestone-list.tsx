@@ -88,7 +88,7 @@ export function MilestoneList({
                     done && "text-success",
                   )}
                 >
-                  ◆ {m.title}
+                  <span aria-hidden>◆</span> {m.title}
                 </button>
                 <span className="text-meta ml-auto shrink-0 text-xs">
                   {m.ownerName && <span className="mr-2">{m.ownerName}</span>}

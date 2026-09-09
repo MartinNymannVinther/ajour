@@ -138,7 +138,7 @@ export function TaskList({
                   title={m.title}
                   className={chip(filter === m.id)}
                 >
-                  ◆ {m.title} · {countUnder(m.id)}
+                  <span aria-hidden>◆</span> {m.title} · {countUnder(m.id)}
                 </button>
               ))}
               {loose && (

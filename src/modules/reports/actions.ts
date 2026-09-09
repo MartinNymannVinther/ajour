@@ -263,25 +263,3 @@ export async function mailWords(): Promise<MailWords> {
     sentBy: t("sentBy"),
   };
 }
-
-const Recipients = z.object({
-  projectId,
-  recipients: z.array(z.object({ name: z.string().max(80), email: z.string().max(254) })).max(20),
-});
-
-export async function setStatusRecipientsAction(raw: unknown): Promise<Result<undefined>> {
-  const ctx = await requireOrgContext();
-  if (!ctx) return fail("unauthorized");
-  const parsed = Recipients.safeParse(raw);
-  if (!parsed.success) return fail("invalid");
-  try {
-    await withOrgContext(ctx, (tx) =>
-      setStatusRecipients(tx, parsed.data.projectId, cleanRecipients(parsed.data.recipients)),
-    );
-    revalidatePath(`/projects/${parsed.data.projectId}`);
-    return ok(undefined);
-  } catch (error) {
-    console.error("recipients update failed", error);
-    return fail("generic");
-  }
-}

@@ -232,7 +232,8 @@
         "verifyError": "Forkert kode. Prøv igen.",
         "enabledToast": "Totrinsbekræftelse er slået til",
         "disabledToast": "Totrinsbekræftelse er slået fra",
-        "error": "Handlingen mislykkedes. Tjek adgangskoden, og prøv igen."
+        "error": "Handlingen mislykkedes. Tjek adgangskoden, og prøv igen.",
+        "totpQrAlt": "QR-kode du scanner i din autentificeringsapp for at tilføje Ajour"
       }
     },
     "about": {
@@ -414,7 +415,9 @@
       "failUnreachable": "Der er ingen der lytter på adressen. Kører Ollama? Tjek OLLAMA_BASE_URL.",
       "failConfig": "Modellen er sat op forkert. Ret modelnavnet herunder, eller LLM_MODEL i .env.",
       "failGeneric": "Kaldet gik galt. Detaljerne står herunder og i serverloggen.",
-      "failRateLimited": "Mistral afviste kaldet som for mange (429). Nøglen virker, men kontoen eller planen sætter loftet: på den gratis Experiment-plan sker det ofte når modellen er travl, og en nøgle under et arbejdsrum uden aktiv plan får det samme svar. Tjek Billing og Limits på console.mistral.ai for den organisation nøglen hører til."
+      "failRateLimited": "Mistral afviste kaldet som for mange (429). Nøglen virker, men kontoen eller planen sætter loftet: på den gratis Experiment-plan sker det ofte når modellen er travl, og en nøgle under et arbejdsrum uden aktiv plan får det samme svar. Tjek Billing og Limits på console.mistral.ai for den organisation nøglen hører til.",
+      "failWhereToLook": "Detaljerne står i serverloggen.",
+      "testNotAllowed": "Kun ejeren eller en administrator kan teste forbindelsen."
     }
   },
   "projects": {
@@ -476,7 +479,11 @@
       "noOwner": "ingen ansvarlig",
       "taskHandle": "{title}, {owner}, {from} til {to}. Piletaster flytter opgaven, skift og piletaster ændrer længden, alt og piletaster flytter til en anden milepæl.",
       "milestoneHandle": "Milepælen {title}, {date}. Piletaster flytter milepælen og foreslår en replanlægning.",
-      "regionLabel": "Tidslinje, kan rulles vandret"
+      "regionLabel": "Tidslinje, kan rulles vandret",
+      "movedTask": "{title} flyttet til {from} – {to}",
+      "movedMilestone": "Milepælen {title} flyttet til {date}",
+      "relinkedTask": "{title} flyttet til {milestone}",
+      "looseGroup": "Øvrige opgaver"
     },
     "board": {
       "empty": "Ingen opgaver her. Træk et kort hertil, eller brug statusvælgeren på kortet.",
@@ -663,7 +670,7 @@
     "share": {
       "open": "Del",
       "title": "Delelinks",
-      "description": "Et link åbner projektets statusside for enhver, der har det. Ingen login. Økonomi, forhindringer, udkast og chat kommer aldrig med.",
+      "description": "Et link åbner projektets statusside for enhver, der har det. Ingen login. Budgettal, forhindringslisten, hvad ledelsen bliver bedt om, beslutningsloggen, udkast og chat kommer aldrig med.",
       "freshTitle": "Linket er lavet",
       "copy": "Kopiér linket",
       "copied": "Linket er kopieret.",
@@ -684,7 +691,8 @@
       "canAnswer": "Deltagere kan svare via linket",
       "canAnswerHint": "Den, der har linket, vælger sit navn og kan markere sine egne opgaver, skrive en bemærkning og svare på spørgsmålene i seneste status. Alt lander i projektet med navn på.",
       "kindAnswer": "kan svare",
-      "kindRead": "kun læse"
+      "kindRead": "kun læse",
+      "textTravels": "Selve sammenfatningen kommer med, ordret som den blev godkendt. Læs den igennem, før du deler linket."
     },
     "start": {
       "title": "Nyt projekt",
@@ -873,7 +881,12 @@
       "notConfigured": "Mail er ikke sat op på denne installation (SMTP_URL). Hent PDF'en og send den selv, eller bed den, der driver Ajour, om at sætte mail op.",
       "sent": "{count, plural, one {Sendt til én modtager.} other {Sendt til # modtagere.}}",
       "failed": "Status er godkendt, men mailen gik ikke ud: {reason}. Hent PDF'en og send den selv."
-    }
+    },
+    "sharedTextTitle": "Sammenfatningen kommer med på delelinket",
+    "sharedTextBody": "Selve teksten deles ordret. Lige nu nævner den {what}. Skriv det om her, hvis det ikke skal ud af huset — budgettallene, forhindringslisten og det ledelsen bliver bedt om deles ikke i sig selv.",
+    "sharedTextMoney": "beløb ({list})",
+    "sharedTextObstacles": "forhindringen „{list}“",
+    "sharedTextAnd": " og "
   },
   "share": {
     "kicker": "Projektstatus · delt link",
@@ -1216,6 +1229,7 @@
       "ahead": "Pengene løber {points} point foran arbejdet"
     },
     "nothingSince": "Ingen ændringer i planen siden sidst",
-    "ofAmount": "af {amount}"
+    "ofAmount": "af {amount}",
+    "progressOnly": "Fremdrift"
   }
 }
