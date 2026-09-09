@@ -31,6 +31,9 @@ runtime but the machine.
    | `BETTER_AUTH_URL`     | `https://ajour.haij.dk` (public URL; passkeys bind to this origin) |
    | `LLM_PROVIDER`        | `mistral` hosted, `ollama` self-hosted, or leave unset for `none`  |
    | `MISTRAL_API_KEY`     | only with `LLM_PROVIDER=mistral`                                   |
+   | `SMTP_URL`            | optional; mail out of the house, see section 6b                    |
+   | `MAIL_FROM`           | with `SMTP_URL`, e.g. `Ajour <ajour@example.dk>`                   |
+   | `CRON_SECRET`         | optional; `openssl rand -base64 32`, for the reminder endpoint     |
 
    These set the default every workspace inherits. A workspace can choose
    its own provider, model and key in Settings → AI; keys stored that way

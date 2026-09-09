@@ -34,7 +34,7 @@ FROM base AS migrator
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json drizzle.config.ts ./
 COPY drizzle ./drizzle
-COPY src/core/db/schema.ts ./src/core/db/schema.ts
+COPY src/core/db/schema ./src/core/db/schema
 # The migration step is our own script (it names its failures) and role
 # provisioning runs with it; see scripts/migrate.ts and ensure-roles.ts.
 COPY scripts/migrate.ts scripts/ensure-roles.ts ./scripts/

@@ -76,6 +76,16 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: "1"
 
+  image:
+    name: Docker image (migrator and runner)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # The images are what production runs; a COPY of a file that moved
+      # only shows up here, not in pnpm build. Both targets, no push.
+      - run: docker build --target migrator -t ajour-migrator:ci .
+      - run: docker build --target runner -t ajour-runner:ci .
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest

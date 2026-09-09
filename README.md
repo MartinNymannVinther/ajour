@@ -19,14 +19,19 @@ constitution — dogmas, principles, architecture and rules — lives in
 
 ## Status
 
-Complete as a product, not yet run in anger. Four waves are done: the
+Complete as a product, not yet run in anger. The waves so far: the
 foundation (auth with passkeys and TOTP, workspaces separated in the
 database, admission by application, the audit log, CI, Docker), the
 product itself (the seven concepts, the three flows, the timeline, the
 board, the AI chat that acts on the whole project, share links, export and
 deletion), accessibility and hardening (WCAG 2.1 AA, every action on the
-keyboard, the AI's writes scoped twice), and the demo. Dogma seven is the
-one still open: Ajour runs a real project before it goes in the window.
+keyboard, the AI's writes scoped twice), the demo, the status report for
+the people who decide, the share link as an answer channel (participants
+mark their own tasks and answer the status's questions without a login),
+the front page as a weekly round, mail out of the house when the manager
+says so, and a second version of replanning with fixed dates. Dogma seven
+is the one still open: Ajour runs a real project before it goes in the
+window.
 
 What that means for you: the code is public and you are welcome to run it,
 read it, report what you find and send changes. The instance at
