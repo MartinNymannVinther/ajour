@@ -13,6 +13,14 @@ import type { Locale, StatusDraft } from "@/modules/ai/types";
 import { recentEvents, renderEvent } from "@/modules/projects/events";
 import { readProjectFull } from "@/modules/projects/read";
 import { fail, ok, type Result } from "@/modules/projects/types";
+import {
+  cleanRecipients,
+  mailApprovedStatus,
+  setStatusRecipients,
+  type MailWords,
+  type SendOutcome,
+} from "./mail";
+import { serverReportWords } from "./pdf-words";
 import { prepareStatus } from "./prepare";
 import {
   approveStatus,
@@ -183,10 +191,25 @@ export async function reviseStatusAction(
 }
 
 /** Ugen, step two: what the person decided becomes a status, frozen with the plan. */
-export async function approveStatusAction(raw: unknown): Promise<Result<string>> {
+const Approve = Authored.extend({
+  /** Send the approved status to the project's recipients by mail. */
+  send: z.boolean().default(false),
+  recipients: z
+    .array(z.object({ name: z.string().max(80), email: z.string().max(254) }))
+    .max(20)
+    .optional(),
+});
+
+export type ApproveOutcome = {
+  statusId: string;
+  /** What happened to the mail; null when sending was not asked for. */
+  mail: SendOutcome | null;
+};
+
+export async function approveStatusAction(raw: unknown): Promise<Result<ApproveOutcome>> {
   const ctx = await requireOrgContext();
   if (!ctx) return fail("unauthorized");
-  const parsed = Authored.safeParse(raw);
+  const parsed = Approve.safeParse(raw);
   if (!parsed.success) return fail("invalid");
   const locale = (await getLocale()) as Locale;
   const words = await statusWords(locale);
@@ -195,6 +218,12 @@ export async function approveStatusAction(raw: unknown): Promise<Result<string>>
     const statusId = await withOrgContext(ctx, async (tx) => {
       const full = await readProjectFull(tx, parsed.data.projectId);
       if (!full) return null;
+      if (parsed.data.recipients)
+        await setStatusRecipients(
+          tx,
+          parsed.data.projectId,
+          cleanRecipients(parsed.data.recipients),
+        );
       const status = await prepareStatus(tx, full, words);
       return approveStatus(
         tx,
@@ -206,10 +235,53 @@ export async function approveStatusAction(raw: unknown): Promise<Result<string>>
       );
     });
     if (!statusId) return fail("notFound");
+    // The mail goes in its own transaction: the approval stands whether
+    // or not the provider answers, and the event says which it was.
+    let mail: SendOutcome | null = null;
+    if (parsed.data.send) {
+      const words = { mail: await mailWords(), report: await serverReportWords() };
+      mail = await withOrgContext(ctx, (tx) =>
+        mailApprovedStatus(tx, ctx, parsed.data.projectId, statusId, words, locale),
+      );
+    }
     revalidatePath(`/projects/${parsed.data.projectId}`);
-    return ok(statusId);
+    return ok({ statusId, mail });
   } catch (error) {
     console.error("status approval failed", error);
+    return fail("generic");
+  }
+}
+
+/** Only the mail words, so the status flow can say who will get it. */
+export async function mailWords(): Promise<MailWords> {
+  const t = await getTranslations("status.mail");
+  return {
+    subject: (project, week) => t("subject", { project, week }),
+    intro: (project, week, by) => t("intro", { project, week, by }),
+    comment: t("comment"),
+    openLink: t("openLink"),
+    sentBy: t("sentBy"),
+  };
+}
+
+const Recipients = z.object({
+  projectId,
+  recipients: z.array(z.object({ name: z.string().max(80), email: z.string().max(254) })).max(20),
+});
+
+export async function setStatusRecipientsAction(raw: unknown): Promise<Result<undefined>> {
+  const ctx = await requireOrgContext();
+  if (!ctx) return fail("unauthorized");
+  const parsed = Recipients.safeParse(raw);
+  if (!parsed.success) return fail("invalid");
+  try {
+    await withOrgContext(ctx, (tx) =>
+      setStatusRecipients(tx, parsed.data.projectId, cleanRecipients(parsed.data.recipients)),
+    );
+    revalidatePath(`/projects/${parsed.data.projectId}`);
+    return ok(undefined);
+  } catch (error) {
+    console.error("recipients update failed", error);
     return fail("generic");
   }
 }

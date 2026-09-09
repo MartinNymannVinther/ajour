@@ -179,6 +179,45 @@ The terms page at `/terms` tells visitors what a demo is and asks them not
 to put real personal data in one; if you host a demo, read that page and
 make sure it says what you actually do.
 
+## 6b. Mail: the status out of the house, and the weekly reminder
+
+Ajour sends two things by mail, and only when `SMTP_URL` is set: the
+approved status to the recipients listed on the project (the project
+manager ticks "send" at approval, every time), and a weekly reminder to
+the members of a workspace with projects that have no status this week.
+Without `SMTP_URL` nothing is sent and the buttons say so; the rest of the
+product does not care. ADR 0013 has the reasoning.
+
+```
+SMTP_URL=smtps://user:password@smtp.example.eu:465
+MAIL_FROM=Ajour <ajour@example.dk>
+CRON_SECRET=<openssl rand -base64 32>
+```
+
+Pick an EU provider for a hosted instance and add it to
+`docs/subprocessors.md` before you switch it on: it sees every status you
+send, which is the project's name, the summary, the manager's comment and
+the PDF.
+
+The reminder runs when something calls it. Either the script, from cron
+on the server, Thursday at eight:
+
+```
+# crontab -e
+0 8 * * 4 docker exec <ajour app container> pnpm tsx scripts/remind-status.ts
+```
+
+or the endpoint, from Coolify's scheduled tasks or any scheduler that can
+send a header:
+
+```bash
+curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://ajour.haij.dk/api/reminders/status
+```
+
+Both are safe to run twice: a project reminded this week is not reminded
+again. Without `CRON_SECRET` the endpoint answers 404 and the script is
+the only way.
+
 ## 7. Nightly encrypted backups (EU object storage)
 
 Per the family's dogmas: nightly encrypted dumps to EU-owned object storage

@@ -835,6 +835,31 @@
     "fromTeam": {
       "title": "From the team since last time ({count})",
       "hint": "Answers and notes sent through the share link. The engine has read them and they are in the draft."
+    },
+    "mail": {
+      "subject": "{project}: {week} status",
+      "intro": "Here is the {week} status for {project}, approved by {by}. The report is attached as a PDF.",
+      "comment": "The project manager's comment:",
+      "openLink": "Open the project in Ajour",
+      "sentBy": "Sent from Ajour because the project manager chose to at approval."
+    },
+    "reminder": {
+      "subject": "{workspace}: the {week} status is missing",
+      "week": "Week {number}",
+      "intro": "{count, plural, one {One project in {workspace} has no {week} status yet} other {# projects in {workspace} have no {week} status yet}}. Five minutes, and the team sees the same picture:",
+      "outro": "Sent from Ajour once a week. If you have already sent the status, ignore this mail."
+    },
+    "send": {
+      "title": "Send by mail",
+      "hint": "Recipients get the summary and your comment in the mail and the report as a PDF. The list is kept on the project, so it is ready next week.",
+      "checkbox": "Send the report to the recipients when I approve",
+      "placeholder": "name@example.com, or several separated by commas",
+      "add": "Add",
+      "remove": "Remove {email}",
+      "none": "No recipients yet.",
+      "notConfigured": "Mail is not set up on this installation (SMTP_URL). Download the PDF and send it yourself, or ask whoever runs Ajour to set up mail.",
+      "sent": "{count, plural, one {Sent to one recipient.} other {Sent to # recipients.}}",
+      "failed": "The status is approved, but the mail did not go out: {reason}. Download the PDF and send it yourself."
     }
   },
   "share": {
@@ -906,7 +931,7 @@
       },
       "share": {
         "title": "Share with others",
-        "body": "Every approved status can be downloaded as a two-page PDF: a front page with the assessment, what management is asked for, your comment, the money and the part of the plan that carries the next milestones, and an appendix with the whole timeline, every task, the decisions and the money lines. A share link lets the project be read without a login, with the plan, the milestones and the approved statuses, and the PDF can be downloaded from there. Money, obstacles and the management items never appear on the public link. Under Settings → Data you can export the whole workspace as a spreadsheet or JSON, and delete it again. Tick “Participants can answer through the link” and the link becomes an answer channel: whoever opens it picks their name and can mark their own tasks, leave a note and answer the questions in the latest status, without a login. The answers land in the project with a name on them, and the engine writes the next status from them."
+        "body": "Every approved status can be downloaded as a two-page PDF: a front page with the assessment, what management is asked for, your comment, the money and the part of the plan that carries the next milestones, and an appendix with the whole timeline, every task, the decisions and the money lines. A share link lets the project be read without a login, with the plan, the milestones and the approved statuses, and the PDF can be downloaded from there. Money, obstacles and the management items never appear on the public link. Under Settings → Data you can export the whole workspace as a spreadsheet or JSON, and delete it again. Tick “Participants can answer through the link” and the link becomes an answer channel: whoever opens it picks their name and can mark their own tasks, leave a note and answer the questions in the latest status, without a login. The answers land in the project with a name on them, and the engine writes the next status from them. At approval you can mail the report to a list of recipients kept on the project, and once a week Ajour can remind you of a status that is missing; both need whoever runs the installation to have set up mail."
       },
       "model": {
         "title": "The language model",
@@ -1001,7 +1026,9 @@
       "added": "People added: {names}"
     },
     "status": {
-      "approved": "The weekly status for {week} was approved"
+      "approved": "The weekly status for {week} was approved",
+      "sent": "The {week} status was sent to {count} recipients",
+      "sendFailed": "The {week} status was approved, but the mail did not go out ({reason})"
     },
     "replan": {
       "applied": "Replan: “{milestone}” to {date}, {moved} things moved"
@@ -1017,6 +1044,9 @@
       "state": "{by} set “{title}” to {state} through the share link",
       "note": "{by} on “{task}”: {text}",
       "answer": "{by} answered “{question}”: {text}"
+    },
+    "reminder": {
+      "sent": "A reminder for the {week} status went to {count} people"
     }
   },
   "demo": {

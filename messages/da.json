@@ -835,6 +835,31 @@
     "fromTeam": {
       "title": "Fra holdet siden sidst ({count})",
       "hint": "Svar og bemærkninger sendt gennem delelinket. AI'en har læst dem, og de er med i udkastet."
+    },
+    "mail": {
+      "subject": "{project}: {week}-status",
+      "intro": "Her er {week}-status for {project}, godkendt af {by}. Rapporten er vedhæftet som PDF.",
+      "comment": "Projektlederens kommentar:",
+      "openLink": "Åbn projektet i Ajour",
+      "sentBy": "Sendt fra Ajour, fordi projektlederen valgte det ved godkendelsen."
+    },
+    "reminder": {
+      "subject": "{workspace}: ugestatus for {week} mangler",
+      "week": "Uge {number}",
+      "intro": "{count, plural, one {Ét projekt i {workspace} har ikke fået en {week}-status endnu} other {# projekter i {workspace} har ikke fået en {week}-status endnu}}. Fem minutter, så har holdet det samme billede:",
+      "outro": "Sendt fra Ajour én gang om ugen. Har du allerede sendt status, kan du se bort fra denne mail."
+    },
+    "send": {
+      "title": "Send på mail",
+      "hint": "Modtagerne får sammenfatningen og din kommentar i mailen og rapporten som PDF. Listen gemmes på projektet, så den er klar næste uge.",
+      "checkbox": "Send rapporten til modtagerne, når jeg godkender",
+      "placeholder": "navn@eksempel.dk, eller flere adskilt med komma",
+      "add": "Tilføj",
+      "remove": "Fjern {email}",
+      "none": "Ingen modtagere endnu.",
+      "notConfigured": "Mail er ikke sat op på denne installation (SMTP_URL). Hent PDF'en og send den selv, eller bed den, der driver Ajour, om at sætte mail op.",
+      "sent": "{count, plural, one {Sendt til én modtager.} other {Sendt til # modtagere.}}",
+      "failed": "Status er godkendt, men mailen gik ikke ud: {reason}. Hent PDF'en og send den selv."
     }
   },
   "share": {
@@ -906,7 +931,7 @@
       },
       "share": {
         "title": "Del med andre",
-        "body": "Hver godkendt status kan hentes som en PDF på to sider: forsiden med vurdering, ledelsespunkter, din kommentar, økonomi og den del af planen der bærer de næste milepæle, og et bilag med hele tidslinjen, alle opgaver, beslutningerne og økonomiposterne. Med et delelink kan projektet læses uden login, med plan, milepæle og godkendte statusser, og PDF'en kan hentes derfra. Økonomi, forhindringer og ledelsespunkter kommer aldrig med på det åbne link. Under Indstillinger → Data henter du hele arbejdsrummet som regneark eller JSON, og sletter det igen. Sæt kryds ved „Deltagere kan svare via linket“, og linket bliver en svarkanal: den, der åbner det, vælger sit navn og kan markere sine egne opgaver, skrive en bemærkning og svare på spørgsmålene i seneste status, uden login. Svarene lander i projektet med navn på, og AI'en skriver næste status ud fra dem."
+        "body": "Hver godkendt status kan hentes som en PDF på to sider: forsiden med vurdering, ledelsespunkter, din kommentar, økonomi og den del af planen der bærer de næste milepæle, og et bilag med hele tidslinjen, alle opgaver, beslutningerne og økonomiposterne. Med et delelink kan projektet læses uden login, med plan, milepæle og godkendte statusser, og PDF'en kan hentes derfra. Økonomi, forhindringer og ledelsespunkter kommer aldrig med på det åbne link. Under Indstillinger → Data henter du hele arbejdsrummet som regneark eller JSON, og sletter det igen. Sæt kryds ved „Deltagere kan svare via linket“, og linket bliver en svarkanal: den, der åbner det, vælger sit navn og kan markere sine egne opgaver, skrive en bemærkning og svare på spørgsmålene i seneste status, uden login. Svarene lander i projektet med navn på, og AI'en skriver næste status ud fra dem. Ved godkendelsen kan du sende rapporten på mail til en modtagerliste, der gemmes på projektet, og en gang om ugen kan Ajour minde jer om en status, der mangler; begge dele kræver, at den, der driver installationen, har sat mail op."
       },
       "model": {
         "title": "Sprogmodellen",
@@ -1001,7 +1026,9 @@
       "added": "Personer tilføjet: {names}"
     },
     "status": {
-      "approved": "Ugestatus for {week} blev godkendt"
+      "approved": "Ugestatus for {week} blev godkendt",
+      "sent": "{week}-status blev sendt til {count} modtagere",
+      "sendFailed": "{week}-status blev godkendt, men mailen gik ikke ud ({reason})"
     },
     "replan": {
       "applied": "Replanlægning: „{milestone}“ til {date}, {moved} ting flyttet"
@@ -1017,6 +1044,9 @@
       "state": "{by} satte „{title}“ til {state} via delelinket",
       "note": "{by} om „{task}“: {text}",
       "answer": "{by} svarede på „{question}“: {text}"
+    },
+    "reminder": {
+      "sent": "Påmindelse om {week}-status sendt til {count} personer"
     }
   },
   "demo": {

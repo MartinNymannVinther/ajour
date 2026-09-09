@@ -70,6 +70,9 @@ export type ObstacleStatus = (typeof OBSTACLE_STATUSES)[number];
 
 export type Subtask = { title: string; done: boolean };
 
+/** Who gets the approved status by mail; kept on the project so next week is prefilled. */
+export type StatusRecipient = { name: string; email: string };
+
 export const projects = pgTable(
   "projects",
   {
@@ -86,6 +89,8 @@ export const projects = pgTable(
     budget: integer("budget"),
     /** Template the plan started from, for the record. */
     templateKey: text("template_key"),
+    /** Who the approved status is mailed to (docs/adr/0013). */
+    statusRecipients: jsonb("status_recipients").$type<StatusRecipient[]>().notNull().default([]),
     createdBy: text("created_by").references(() => users.id, { onDelete: "set null" }),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     ...timestamps,

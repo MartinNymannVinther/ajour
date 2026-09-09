@@ -35,6 +35,11 @@ export default defineConfig({
       ...testDatabaseUrls,
       SIGNUP: "open",
       LLM_PROVIDER: "none",
+      // Mail is kept in memory: the suite proves what would be sent, and
+      // never sends it.
+      MAIL_TRANSPORT: "memory",
+      MAIL_FROM: "Ajour test <ajour@test.invalid>",
+      CRON_SECRET: "test-cron-secret-with-length",
     },
     environment: "node",
     include: ["tests/**/*.test.ts"],

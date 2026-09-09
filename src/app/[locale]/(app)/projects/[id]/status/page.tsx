@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { requireOrgContext } from "@/core/auth/guard";
 import { todayInCopenhagen, weekKey, weekNumberFromKey } from "@/core/dates";
+import { mailConfigured } from "@/core/mail";
 import { getProjectFull } from "@/modules/projects/read";
 import { StatusFlow } from "./status-flow";
 
@@ -34,6 +35,8 @@ export default async function StatusPage({ params }: Params) {
       projectName={full.project.name}
       weekLabel={common("week", { number: weekNumberFromKey(week) })}
       replies={replies}
+      initialRecipients={full.project.statusRecipients}
+      mailConfigured={mailConfigured()}
     />
   );
 }

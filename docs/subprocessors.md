@@ -6,10 +6,11 @@ public list of who can see what for the installation at ajour.haij.dk. A
 self-hosted Ajour with `LLM_PROVIDER=ollama` has no subprocessor at all
 beyond the machine it runs on.
 
-| Subprocessor        | Purpose                                                                  | Data                                                                                                                                                    | Location      | Added      |
-| ------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---------- |
-| Hetzner Online GmbH | Hosting: the VPS running Docker and the database                         | Everything the installation holds                                                                                                                       | Nuremberg, DE | 2026-09-03 |
-| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat, the daily tip | The project the feature works on: names of people, tasks, milestones, obstacles, decisions, the budget and its lines, chat messages. Written out below. | Paris, FR     | 2026-09-03 |
+| Subprocessor        | Purpose                                                                              | Data                                                                                                                                                      | Location                                                      | Added      |
+| ------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | ---------- |
+| Hetzner Online GmbH | Hosting: the VPS running Docker and the database                                     | Everything the installation holds                                                                                                                         | Nuremberg, DE                                                 | 2026-09-03 |
+| Mistral AI          | LLM adapter: plan proposals, status drafts, replans, chat, the daily tip             | The project the feature works on: names of people, tasks, milestones, obstacles, decisions, the budget and its lines, chat messages. Written out below.   | Paris, FR                                                     | 2026-09-03 |
+| _(mail provider)_   | Outgoing mail: the approved status to its recipients, the weekly reminder (ADR 0013) | The project's name, the status summary, the manager's comment, the PDF, the recipients' addresses; for the reminder, project names and members' addresses | _to be named before `SMTP_URL` is set on the hosted instance_ | —          |
 
 ## What each one does and does not see
 

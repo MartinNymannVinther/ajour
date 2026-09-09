@@ -18,7 +18,8 @@ codebase to:
    on the hosted instance. A paid edition is fine, but it is the same code.
 2. **Self-hosting.** Runs on one server with Docker Compose, one Postgres
    and a local language model through Ollama, without a single cloud key.
-   Features that need an external service say so and let the rest work.
+   Features that need an external service say so and let the rest work
+   (mail is one: plain SMTP behind `SMTP_URL`, nothing sent without it).
    The test: cut the internet, and everything essential still works.
 3. **Your data, always.** Everything a workspace owns can be exported with
    one click in open formats (spreadsheet, JSON, PDF) and deleted again
@@ -168,5 +169,7 @@ codebase to:
 - Wave 8 (done): the front page as the weekly round — every project
   carries a colour worked out from the plan today and the reasons behind
   it, and the ones that need attention come first (modules/projects/health).
-- After v1: fixed-date milestones and replanning alternatives, mail
-  through an EU provider.
+- Wave 9 (done): mail — the approved status to the recipients on the
+  project when the manager says so, and a weekly reminder from a
+  scheduler; plain SMTP, nothing without `SMTP_URL` (ADR 0013).
+- After v1: fixed-date milestones and replanning alternatives.

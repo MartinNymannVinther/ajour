@@ -18,6 +18,8 @@ import {
 import type { StatusDraftResult } from "@/modules/reports/actions";
 import type { StatusReport } from "@/modules/reports/status-report";
 import { StatusFieldsForm, type StatusFields } from "./status-fields";
+import { SendPanel } from "./send-panel";
+import type { StatusRecipient } from "@/core/db/schema";
 
 /**
  * Ugen: the engine reads what happened, assesses it and drafts the words;
@@ -30,11 +32,15 @@ export function StatusFlow({
   projectName,
   weekLabel,
   replies,
+  initialRecipients,
+  mailConfigured,
 }: {
   projectId: string;
   projectName: string;
   weekLabel: string;
   replies: Array<{ id: string; name: string; about: string; text: string }>;
+  initialRecipients: StatusRecipient[];
+  mailConfigured: boolean;
 }) {
   const t = useTranslations("status");
   const common = useTranslations("common");
@@ -48,6 +54,8 @@ export function StatusFlow({
   const [openQuestions, setOpenQuestions] = useState<string[]>([]);
   const [revising, setRevising] = useState(false);
   const [approving, startApprove] = useTransition();
+  const [recipients, setRecipients] = useState<StatusRecipient[]>(initialRecipients);
+  const [send, setSend] = useState(mailConfigured && initialRecipients.length > 0);
   const started = useRef(false);
 
   const load = () => {
@@ -172,11 +180,17 @@ export function StatusFlow({
         ...authored,
         text: current.text.trim(),
         nextWeek: lines(current.nextWeek),
+        send: send && recipients.length > 0,
+        recipients,
       });
       if (!result.ok) {
         toast.error(t("approveFailed"));
         return;
       }
+      const mail = result.data.mail;
+      if (mail?.sent) toast.success(t("send.sent", { count: mail.count }));
+      else if (mail && mail.reason === "notConfigured") toast.warning(t("send.notConfigured"));
+      else if (mail) toast.warning(t("send.failed", { reason: mail.reason }));
       router.push(`/projects/${projectId}`);
     });
   };
@@ -250,6 +264,13 @@ export function StatusFlow({
                 suggestions={draft.draft.suggestedAsks}
                 weekLabel={weekOf}
                 onChange={(patch) => setFields((f) => (f ? { ...f, ...patch } : f))}
+              />
+              <SendPanel
+                recipients={recipients}
+                onRecipients={setRecipients}
+                send={send}
+                onSend={setSend}
+                mailConfigured={mailConfigured}
               />
               <div className="flex flex-wrap items-center gap-3 pb-8">
                 <Button
