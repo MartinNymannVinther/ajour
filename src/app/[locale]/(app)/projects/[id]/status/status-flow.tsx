@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { FileDown } from "lucide-react";
 import { toast } from "sonner";
 import { weekNumberFromKey } from "@/core/dates";
@@ -16,10 +16,13 @@ import {
   reviseStatusAction,
 } from "@/modules/reports/actions";
 import type { StatusDraftResult } from "@/modules/reports/actions";
+import { sharedTextWarning } from "@/modules/reports/shared-text";
 import type { StatusReport } from "@/modules/reports/status-report";
 import { StatusFieldsForm, type StatusFields } from "./status-fields";
 import { SendPanel } from "./send-panel";
 import type { StatusRecipient } from "@/core/db/schema";
+import { formatMoney } from "@/modules/ai/phrases";
+import type { Locale } from "@/modules/ai/types";
 
 /**
  * Ugen: the engine reads what happened, assesses it and drafts the words;
@@ -43,6 +46,7 @@ export function StatusFlow({
   mailConfigured: boolean;
 }) {
   const t = useTranslations("status");
+  const locale = useLocale() as Locale;
   const common = useTranslations("common");
   const weekOf = (key: string) => common("week", { number: weekNumberFromKey(key) });
   const router = useRouter();
@@ -60,25 +64,30 @@ export function StatusFlow({
 
   const load = () => {
     setLoading(true);
-    void draftStatusAction({ projectId }).then((result) => {
-      if (!result.ok) {
-        toast.error(result.error === "conflict" ? t("rateLimited") : t("draftFailed"));
-      } else {
-        const d = result.data;
-        setDraft(d);
-        setOpenQuestions(d.draft.questions);
-        setFields({
-          rag: d.rag,
-          ragReason: d.reason,
-          text: d.draft.text,
-          managerComment: d.previousComment,
-          managementAsks: d.carriedAsks,
-          nextWeek: d.draft.nextWeek.join("\n"),
-          answers: {},
-        });
-      }
-      setLoading(false);
-    });
+    void draftStatusAction({ projectId })
+      .catch((error) => {
+        console.error("status draft failed", error);
+        return { ok: false, error: "generic" } as const;
+      })
+      .then((result) => {
+        if (!result.ok) {
+          toast.error(result.error === "conflict" ? t("rateLimited") : t("draftFailed"));
+        } else {
+          const d = result.data;
+          setDraft(d);
+          setOpenQuestions(d.draft.questions);
+          setFields({
+            rag: d.rag,
+            ragReason: d.reason,
+            text: d.draft.text,
+            managerComment: d.previousComment,
+            managementAsks: d.carriedAsks,
+            nextWeek: d.draft.nextWeek.join("\n"),
+            answers: {},
+          });
+        }
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -169,6 +178,20 @@ export function StatusFlow({
       trend,
     };
   }, [draft, authored]);
+
+  // What the approved words would tell a stranger holding a share link.
+  // Recomputed as the manager types, so the note follows the edit.
+  const shared = (() => {
+    if (!draft || !fields?.text.trim()) return "";
+    const found = sharedTextWarning(fields.text, draft.base, (n) => formatMoney(n, locale));
+    if (!found) return "";
+    const parts: string[] = [];
+    if (found.money.length > 0)
+      parts.push(t("sharedTextMoney", { list: found.money.slice(0, 3).join(", ") }));
+    if (found.obstacles.length > 0)
+      parts.push(t("sharedTextObstacles", { list: found.obstacles[0]! }));
+    return parts.join(t("sharedTextAnd"));
+  })();
 
   const approve = () => {
     if (!authored || !fields) return;
@@ -272,6 +295,18 @@ export function StatusFlow({
                 onSend={setSend}
                 mailConfigured={mailConfigured}
               />
+              {shared && (
+                /* The share link's read is cut down; the words are not.
+                   Said here, where the text can still be changed, rather
+                   than in the share dialog, where it is already frozen. */
+                <div className="border-chart-4/40 bg-warning-tint/70 rounded-xl border px-4 py-3">
+                  <p className="text-warning text-[11px] font-semibold tracking-wide uppercase">
+                    {t("sharedTextTitle")}
+                  </p>
+                  <p className="mt-1 text-sm">{t("sharedTextBody", { what: shared })}</p>
+                </div>
+              )}
+
               <div className="flex flex-wrap items-center gap-3 pb-8">
                 <Button
                   type="button"

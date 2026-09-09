@@ -62,6 +62,12 @@ export function ShareDialog({ projectId, links }: { projectId: string; links: Sh
         <DialogHeader>
           <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>{t("description")}</DialogDescription>
+          {/* The list above is what the read is cut down to. It is not the
+              whole truth on its own: the approved summary travels with the
+              link exactly as it was written, and a summary that names the
+              budget says the budget. Saying so here is the difference
+              between a promise and a half of one. */}
+          <p className="text-meta text-xs">{t("textTravels")}</p>
         </DialogHeader>
 
         {fresh && (
