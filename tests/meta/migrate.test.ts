@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { describeTarget, explainDatabaseError } from "../../scripts/migrate";
+import {
+  describeTarget,
+  explainDatabaseError,
+  unencodedPasswordCharacter,
+} from "../../scripts/migrate";
 
 /**
  * The migration step must say what went wrong. drizzle-kit's own command
@@ -48,5 +52,31 @@ describe("describeTarget", () => {
     expect(describeTarget("postgres://postgres:secret@localhost/ajour")).toBe(
       "localhost:5432/ajour",
     );
+  });
+});
+
+describe("a password that ends the URL", () => {
+  /**
+   * The failure that cost the first Ajour deployment a round: db came up
+   * healthy, migrate died with exit 1, and the reason was a `/` in a
+   * base64 password. The container is unaffected because it receives the
+   * password as a plain variable; only the URL breaks, and the URL is
+   * what this script dials.
+   */
+  it("is named, with the character to blame", () => {
+    expect(unencodedPasswordCharacter("postgres://postgres:ab/cd@db:5432/ajour")).toBe("/");
+    expect(unencodedPasswordCharacter("postgres://postgres:ab?cd@db:5432/ajour")).toBe("?");
+    expect(unencodedPasswordCharacter("postgres://postgres:a@b@db:5432/ajour")).toBe("@");
+  });
+
+  it("stays quiet about a password that is fine", () => {
+    expect(unencodedPasswordCharacter("postgres://postgres:0a1b2c3d4e5f@db:5432/ajour")).toBe(null);
+    // base64 without the dangerous characters is still a valid URL.
+    expect(unencodedPasswordCharacter("postgres://postgres:ab+cd=@db:5432/ajour")).toBe(null);
+  });
+
+  it("does not trip over a URL with no credentials at all", () => {
+    expect(unencodedPasswordCharacter("postgres://db:5432/ajour")).toBe(null);
+    expect(unencodedPasswordCharacter("not-a-url")).toBe(null);
   });
 });

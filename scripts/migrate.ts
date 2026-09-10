@@ -53,6 +53,38 @@ export function explainDatabaseError(error: unknown, target: string): Explanatio
   }
 }
 
+/**
+ * The one failure the error codes above cannot explain, because it
+ * happens before anything is dialled.
+ *
+ * docker-compose.yml builds this URL by pasting POSTGRES_PASSWORD into
+ * `postgres://postgres:PASSWORD@db:5432/ajour`. A password containing
+ * `/`, `@`, `?` or `#` ends or redirects the URL there, and what pg then
+ * receives is a different host, a different database, or nothing it can
+ * parse. The database container is unaffected, because it gets the same
+ * password as a plain variable where every character is allowed. So the
+ * symptom is precisely this: db healthy, migrate dead, and an error about
+ * a host nobody recognises.
+ *
+ * Returns the character to blame, or null when the URL is fine.
+ */
+export function unencodedPasswordCharacter(url: string): string | null {
+  const withoutScheme = url.replace(/^[a-z+]+:\/\//i, "");
+  // Deliberately not split on "/" first: a slash in the password is the
+  // very thing being looked for, and splitting there would hide it. The
+  // last "@" separates credentials from host in every URL this project
+  // builds. A database name containing "@" would fool it into blaming a
+  // password that is fine, which is a wrong message rather than a silent
+  // failure, and no such database name exists here.
+  const at = withoutScheme.lastIndexOf("@");
+  if (at === -1) return null;
+  const credentials = withoutScheme.slice(0, at);
+  const colon = credentials.indexOf(":");
+  if (colon === -1) return null;
+  const password = credentials.slice(colon + 1);
+  return [...password].find((c) => "/@?#".includes(c)) ?? null;
+}
+
 /** The connection target without the password, for messages and logs. */
 export function describeTarget(url: string): string {
   try {
@@ -77,6 +109,24 @@ async function countApplied(client: Client): Promise<number | null> {
 async function main(): Promise<void> {
   const url = process.env.MIGRATION_DATABASE_URL;
   if (!url) throw new Error("MIGRATION_DATABASE_URL is not set");
+
+  const offending = unencodedPasswordCharacter(url);
+  if (offending) {
+    console.error(
+      `migrate: the password in MIGRATION_DATABASE_URL contains "${offending}", which ends the URL there.`,
+    );
+    console.error(
+      "migrate: this URL is built from POSTGRES_PASSWORD. Generate it with `openssl rand -hex 24` " +
+        "rather than base64, which emits `/` and `+`. The database container is unaffected by this, " +
+        "which is why it looks healthy while this step is not.",
+    );
+    console.error(
+      "migrate: changing POSTGRES_PASSWORD is not enough on its own — Postgres only reads it when it " +
+        "first initialises its data directory, so remove the database volume as well and let it start over.",
+    );
+    process.exit(1);
+  }
+
   const target = describeTarget(url);
 
   const client = new Client({ connectionString: url });
