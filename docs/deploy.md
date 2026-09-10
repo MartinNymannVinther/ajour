@@ -54,6 +54,14 @@ runtime but the machine.
    `SIGNUP` is deliberately absent: it defaults to `closed`, which is what
    an installation on the open internet should be. See section 5.
 
+   Every one of these is named in the `app` service's `environment:` block
+   in `docker-compose.yml`, and that is not decoration. A variable set in
+   Coolify reaches the compose file for `${...}` substitution; it does not
+   reach the container unless the compose file forwards it. A setting that
+   is not on that list is a setting the panel appears to accept and the
+   application never sees. Adding an environment variable to Ajour means
+   adding it in both places.
+
 3. Build arguments (Coolify → Build): pass `AJOUR_COMMIT` and, if you like,
    `AJOUR_BUILT_AT`. `.dockerignore` excludes `.git`, so without them the
    About page and `/api/version` honestly report `unknown` rather than

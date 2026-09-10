@@ -53,6 +53,31 @@ services:
       AUTH_DATABASE_URL: postgres://ajour_auth:${AJOUR_AUTH_PASSWORD:?}@db:5432/ajour
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?set BETTER_AUTH_URL, e.g. https://ajour.haij.dk}
+      # Everything optional, forwarded explicitly.
+      #
+      # A variable set in Coolify reaches this file for `${...}`
+      # substitution; it does not reach the container unless it is named
+      # here. Until it was, setting LLM_PROVIDER and MISTRAL_API_KEY in
+      # the panel did nothing at all: the app started, defaulted to no
+      # model, and quietly answered with the rules engine. A deployment
+      # that ignores half its own configuration without saying so is
+      # worse than one that refuses to start.
+      #
+      # `:-` leaves an unset variable as the empty string, and env.ts
+      # reads an empty string as absent, so an unset variable here is the
+      # same thing as no variable at all.
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      MISTRAL_BASE_URL: ${MISTRAL_BASE_URL:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
+      SIGNUP: ${SIGNUP:-}
+      DEMO: ${DEMO:-}
+      SMTP_URL: ${SMTP_URL:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_TRANSPORT: ${MAIL_TRANSPORT:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-}
     # No published port. Coolify's proxy reaches the app over the compose
     # network and terminates TLS in front of it; binding 0.0.0.0:3000 as
     # well would put the same app on the VPS's public address in cleartext,

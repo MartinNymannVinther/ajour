@@ -108,4 +108,20 @@ export const EnvSchema = z
     }
   });
 
-export const env = EnvSchema.parse(process.env);
+/**
+ * An empty string means "not set".
+ *
+ * docker-compose.yml forwards every optional variable as `${VAR:-}`,
+ * which hands the container an empty string when the operator left it
+ * blank. Without this, `SIGNUP=""` would fail an enum that has a perfectly
+ * good default, and the installation would refuse to start over a setting
+ * nobody chose. Nothing in this schema gives an empty string a meaning of
+ * its own, so dropping the key is the same as never sending it.
+ */
+function present(source: NodeJS.ProcessEnv): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(source).filter(([, value]) => typeof value === "string" && value !== ""),
+  ) as Record<string, string>;
+}
+
+export const env = EnvSchema.parse(present(process.env));

@@ -87,3 +87,36 @@ describe("in production", () => {
     ).toBe(true);
   });
 });
+
+describe("a variable forwarded but left blank", () => {
+  /**
+   * docker-compose.yml forwards every optional setting as `${VAR:-}`,
+   * because a variable set in Coolify reaches the compose file but not
+   * the container unless it is named there. That forwarding hands the
+   * container an empty string for anything the operator left blank, so
+   * an empty string has to mean "not set" or the installation would
+   * refuse to start over a setting nobody chose.
+   */
+  it("is the same as no variable at all", () => {
+    const before = { ...process.env };
+    try {
+      Object.assign(process.env, { ...REQUIRED, SIGNUP: "", DEMO: "", MISTRAL_API_KEY: "" });
+      // Re-read through the same filter the module applies at import.
+      const present = Object.fromEntries(
+        Object.entries(process.env).filter(([, v]) => typeof v === "string" && v !== ""),
+      );
+      const parsed = EnvSchema.parse(present);
+      expect(parsed.SIGNUP).toBe("closed");
+      expect(parsed.DEMO).toBe("off");
+      expect(parsed.MISTRAL_API_KEY).toBeUndefined();
+    } finally {
+      for (const key of Object.keys(process.env)) if (!(key in before)) delete process.env[key];
+      Object.assign(process.env, before);
+    }
+  });
+
+  it("would otherwise have failed the enum it has a default for", () => {
+    // The shape of the bug this guards: "" is not a member of the enum.
+    expect(EnvSchema.safeParse({ ...REQUIRED, SIGNUP: "" }).success).toBe(false);
+  });
+});
