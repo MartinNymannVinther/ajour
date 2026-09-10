@@ -4,7 +4,8 @@ import { sql } from "drizzle-orm";
 import { authDb } from "@/core/db/client";
 import { demoWorkspaces } from "@/core/db/schema";
 import { withOrgContext } from "@/core/db/tenant";
-import { cleanupExpiredDemos } from "@/modules/demo/service";
+import { cleanupExpiredDemos, demoCookieSecure, demoLandingUrl } from "@/modules/demo/service";
+import { env } from "@/core/env";
 import { seedDemoProject } from "@/modules/demo/seed";
 import { getProjectFull } from "@/modules/projects/read";
 import { adminPool } from "../helpers/db";
@@ -119,5 +120,25 @@ describe("the application role", () => {
     await expect(
       withOrgContext(ctx, (tx) => tx.execute(sql`select count(*) from demo_workspaces`)),
     ).rejects.toThrow();
+  });
+});
+
+/**
+ * Where a demo sends the browser is decided by the installation's public
+ * origin, not by the request. This is here because the first public
+ * deployment redirected every visitor to https://0.0.0.0:3000, the
+ * container's own listen address as Next reports it behind a proxy, and
+ * the demo looked dead while it was in fact creating workspaces.
+ */
+describe("the demo's redirect", () => {
+  it("lands on the public origin, whatever the request looked like", () => {
+    const url = demoLandingUrl("da", "p1");
+    expect(url.origin).toBe(new URL(env.BETTER_AUTH_URL).origin);
+    expect(url.pathname).toBe("/projects/p1");
+    expect(demoLandingUrl("en", "p1").pathname).toBe("/en/projects/p1");
+  });
+
+  it("marks the session cookie Secure exactly when the public origin is https", () => {
+    expect(demoCookieSecure()).toBe(env.BETTER_AUTH_URL.startsWith("https://"));
   });
 });

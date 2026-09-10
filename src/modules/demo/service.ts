@@ -27,6 +27,32 @@ export function demoEnabled(): boolean {
   return env.DEMO === "on";
 }
 
+/**
+ * Where a new demo lands, as a URL the browser can follow.
+ *
+ * Built from BETTER_AUTH_URL and never from the request, because behind
+ * the proxy the request does not know the public address: Next hands a
+ * route handler `https://0.0.0.0:3000/...`, the container's own listen
+ * address, and a redirect built on that sends the visitor to a place
+ * that does not exist. BETTER_AUTH_URL is the installation's declared
+ * public origin, the same one passkeys and share links are bound to.
+ */
+export function demoLandingUrl(locale: "da" | "en", projectId: string): URL {
+  const prefix = locale === "da" ? "" : `/${locale}`;
+  return new URL(`${prefix}/projects/${projectId}`, env.BETTER_AUTH_URL);
+}
+
+/**
+ * Whether the demo's session cookie carries the Secure flag. Decided by
+ * the public origin, for the same reason as above: the request's own
+ * protocol is `http:` inside the container even when every visitor
+ * arrives over TLS, and a session cookie without Secure on a public
+ * installation is a cookie that may be sent in the clear.
+ */
+export function demoCookieSecure(): boolean {
+  return env.BETTER_AUTH_URL.startsWith("https://");
+}
+
 export type DemoSession = { headers: Headers; projectId: string } | null;
 
 /** Turns the set-cookie headers of an API response into a cookie header. */

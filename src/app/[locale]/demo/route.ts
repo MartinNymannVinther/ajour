@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { callerKey, rateLimit } from "@/core/rate-limit";
-import { createDemoWorkspace, demoEnabled } from "@/modules/demo/service";
-import { routing } from "@/i18n/routing";
+import {
+  createDemoWorkspace,
+  demoCookieSecure,
+  demoEnabled,
+  demoLandingUrl,
+} from "@/modules/demo/service";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,11 +38,12 @@ export async function GET(
   const demo = await createDemoWorkspace(language);
   if (!demo) return new NextResponse("The demo is not available right now.", { status: 503 });
 
-  const prefix = language === routing.defaultLocale ? "" : `/${language}`;
-  const response = NextResponse.redirect(
-    new URL(`${prefix}/projects/${demo.projectId}`, request.url),
-    { status: 303 },
-  );
+  // Both the destination and the cookie's Secure flag come from the
+  // installation's public origin, not from the request: behind the proxy
+  // the request only knows the container's own address.
+  const response = NextResponse.redirect(demoLandingUrl(language, demo.projectId), {
+    status: 303,
+  });
   // The sign-up call answered with the session cookie; hand it on.
   for (const cookie of demo.headers.get("cookie")?.split("; ") ?? []) {
     const [name, ...rest] = cookie.split("=");
@@ -46,7 +51,7 @@ export async function GET(
       response.cookies.set(name, rest.join("="), {
         httpOnly: true,
         sameSite: "lax",
-        secure: request.nextUrl.protocol === "https:",
+        secure: demoCookieSecure(),
         path: "/",
       });
   }
