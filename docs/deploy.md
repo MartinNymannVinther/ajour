@@ -24,9 +24,9 @@ runtime but the machine.
 
    | Variable              | Value                                                              |
    | --------------------- | ------------------------------------------------------------------ |
-   | `POSTGRES_PASSWORD`   | `openssl rand -base64 24`                                          |
-   | `AJOUR_APP_PASSWORD`  | `openssl rand -base64 24`                                          |
-   | `AJOUR_AUTH_PASSWORD` | `openssl rand -base64 24`                                          |
+   | `POSTGRES_PASSWORD`   | `openssl rand -hex 24`                                             |
+   | `AJOUR_APP_PASSWORD`  | `openssl rand -hex 24`                                             |
+   | `AJOUR_AUTH_PASSWORD` | `openssl rand -hex 24`                                             |
    | `BETTER_AUTH_SECRET`  | `openssl rand -base64 32`                                          |
    | `BETTER_AUTH_URL`     | `https://ajour.haij.dk` (public URL; passkeys bind to this origin) |
    | `LLM_PROVIDER`        | `mistral` hosted, `ollama` self-hosted, or leave unset for `none`  |
@@ -34,6 +34,15 @@ runtime but the machine.
    | `SMTP_URL`            | optional; mail out of the house, see section 6b                    |
    | `MAIL_FROM`           | with `SMTP_URL`, e.g. `Ajour <ajour@example.dk>`                   |
    | `CRON_SECRET`         | optional; `openssl rand -base64 32`, for the reminder endpoint     |
+
+   Hex, not base64, for the three database passwords, and that is not a
+   style preference. `docker-compose.yml` builds the connection strings by
+   pasting the password into `postgres://user:PASSWORD@db:5432/ajour`, and
+   `openssl rand -base64` emits `/`, `+` and `=`. A slash ends the
+   authority part of a URL, so the app then fails to start with a
+   complaint about `APP_DATABASE_URL` while the thing that is wrong is a
+   password. 24 bytes of hex is 192 bits; nothing is lost but the trap.
+   `BETTER_AUTH_SECRET` never goes into a URL, so base64 is right there.
 
    These set the default every workspace inherits. A workspace can choose
    its own provider, model and key in Settings → AI; keys stored that way

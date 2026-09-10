@@ -71,15 +71,21 @@ Deploy guide section 2. The environment variables, generated fresh —
 never reused from another installation:
 
 ```
-POSTGRES_PASSWORD     openssl rand -base64 24
-AJOUR_APP_PASSWORD    openssl rand -base64 24
-AJOUR_AUTH_PASSWORD   openssl rand -base64 24
+POSTGRES_PASSWORD     openssl rand -hex 24
+AJOUR_APP_PASSWORD    openssl rand -hex 24
+AJOUR_AUTH_PASSWORD   openssl rand -hex 24
 BETTER_AUTH_SECRET    openssl rand -base64 32
 BETTER_AUTH_URL       https://ajour.haij.dk
 LLM_PROVIDER          mistral
 MISTRAL_API_KEY       the key from step 2
 AJOUR_COMMIT          the short commit being deployed
 ```
+
+Hex for the three database passwords: they are pasted into
+`postgres://user:PASSWORD@db:5432/ajour`, and a `/` from `base64` would
+end the URL there and produce a startup error that names the URL rather
+than the password. `BETTER_AUTH_SECRET` does not go into a URL and stays
+base64.
 
 `SIGNUP` stays unset: it defaults to `closed`, which is what an
 installation on the open internet should be. `DEMO` stays unset for now

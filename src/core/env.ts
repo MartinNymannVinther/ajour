@@ -1,6 +1,18 @@
 import { z } from "zod";
 import { MISTRAL_EU_BASE_URL } from "@/core/llm/mistral";
 
+/**
+ * These URLs are built in docker-compose.yml by pasting a password into
+ * `postgres://user:PASSWORD@db:5432/ajour`, so a password containing a
+ * slash ends the authority part of the URL and the rest becomes
+ * nonsense. `openssl rand -base64` emits `/`, `+` and `=`, which is why
+ * the deploy guide asks for hex here. Without this hint the error names
+ * the URL, and the person who has to fix it set a password.
+ */
+const DB_URL_HINT =
+  "must be a valid postgres:// URL. If you generated the password with `openssl rand -base64`, " +
+  "a `/`, `+` or `=` in it breaks the URL: use `openssl rand -hex 24` instead.";
+
 /** The value shipped in .env.example. Refused in production, by name. */
 const PLACEHOLDER_SECRET = "dev-only-secret-change-me-in-production";
 
@@ -11,8 +23,8 @@ const PLACEHOLDER_SECRET = "dev-only-secret-change-me-in-production";
 export const EnvSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-    APP_DATABASE_URL: z.url(),
-    AUTH_DATABASE_URL: z.url(),
+    APP_DATABASE_URL: z.url({ error: DB_URL_HINT }),
+    AUTH_DATABASE_URL: z.url({ error: DB_URL_HINT }),
     BETTER_AUTH_SECRET: z.string().min(16),
     BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
     // LLM adapter (CLAUDE.md: EU-hosted or local models behind an
