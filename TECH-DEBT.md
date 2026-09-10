@@ -67,8 +67,11 @@ honest at the same time. The thing to check when doing it is
 `pnpm audit --prod`, because tsx brings esbuild with it, and esbuild is
 one of the two packages pinned by the overrides in `pnpm-workspace.yaml`.
 
-Whatever the fix, it needs a test that runs the built migrator image
-rather than merely building it.
+CI now runs the built migrator image against a port nobody listens on and
+requires it to reach its own connection error, which is the cheapest
+possible proof that the image can execute its entrypoint. That check
+exists because of this bug and would have caught it. A retry of the
+`--prod` install can lean on it.
 
 ### Rate limiting is per process
 

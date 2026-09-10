@@ -92,6 +92,28 @@ jobs:
       - run: docker build --target migrator -t ajour-migrator:ci .
       - run: docker build --target runner -t ajour-runner:ci .
 
+      # Building an image proves it builds. It does not prove it runs, and
+      # the difference cost a deployment: a --prod dependency install gave
+      # a migrator that built cleanly here and then died at deploy time
+      # with `sh: tsx: not found`, after the database was already up and
+      # healthy. Nothing in a build can catch that.
+      #
+      # Pointed at a port nobody listens on, the migration step should
+      # fail with its own sentence about the connection. That it gets far
+      # enough to say so is the proof that the image can run its own
+      # entrypoint. Any other failure means it cannot.
+      - name: The migrator image can run its entrypoint
+        run: |
+          set -uo pipefail
+          out=$(docker run --rm \
+            -e MIGRATION_DATABASE_URL='postgres://ajour:ajour@127.0.0.1:1/ajour' \
+            ajour-migrator:ci 2>&1)
+          echo "$out"
+          echo "$out" | grep -q "Nothing answers on" || {
+            echo "::error::The migrator image did not reach its own error handling."
+            exit 1
+          }
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest
