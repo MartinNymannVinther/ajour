@@ -102,15 +102,28 @@ jobs:
       # fail with its own sentence about the connection. That it gets far
       # enough to say so is the proof that the image can run its own
       # entrypoint. Any other failure means it cannot.
+      #
+      # GitHub runs every step under `bash -e`, and the migrator is
+      # *meant* to exit non-zero here, so -e is switched off around the
+      # run and the exit code is read by hand. The first version of this
+      # step forgot that and died at the assignment, before it had echoed
+      # a single line, which made a passing image look like a broken one.
       - name: The migrator image can run its entrypoint
         run: |
           set -uo pipefail
+          set +e
           out=$(docker run --rm \
             -e MIGRATION_DATABASE_URL='postgres://ajour:ajour@127.0.0.1:1/ajour' \
             ajour-migrator:ci 2>&1)
+          code=$?
+          set -e
           echo "$out"
+          if [ "$code" -eq 0 ]; then
+            echo "::error::The migrator image exited 0 against a database that does not exist."
+            exit 1
+          fi
           echo "$out" | grep -q "Nothing answers on" || {
-            echo "::error::The migrator image did not reach its own error handling."
+            echo "::error::The migrator image did not reach its own error handling (exit $code)."
             exit 1
           }
 
