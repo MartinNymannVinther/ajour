@@ -13,17 +13,6 @@ FROM base AS deps
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
-# The migrator's dependencies, separately. It holds the superuser
-# connection string, so it is the one image where "what else is in here"
-# is worth asking about: the full install brings eslint, vitest, prettier
-# and the shadcn CLI along for the ride, and none of them has any business
-# sitting next to that credential. --prod plus tsx, which the migration
-# script is run with.
-FROM base AS deps-migrator
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts \
-    && pnpm add --prod --ignore-scripts tsx
-
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -41,8 +30,17 @@ ENV APP_DATABASE_URL=postgres://build:build@localhost:5432/build \
     BETTER_AUTH_URL=http://localhost:3000
 RUN pnpm build
 
+# The migrator carries the full install, dev dependencies included.
+#
+# A --prod install would be the better shape here, because this image
+# holds the Postgres superuser connection string and has no need of
+# eslint or vitest next to it. It was tried and reverted at the launch:
+# `pnpm db:migrate` runs the scripts through tsx, tsx is a development
+# dependency, and `pnpm add --prod tsx` on top of a --prod install does
+# not place the binary, so the step fails with `sh: tsx: not found` after
+# the database is already up. See TECH-DEBT.md for what a real fix needs.
 FROM base AS migrator
-COPY --from=deps-migrator /app/node_modules ./node_modules
+COPY --from=deps /app/node_modules ./node_modules
 COPY package.json drizzle.config.ts ./
 COPY drizzle ./drizzle
 COPY src/core/db/schema ./src/core/db/schema

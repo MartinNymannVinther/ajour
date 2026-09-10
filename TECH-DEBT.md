@@ -43,6 +43,33 @@ version in a trailing comment.
 is what will keep SHA pins current once they exist. Pin them in one pass
 and let Dependabot maintain them.
 
+### The migrator image ships the whole development tree
+
+`Dockerfile`'s `migrator` stage copies the full `node_modules`, so the one
+image holding the Postgres superuser connection string also contains
+eslint, vitest, prettier and the shadcn CLI. That is more code sitting
+next to the highest-privilege credential in the deployment than the job
+needs.
+
+A `--prod` install was tried during the launch and reverted the same
+hour. `pnpm db:migrate` runs both scripts through tsx, tsx is a
+development dependency, and `pnpm add --prod tsx` on top of a `--prod`
+install updates the manifest without placing the binary, because that
+install mode skips development dependencies. The build succeeds, the
+image looks fine, and the failure arrives at deploy time as
+`sh: tsx: not found` after the database container is already healthy.
+A Docker build cannot catch it; only running the image can.
+
+The likeliest real fix is to stop calling tsx a development dependency.
+It is not one: the migration step runs it in production, on every deploy.
+Moving it to `dependencies` makes `--prod` correct and the classification
+honest at the same time. The thing to check when doing it is
+`pnpm audit --prod`, because tsx brings esbuild with it, and esbuild is
+one of the two packages pinned by the overrides in `pnpm-workspace.yaml`.
+
+Whatever the fix, it needs a test that runs the built migrator image
+rather than merely building it.
+
 ### Rate limiting is per process
 
 `src/core/rate-limit.ts` counts in memory, which is correct for one
