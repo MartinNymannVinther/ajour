@@ -73,6 +73,23 @@ possible proof that the image can execute its entrypoint. That check
 exists because of this bug and would have caught it. A retry of the
 `--prod` install can lean on it.
 
+### The migrator downloads pnpm from npmjs every time it starts
+
+The production log shows it on every deploy: `Corepack is about to
+download https://registry.npmjs.org/pnpm/-/pnpm-10.28.0.tgz`. The base
+image enables corepack but never fetches pnpm, so the migration step
+reaches out to npmjs at container start. On a host without that egress
+the migrations do not run, and dogma two says cut the internet and
+everything essential still works.
+
+The fix is one line in the `base` stage, `corepack prepare pnpm@10.28.0
+--activate` after `corepack enable`, so the binary is baked into the
+image at build time. It was not done during the launch because there was
+no way to build the image where the change was being made, and the
+image job in CI had just gone red once for a reason of that kind. Do it
+with CI's migrator-run step watching, which is exactly what that step is
+for.
+
 ### Rate limiting is per process
 
 `src/core/rate-limit.ts` counts in memory, which is correct for one
