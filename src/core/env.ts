@@ -82,7 +82,22 @@ export const EnvSchema = z
     // installation that went live on the example value would be handing
     // both away. Documentation is not a control, so this is one.
     if (value.NODE_ENV === "production" && !building) {
-      if (value.BETTER_AUTH_SECRET === PLACEHOLDER_SECRET || value.BETTER_AUTH_SECRET.length < 32) {
+      // Coolify pre-fills every variable with the compose file's `:?`
+      // message as its value, so "set BETTER_AUTH_SECRET" arrives here
+      // looking like a choice. It is short enough to fail the length rule
+      // too, but the length rule's message would send the operator to the
+      // wrong fix.
+      if (/^\s*set\s+[A-Z][A-Z0-9_]*\b/.test(value.BETTER_AUTH_SECRET)) {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            "BETTER_AUTH_SECRET holds the compose file's placeholder text, not a secret. Coolify fills every variable with the message after `:?` in docker-compose.yml; replace it with `openssl rand -base64 32`, and check the database passwords the same way.",
+          path: ["BETTER_AUTH_SECRET"],
+        });
+      } else if (
+        value.BETTER_AUTH_SECRET === PLACEHOLDER_SECRET ||
+        value.BETTER_AUTH_SECRET.length < 32
+      ) {
         ctx.addIssue({
           code: "custom",
           message:

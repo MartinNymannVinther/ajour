@@ -85,6 +85,34 @@ export function unencodedPasswordCharacter(url: string): string | null {
   return [...password].find((c) => "/@?#".includes(c)) ?? null;
 }
 
+/**
+ * Does this look like the compose file's own "you forgot to set this"
+ * text rather than a value somebody chose?
+ *
+ * docker-compose.yml marks every secret `${NAME:?set NAME ...}`. In
+ * compose, the text after `:?` is the error shown when the variable is
+ * missing. Coolify reads the same file to pre-create the resource's
+ * environment variables, and it fills each one with that text as its
+ * value. The stack then starts, every service agreeing on a password of
+ * `set POSTGRES_PASSWORD`, and nothing complains — which happened on the
+ * first deployment of ajour.haij.dk and was caught by a person reading
+ * the variable list, not by anything in the code. This is the thing in
+ * the code.
+ */
+export function looksLikeComposePlaceholder(value: string | undefined): boolean {
+  return /^\s*set\s+[A-Z][A-Z0-9_]*\b/.test(value ?? "");
+}
+
+/** The password part of a postgres:// URL, or null when there is none. */
+export function passwordIn(url: string): string | null {
+  const withoutScheme = url.replace(/^[a-z+]+:\/\//i, "");
+  const at = withoutScheme.lastIndexOf("@");
+  if (at === -1) return null;
+  const credentials = withoutScheme.slice(0, at);
+  const colon = credentials.indexOf(":");
+  return colon === -1 ? null : credentials.slice(colon + 1);
+}
+
 /** The connection target without the password, for messages and logs. */
 export function describeTarget(url: string): string {
   try {
@@ -123,6 +151,20 @@ async function main(): Promise<void> {
     console.error(
       "migrate: changing POSTGRES_PASSWORD is not enough on its own — Postgres only reads it when it " +
         "first initialises its data directory, so remove the database volume as well and let it start over.",
+    );
+    process.exit(1);
+  }
+
+  if (looksLikeComposePlaceholder(passwordIn(url) ?? undefined)) {
+    console.error(
+      "migrate: the password in MIGRATION_DATABASE_URL is the compose file's placeholder text, " +
+        "not a password.",
+    );
+    console.error(
+      "migrate: Coolify pre-fills every variable with the message after `:?` in docker-compose.yml. " +
+        "Replace POSTGRES_PASSWORD, AJOUR_APP_PASSWORD, AJOUR_AUTH_PASSWORD and BETTER_AUTH_SECRET " +
+        "with generated values (see docs/deploy.md), remove the database volume so Postgres " +
+        "initialises with the real one, and deploy again.",
     );
     process.exit(1);
   }

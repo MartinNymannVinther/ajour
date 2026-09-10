@@ -44,6 +44,19 @@ runtime but the machine.
    password. 24 bytes of hex is 192 bits; nothing is lost but the trap.
    `BETTER_AUTH_SECRET` never goes into a URL, so base64 is right there.
 
+   **Coolify pre-fills every one of these with the wrong value.** When it
+   reads `docker-compose.yml` to create the resource, it takes the text
+   after `:?` on each line (compose's "you forgot this" message) and
+   stores it as the variable's value. You will find `POSTGRES_PASSWORD`
+   set to `set POSTGRES_PASSWORD (openssl rand -hex 24)`, and the same for
+   the other three. The stack starts happily on those, every service
+   agreeing on a password anyone can read in this repository. Replace all
+   four before the first deploy. If a deploy has already run on them,
+   also remove the database volume, because Postgres only reads its
+   password when it first initialises. The migration step and the
+   application both refuse to run on placeholder text and name it, so a
+   missed one fails loudly rather than quietly.
+
    These set the default every workspace inherits. A workspace can choose
    its own provider, model and key in Settings → AI; keys stored that way
    are encrypted with a key derived from `BETTER_AUTH_SECRET`, so rotating

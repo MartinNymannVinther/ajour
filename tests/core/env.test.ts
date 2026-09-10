@@ -60,6 +60,16 @@ describe("in production", () => {
     ).toContain("BETTER_AUTH_SECRET");
   });
 
+  it("names Coolify's placeholder for what it is, rather than calling it short", () => {
+    // Coolify fills every variable with the compose file's `:?` message.
+    // "set BETTER_AUTH_SECRET" is short too, but the length rule's message
+    // would send the operator to generate a longer one and stop there.
+    const said = failure({ ...PROD, BETTER_AUTH_SECRET: "set BETTER_AUTH_SECRET" });
+    expect(said).toContain("placeholder text");
+    expect(said).toContain("docker-compose.yml");
+    expect(said).not.toContain("at least 32 characters");
+  });
+
   it("refuses a secret that is merely short", () => {
     expect(failure({ ...PROD, BETTER_AUTH_SECRET: "sixteen-chars-ok" })).toContain(
       "at least 32 characters",

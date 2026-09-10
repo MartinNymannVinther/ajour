@@ -1,6 +1,12 @@
 # Production compose for Ajour, designed to be run by Coolify on an EU VPS.
 # See docs/deploy.md. All secrets come from the environment (Coolify UI);
 # nothing here has a real default.
+#
+# The text after `:?` is compose's error when a variable is missing. Know
+# that Coolify reads this file to pre-create the resource's variables and
+# puts that text in as each one's VALUE. Every `set ...` you see in
+# Coolify's variable list must be replaced before the first deploy; the
+# migration step and the app both refuse to run on one, and say so.
 
 services:
   db:
@@ -8,10 +14,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD (openssl rand -hex 24)}
       POSTGRES_DB: ajour
-      AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:?set AJOUR_APP_PASSWORD}
-      AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:?set AJOUR_AUTH_PASSWORD}
+      AJOUR_APP_PASSWORD: ${AJOUR_APP_PASSWORD:?set AJOUR_APP_PASSWORD (openssl rand -hex 24)}
+      AJOUR_AUTH_PASSWORD: ${AJOUR_AUTH_PASSWORD:?set AJOUR_AUTH_PASSWORD (openssl rand -hex 24)}
     volumes:
       - ajour-pgdata:/var/lib/postgresql/data
       - ./docker/postgres-init:/docker-entrypoint-initdb.d:ro
@@ -51,7 +57,7 @@ services:
     environment:
       APP_DATABASE_URL: postgres://ajour_app:${AJOUR_APP_PASSWORD:?}@db:5432/ajour
       AUTH_DATABASE_URL: postgres://ajour_auth:${AJOUR_AUTH_PASSWORD:?}@db:5432/ajour
-      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET (openssl rand -base64 32)}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:?set BETTER_AUTH_URL, e.g. https://ajour.haij.dk}
       # Everything optional, forwarded explicitly.
       #

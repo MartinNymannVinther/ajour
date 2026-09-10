@@ -2,6 +2,7 @@
 // environment already, and a missing file is silently fine.
 import "dotenv/config";
 import { Client } from "pg";
+import { looksLikeComposePlaceholder } from "./migrate";
 
 /**
  * Give the two runtime database roles their login rights and passwords.
@@ -55,6 +56,19 @@ async function main(): Promise<void> {
   }
   if (missing.length > 0) {
     throw new Error(`ensure-roles: missing ${missing.map((r) => PASSWORD_ENV[r]).join(", ")}`);
+  }
+  // Coolify pre-fills each variable with the compose file's `:?` message
+  // as its value. A role whose password is "set AJOUR_APP_PASSWORD" is a
+  // role anyone who has read the repository can log in as.
+  const placeholder = ROLES.filter((role) =>
+    looksLikeComposePlaceholder(process.env[PASSWORD_ENV[role]]),
+  );
+  if (placeholder.length > 0) {
+    throw new Error(
+      `ensure-roles: ${placeholder.map((r) => PASSWORD_ENV[r]).join(" and ")} still hold the ` +
+        "compose file's placeholder text rather than a password. Replace them with generated " +
+        "values (docs/deploy.md) before deploying again.",
+    );
   }
 
   const client = new Client({ connectionString: url });

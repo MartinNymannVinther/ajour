@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  looksLikeComposePlaceholder,
+  passwordIn,
   describeTarget,
   explainDatabaseError,
   unencodedPasswordCharacter,
@@ -78,5 +80,42 @@ describe("a password that ends the URL", () => {
   it("does not trip over a URL with no credentials at all", () => {
     expect(unencodedPasswordCharacter("postgres://db:5432/ajour")).toBe(null);
     expect(unencodedPasswordCharacter("not-a-url")).toBe(null);
+  });
+});
+
+/**
+ * docker-compose.yml marks every secret `${NAME:?set NAME ...}`. Coolify
+ * reads that file to pre-create the resource's variables and fills each
+ * one with the text after `:?` as its value, so a stack can come up with
+ * every service agreeing that the database password is
+ * "set POSTGRES_PASSWORD". It did, on the first deployment; a person
+ * reading the variable list caught it. This is the check that does.
+ */
+describe("the compose file's own placeholder text", () => {
+  it("is recognised in every shape the file uses", () => {
+    expect(looksLikeComposePlaceholder("set POSTGRES_PASSWORD")).toBe(true);
+    expect(looksLikeComposePlaceholder("set BETTER_AUTH_SECRET")).toBe(true);
+    expect(looksLikeComposePlaceholder("set BETTER_AUTH_URL, e.g. https://ajour.haij.dk")).toBe(
+      true,
+    );
+    expect(looksLikeComposePlaceholder("set POSTGRES_PASSWORD (openssl rand -hex 24)")).toBe(true);
+  });
+
+  it("is not confused with a password that merely starts with the word", () => {
+    expect(looksLikeComposePlaceholder("settle-the-bill-9f2c")).toBe(false);
+    expect(looksLikeComposePlaceholder("set")).toBe(false);
+    expect(looksLikeComposePlaceholder("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6")).toBe(
+      false,
+    );
+    expect(looksLikeComposePlaceholder(undefined)).toBe(false);
+    expect(looksLikeComposePlaceholder("")).toBe(false);
+  });
+
+  it("is found inside the migration URL, where compose put it", () => {
+    expect(passwordIn("postgres://postgres:set POSTGRES_PASSWORD@db:5432/ajour")).toBe(
+      "set POSTGRES_PASSWORD",
+    );
+    expect(passwordIn("postgres://postgres:a1b2c3@db:5432/ajour")).toBe("a1b2c3");
+    expect(passwordIn("postgres://db:5432/ajour")).toBe(null);
   });
 });
