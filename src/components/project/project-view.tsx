@@ -36,6 +36,7 @@ import {
   deleteTaskAction,
   moveTaskAction,
   relinkTaskAction,
+  renameTaskAction,
   updateSubtasksAction,
   updateTaskPeopleAction,
 } from "@/modules/projects/actions-tasks";
@@ -254,14 +255,16 @@ export function ProjectView({
             formatMoney={formatMoney}
             onEdit={openTask}
             onStateChange={changeState}
-            onSavePeople={(taskId, { dates, ...input }) =>
+            onSavePeople={(taskId, { dates, title, ...input }) =>
               run(
                 () => updateTaskPeopleAction({ taskId, ...input }),
                 () => {
                   setEditingTaskId(null);
-                  // Typed dates go after the people, so the optimistic
-                  // lock on the row is not tripped by our own first write.
+                  // Typed dates and a new name go after the people, so the
+                  // optimistic lock on the row is not tripped by our own
+                  // first write.
                   if (dates) run(() => moveTaskAction({ taskId, ...dates }));
+                  if (title) run(() => renameTaskAction({ taskId, title }));
                 },
               )
             }

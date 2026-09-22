@@ -23,6 +23,7 @@ import {
   createTask,
   deleteTask,
   moveTask,
+  renameTask,
   setTaskState,
   updateTaskPeople,
 } from "@/modules/projects/write-tasks";
@@ -143,6 +144,24 @@ describe("the plan", () => {
     expect(afterDelete.events.map((e) => e.type)).toEqual(
       expect.arrayContaining(["task.moved", "task.state", "task.created", "task.deleted"]),
     );
+  });
+
+  it("renames a task, keeps the old name in the event and honours the lock", async () => {
+    const full = (await getProjectFull(ctx, projectId))!;
+    const task = full.tasks[1]!;
+    await withOrgContext(ctx, (tx) =>
+      renameTask(tx, ctx, task.id, "Nyt navn", task.updatedAt.toISOString()),
+    );
+    const after = (await getProjectFull(ctx, projectId))!;
+    expect(after.tasks.find((t) => t.id === task.id)!.title).toBe("Nyt navn");
+    const event = after.events.find((e) => e.type === "task.renamed")!;
+    expect(event.payload).toEqual({ title: "Nyt navn", from: task.title });
+    // The row moved on, so the timestamp the caller looked at is stale now.
+    await expect(
+      withOrgContext(ctx, (tx) =>
+        renameTask(tx, ctx, task.id, "Endnu et navn", task.updatedAt.toISOString()),
+      ),
+    ).rejects.toBeInstanceOf(Conflict);
   });
 
   it("does not accept a milestone from another project", async () => {

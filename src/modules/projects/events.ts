@@ -14,6 +14,7 @@ export type EventType =
   | "task.state"
   | "task.moved"
   | "task.relinked"
+  | "task.renamed"
   | "task.people"
   | "task.subtasks"
   | "task.deleted"

@@ -227,17 +227,22 @@ export async function updateTaskPeople(
   return task;
 }
 
+/** A new name; the old one goes in the event so the history still reads. */
 export async function renameTask(
   tx: AppTransaction,
   ctx: OrgContext,
   taskId: string,
   title: string,
   expectedUpdatedAt?: string,
+  actor: ActorKind = "user",
 ) {
   const task = await taskInProject(tx, taskId);
   if (!task) return null;
   assertFresh(task, expectedUpdatedAt);
-  await tx.update(tasks).set({ title }).where(eq(tasks.id, taskId));
+  if (title !== task.title) {
+    await tx.update(tasks).set({ title }).where(eq(tasks.id, taskId));
+    await recordEvent(tx, ctx, task.projectId, "task.renamed", { title, from: task.title }, actor);
+  }
   return task;
 }
 

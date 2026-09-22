@@ -547,6 +547,7 @@
       "close": "Luk"
     },
     "taskEditor": {
+      "title": "Opgavens navn",
       "owner": "Ansvarlig (én person)",
       "participants": "Deltagere, adskilt med komma",
       "milestone": "Hvilken milepæl hører opgaven til?",
@@ -1035,6 +1036,7 @@
       "state": "„{title}“ fik status {state}",
       "moved": "„{title}“ blev flyttet til {start}–{end}",
       "relinked": "„{title}“ hører nu til {milestone}",
+      "renamed": "„{from}“ hedder nu „{title}“",
       "people": "„{title}“: ansvarlig {owner}, deltagere {participants}",
       "subtasks": "Tjeklisten på „{title}“ har nu {count} punkter",
       "deleted": "Opgaven „{title}“ blev slettet"

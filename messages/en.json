@@ -547,6 +547,7 @@
       "close": "Close"
     },
     "taskEditor": {
+      "title": "Task name",
       "owner": "Owner (one person)",
       "participants": "Participants, separated by commas",
       "milestone": "Which milestone does the task belong to?",
@@ -1035,6 +1036,7 @@
       "state": "“{title}” became {state}",
       "moved": "“{title}” moved to {start}–{end}",
       "relinked": "“{title}” now belongs to {milestone}",
+      "renamed": "“{from}” is now called “{title}”",
       "people": "“{title}”: owner {owner}, participants {participants}",
       "subtasks": "The checklist on “{title}” now has {count} items",
       "deleted": "The task “{title}” was deleted"

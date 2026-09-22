@@ -17,6 +17,7 @@ const RECORDED: Array<[string, Record<string, unknown>]> = [
   ["task.state", { title: "T", state: "doing" }],
   ["task.moved", { title: "T", start: "2026-09-01", end: "2026-09-05" }],
   ["task.relinked", { title: "T", milestone: "M" }],
+  ["task.renamed", { title: "T", from: "Old" }],
   ["task.people", { title: "T", owner: "Mette", participants: ["Jonas"] }],
   ["task.subtasks", { title: "T", count: 3 }],
   ["task.deleted", { title: "T" }],

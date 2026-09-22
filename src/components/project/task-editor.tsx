@@ -10,8 +10,8 @@ import type { MilestoneView, TaskView } from "@/modules/projects/types";
 import { cn } from "@/lib/utils";
 
 /**
- * The task opened up: who owns it, who takes part, which milestone it
- * belongs to, its checklist and the money hanging on it. Saving carries
+ * The task opened up: its name, who owns it, who takes part, which
+ * milestone it belongs to, its checklist and the money hanging on it. Saving carries
  * the row's own timestamp, so two people editing at once get a conflict
  * rather than one of them silently losing their work.
  */
@@ -37,6 +37,8 @@ export function TaskEditor({
     expectedUpdatedAt: string;
     /** Typed dates: the phone's way to move a task. Applied after the people, so the lock holds. */
     dates: { startDate: string; endDate: string } | null;
+    /** A new name, or null when it was left alone. Applied after the people, like the dates. */
+    title: string | null;
   }) => void;
   onSaveSubtasks: (subtasks: Subtask[]) => void;
   onClose: () => void;
@@ -44,6 +46,7 @@ export function TaskEditor({
 }) {
   const t = useTranslations("projects.taskEditor");
   const [draft, setDraft] = useState({
+    title: task.title,
     owner: task.ownerName,
     participants: task.participants.join(", "),
     relation: task.milestoneRelation === "after" ? ("after" as const) : ("before" as const),
@@ -65,8 +68,10 @@ export function TaskEditor({
             draft.endDate < draft.startDate
               ? [draft.endDate, draft.startDate]
               : [draft.startDate, draft.endDate];
+          const title = draft.title.trim();
           onSavePeople({
             dates: moved && startDate && endDate ? { startDate, endDate } : null,
+            title: title && title !== task.title ? title : null,
             owner: draft.owner.trim(),
             participants: draft.participants
               .split(",")
@@ -79,6 +84,14 @@ export function TaskEditor({
         }}
         className="flex flex-wrap items-center gap-2"
       >
+        <Input
+          value={draft.title}
+          onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+          maxLength={100}
+          placeholder={t("title")}
+          aria-label={t("title")}
+          className="w-full font-medium"
+        />
         <Input
           value={draft.owner}
           onChange={(e) => setDraft((d) => ({ ...d, owner: e.target.value }))}

@@ -50,6 +50,7 @@ export function TaskList({
       milestoneId: string | null;
       expectedUpdatedAt: string;
       dates: { startDate: string; endDate: string } | null;
+      title: string | null;
     },
   ) => void;
   onSaveSubtasks: (taskId: string, subtasks: Subtask[]) => void;
@@ -172,6 +173,7 @@ export function TaskList({
                       type="button"
                       onClick={() => onEdit(isEditing ? null : task.id)}
                       aria-expanded={isEditing}
+                      title={task.title}
                       className={cn(
                         "hover:text-primary focus-visible:ring-ring min-h-[24px] min-w-[10rem] flex-1 truncate text-left text-sm focus-visible:ring-2 focus-visible:outline-none",
                         task.state === "done" && "text-label line-through",

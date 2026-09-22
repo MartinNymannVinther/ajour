@@ -9,6 +9,7 @@ import {
   TaskPeopleSchema,
   TaskRelinkSchema,
   TaskStateSchema,
+  TaskTitleSchema,
   orderedDates,
 } from "./validation";
 import {
@@ -16,6 +17,7 @@ import {
   deleteTask,
   moveTask,
   relinkTask,
+  renameTask,
   setTaskState,
   updateSubtasks,
   updateTaskPeople,
@@ -67,6 +69,15 @@ export async function relinkTaskAction(raw: unknown): Promise<Result<string>> {
 export async function updateTaskPeopleAction(raw: unknown): Promise<Result<string>> {
   return action(TaskPeopleSchema, raw, async (tx, ctx, input) => {
     const task = found(await updateTaskPeople(tx, ctx, input));
+    return task.projectId;
+  });
+}
+
+export async function renameTaskAction(raw: unknown): Promise<Result<string>> {
+  return action(TaskTitleSchema, raw, async (tx, ctx, input) => {
+    const task = found(
+      await renameTask(tx, ctx, input.taskId, input.title, input.expectedUpdatedAt),
+    );
     return task.projectId;
   });
 }

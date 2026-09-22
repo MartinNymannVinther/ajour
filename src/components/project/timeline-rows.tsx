@@ -183,7 +183,9 @@ export function TaskBar({
             dragging && drag.mode === "move" && drag.moved ? `translateY(${drag.dy}px)` : undefined,
         }}
       >
-        <span className="truncate">{task.title}</span>
+        <span className="truncate" title={task.title}>
+          {task.title}
+        </span>
         {/* Full opacity: at 10px on the green bar, the dimmed version fell
             under AA (3.5:1). */}
         {task.ownerName && !compact && width > 120 && (
