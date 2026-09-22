@@ -336,6 +336,16 @@
         "admin": "Administrator",
         "member": "Medlem"
       },
+      "rename": {
+        "title": "Navn på arbejdsrummet",
+        "body": "Navnet står i sidepanelet og i eksporten. Kun ejer og administrator kan ændre det.",
+        "label": "Nyt navn",
+        "action": "Gem navn",
+        "saving": "Gemmer …",
+        "renamed": "Arbejdsrummet hedder nu {name}.",
+        "notAllowed": "Kun ejer og administrator kan ændre navnet.",
+        "failed": "Navnet blev ikke gemt. Prøv igen."
+      },
       "delete": {
         "title": "Slet arbejdsrummet",
         "body": "Alt i arbejdsrummet forsvinder: projekter, planer, statusser, beslutninger, delelinks og revisionssporet om dem. Det kan ikke fortrydes.",

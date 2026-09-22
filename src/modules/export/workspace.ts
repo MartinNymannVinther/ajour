@@ -1,4 +1,6 @@
+import { APIError } from "better-auth";
 import { and, eq, sql } from "drizzle-orm";
+import { recordAuthEvent } from "@/core/audit/events";
 import { auth } from "@/core/auth/auth";
 import { memberships, users } from "@/core/db/schema";
 import { withOrgContext, type OrgContext } from "@/core/db/tenant";
@@ -77,4 +79,39 @@ export async function deleteWorkspace(
     return "failed";
   }
   return "deleted";
+}
+
+export type RenameResult = "renamed" | "notAllowed" | "failed";
+
+/**
+ * Gives the active workspace a new name. The write goes through Better
+ * Auth, which owns the organizations table and checks that the caller
+ * may update it (owners and administrators); the row change lands in the
+ * audit log by trigger, without an actor because that write carries no
+ * tenant context, so a named event is recorded beside it. The slug stays:
+ * it is only ever a unique key, never shown or linked.
+ */
+export async function renameWorkspace(
+  ctx: OrgContext,
+  name: string,
+  headers: Headers,
+): Promise<RenameResult> {
+  try {
+    await auth.api.updateOrganization({
+      body: { organizationId: ctx.orgId, data: { name } },
+      headers,
+    });
+  } catch (error) {
+    if (error instanceof APIError && error.status === "FORBIDDEN") return "notAllowed";
+    console.error("workspace: rename failed", error);
+    return "failed";
+  }
+  await recordAuthEvent({
+    action: "workspace.renamed",
+    orgId: ctx.orgId,
+    actorUserId: ctx.userId,
+    entityType: "organizations",
+    entityId: ctx.orgId,
+  });
+  return "renamed";
 }

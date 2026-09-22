@@ -336,6 +336,16 @@
         "admin": "Administrator",
         "member": "Member"
       },
+      "rename": {
+        "title": "Workspace name",
+        "body": "The name appears in the sidebar and in the export. Only the owner and administrators can change it.",
+        "label": "New name",
+        "action": "Save name",
+        "saving": "Saving …",
+        "renamed": "The workspace is now called {name}.",
+        "notAllowed": "Only the owner and administrators can change the name.",
+        "failed": "The name was not saved. Try again."
+      },
       "delete": {
         "title": "Delete the workspace",
         "body": "Everything in the workspace goes: projects, plans, statuses, decisions, share links and the audit trail about them. It cannot be undone.",

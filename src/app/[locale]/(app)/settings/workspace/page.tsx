@@ -17,6 +17,7 @@ import { withOrgContext } from "@/core/db/tenant";
 import { redirect } from "@/i18n/navigation";
 import { currentRole, listMembers } from "@/modules/export/workspace";
 import { DeleteWorkspaceCard } from "./delete-workspace-card";
+import { RenameWorkspaceCard } from "./rename-workspace-card";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("settings.workspace");
@@ -88,6 +89,9 @@ export default async function WorkspaceSettingsPage() {
         </CardContent>
       </Card>
 
+      {(role === "owner" || role === "admin") && workspace && (
+        <RenameWorkspaceCard workspaceName={workspace.name} />
+      )}
       {role === "owner" && workspace && <DeleteWorkspaceCard workspaceName={workspace.name} />}
     </div>
   );

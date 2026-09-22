@@ -9,7 +9,8 @@ export type SemanticAuditEvent = {
     | "access.approved"
     | "access.declined"
     | "invitation.created"
-    | "invitation.used";
+    | "invitation.used"
+    | "workspace.renamed";
   orgId?: string | null;
   actorUserId?: string | null;
   entityType: string;
