@@ -65,6 +65,46 @@ describe("the figures", () => {
     expect(texts.some((t) => t.startsWith("chart.ahead:31"))).toBe(true);
   });
 
+  it("keep milestone labels off each other when the dates crowd", () => {
+    const crowded = {
+      ...fullReport(),
+      milestones: [
+        "Struktur for opgavehåndtering og leverancer etableret",
+        "Team Charter færdiggjort",
+        "Roadmap udarbejdet",
+        "Backlog ryddet og prioriteret",
+        "Opgavehåndteringsprincipper vedtaget",
+        "Første retrospektiv",
+      ].map((title, i) => ({
+        title,
+        date: `2026-10-0${i + 1}`,
+        done: false,
+        ownerName: "",
+        criterion: "",
+      })),
+    };
+    for (const width of [200, 320, 520]) {
+      const figure = milestoneTrackFigure(crowded, width, words.track);
+      const boxes = figure.shapes
+        .filter((s) => s.kind === "text")
+        .map((s) => {
+          const t = s as { x: number; y: number; text: string; size: number; anchor?: string };
+          const w = t.text.length * t.size * 0.56;
+          const x0 = t.anchor === "end" ? t.x - w : t.anchor === "middle" ? t.x - w / 2 : t.x;
+          return { x0, x1: x0 + w, y0: t.y - t.size, y1: t.y, text: t.text };
+        });
+      for (const a of boxes)
+        for (const b of boxes) {
+          if (a === b) continue;
+          const apart = a.x1 <= b.x0 || b.x1 <= a.x0 || a.y1 <= b.y0 || b.y1 <= a.y0;
+          expect(apart, `${a.text} / ${b.text} at ${width}`).toBe(true);
+          expect(a.x0).toBeGreaterThanOrEqual(0);
+          expect(a.x1).toBeLessThanOrEqual(width);
+        }
+      expect(figure.height).toBeGreaterThan(boxes.reduce((m, b) => Math.max(m, b.y1), 0));
+    }
+  });
+
   it("ring the next milestone in the assessment's colour", () => {
     const figure = milestoneTrackFigure(fullReport(), 320, words.track);
     const polys = figure.shapes.filter((s) => s.kind === "polygon") as Array<{ stroke?: string }>;
