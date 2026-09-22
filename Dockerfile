@@ -4,9 +4,11 @@
 #   migrator -> minimal image that runs drizzle migrations (compose "migrate")
 #   runner   -> non-root runtime serving the standalone build
 
-FROM node:22-alpine AS base
+FROM node:26-alpine AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH NEXT_TELEMETRY_DISABLED=1
-RUN corepack enable
+# Node 25 and later ship without Corepack, so pnpm is installed outright,
+# pinned to the version package.json names under packageManager.
+RUN npm install -g pnpm@10.28.0
 WORKDIR /app
 
 FROM base AS deps
